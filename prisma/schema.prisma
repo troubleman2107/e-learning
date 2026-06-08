@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+
+  orders Order[]
+}
+
+model Course {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  price       Int
+  trailerUrl  String
+  downloadUrl String
+
+  orders Order[]
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  orderCode Int         @unique
+  userId    String
+  courseId  String
+  amount    Int
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+
+  @@index([userId])
+  @@index([courseId])
+}
