@@ -13,6 +13,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,7 @@ import { Input } from "@/components/ui/input";
 
 const courses = [
   {
+    id: "course_business_english",
     title: "Tiếng Anh giao tiếp công việc",
     description: "Luyện phản xạ hội thoại, email và thuyết trình cho môi trường văn phòng.",
     level: "Cơ bản",
@@ -39,6 +41,7 @@ const courses = [
     visual: "border-teal-100 bg-teal-50 text-teal-700",
   },
   {
+    id: "course_data_analytics",
     title: "Data Analytics cho người mới",
     description: "Làm chủ spreadsheet, dashboard và tư duy dữ liệu qua bài tập thực tế.",
     level: "Mới bắt đầu",
@@ -51,6 +54,7 @@ const courses = [
     visual: "border-sky-100 bg-sky-50 text-sky-700",
   },
   {
+    id: "",
     title: "Digital Marketing thực chiến",
     description: "Xây funnel, viết nội dung bán hàng và đo lường hiệu quả chiến dịch.",
     level: "Trung cấp",
@@ -63,6 +67,7 @@ const courses = [
     visual: "border-amber-100 bg-amber-50 text-amber-700",
   },
   {
+    id: "",
     title: "UI/UX Foundation",
     description: "Thiết kế luồng sản phẩm, wireframe và prototype cho app Việt Nam.",
     level: "Cơ bản",
@@ -254,9 +259,20 @@ export default function Home() {
                 </CardContent>
                 <CardFooter className="justify-between">
                   <span className="font-semibold">{course.price}</span>
-                  <Button size="sm" variant="secondary" className="rounded-lg">
-                    Xem chi tiết
-                  </Button>
+                  {course.id ? (
+                    <Button
+                      asChild
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-lg"
+                    >
+                      <Link href={`/course/${course.id}`}>Xem chi tiết</Link>
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="secondary" className="rounded-lg" disabled>
+                      Sắp mở
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             );
