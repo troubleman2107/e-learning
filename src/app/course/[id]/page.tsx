@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { CheckoutForm } from "@/components/checkout-form";
 import {
   Card,
   CardContent,
@@ -207,10 +208,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <Button className="h-12 w-full rounded-lg text-base" size="lg">
-                  <CreditCard data-icon="inline-start" className="size-4" />
-                  Mua khóa học ngay
-                </Button>
+                <CheckoutForm courseId={course.id} />
 
                 <div className="mt-5 grid gap-3 text-sm text-muted-foreground">
                   <div className="flex items-center gap-2">
