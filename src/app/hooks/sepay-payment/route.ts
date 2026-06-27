@@ -4,30 +4,34 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const rawBody = await req.text();
+    // Use arrayBuffer to ensure exact byte matching for HMAC (avoids UTF-8 string encoding issues)
+    const arrayBuffer = await req.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     const signature = req.headers.get("x-sepay-signature");
 
     if (!signature) {
+      console.error("401 - Missing x-sepay-signature header");
       return NextResponse.json({ error: "Missing signature" }, { status: 401 });
     }
 
     const secretKey = process.env.SEPAY_WEBHOOK_SECRET;
 
     if (!secretKey) {
-      console.error("Missing SEPAY_WEBHOOK_SECRET in environment variables");
+      console.error("500 - Missing SEPAY_WEBHOOK_SECRET in environment variables");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    // Verify HMAC-SHA256 checksum
+    // Verify HMAC-SHA256 checksum using exact bytes
     const hmac = crypto.createHmac("sha256", secretKey);
-    hmac.update(rawBody);
+    hmac.update(buffer);
     const expectedSignature = hmac.digest("hex");
 
     if (signature !== expectedSignature) {
+      console.error(`401 - Invalid signature. Expected: ${expectedSignature}, Received: ${signature}`);
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
-    const payload = JSON.parse(rawBody);
+    const payload = JSON.parse(buffer.toString("utf8"));
 
     // If payment is successful
     if (payload.code === "00") {
