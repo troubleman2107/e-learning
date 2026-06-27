@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     });
 
     // Generate unique order code (integer)
-    let orderCode;
+    let orderCode = 0;
     let isUnique = false;
     while (!isUnique) {
       // Generate a 6-digit number
