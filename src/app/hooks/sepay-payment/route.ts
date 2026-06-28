@@ -46,13 +46,15 @@ export async function POST(req: Request) {
 
     const payload = JSON.parse(buffer.toString("utf8"));
 
-    // Process if payload has transfer content (webhook triggered means it's usually successful)
-    if (payload && payload.content) {
-      const content = payload.content || "";
+    // Process if payload has any content
+    if (payload) {
+      // Sometimes the transfer content is in 'description' instead of 'content'
+      const transferMemo = (payload.content || "") + " " + (payload.description || "");
+      console.log("SePay Webhook Received Memo:", transferMemo);
 
-      // Extract all potential 6-digit order codes from the transfer content
-      // Since our orderCode is a 6-digit integer
-      const matches = content.match(/\d{6}/g);
+      // Extract ALL numbers from the transfer memo (just in case it's formatted weirdly)
+      const matches = transferMemo.match(/\d+/g);
+      console.log("Extracted potential order codes:", matches);
 
       if (matches) {
         const potentialCodes = matches.map((m: string) => parseInt(m, 10));
@@ -64,13 +66,15 @@ export async function POST(req: Request) {
           },
         });
 
+        console.log("Matched PENDING orders in Database:", orders.map(o => o.orderCode));
+
         // Update matched pending orders to PAID
         for (const order of orders) {
-          // Note: The schema uses 'PAID', not 'COMPLETED'
           await prisma.order.update({
             where: { id: order.id },
             data: { status: "PAID" },
           });
+          console.log(`✅ Successfully updated order ${order.orderCode} to PAID!`);
         }
       }
     }
