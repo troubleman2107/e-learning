@@ -22,14 +22,17 @@ export async function POST(req: Request) {
 
       // Method 2: Check HMAC-SHA256 (x-sepay-signature)
       if (!isValid && signature) {
+        // SePay sometimes prefixes the signature with 'sha256='
+        const receivedHash = signature.replace(/^sha256=/, "");
+        
         const hmac = crypto.createHmac("sha256", secretKey);
         hmac.update(buffer);
         const expectedSignature = hmac.digest("hex");
         
-        if (signature === expectedSignature) {
+        if (receivedHash === expectedSignature) {
           isValid = true;
         } else {
-          console.error(`HMAC mismatch. Expected: ${expectedSignature}, Got: ${signature}`);
+          console.error(`HMAC mismatch. Expected: ${expectedSignature}, Got: ${receivedHash}`);
         }
       }
 
