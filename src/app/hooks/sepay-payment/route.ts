@@ -57,24 +57,32 @@ export async function POST(req: Request) {
       console.log("Extracted potential order codes:", matches);
 
       if (matches) {
-        const potentialCodes = matches.map((m: string) => parseInt(m, 10));
+        // Filter out massive numbers (like bank reference IDs) that crash the Int32 database type
+        // Our orderCodes are always 6 digits (100000 to 999999)
+        const potentialCodes = matches
+          .map((m: string) => parseInt(m, 10))
+          .filter((code) => code >= 100000 && code <= 999999);
 
-        const orders = await prisma.order.findMany({
-          where: {
-            orderCode: { in: potentialCodes },
-            status: "PENDING",
-          },
-        });
+        console.log("Filtered valid 6-digit order codes:", potentialCodes);
 
-        console.log("Matched PENDING orders in Database:", orders.map(o => o.orderCode));
-
-        // Update matched pending orders to PAID
-        for (const order of orders) {
-          await prisma.order.update({
-            where: { id: order.id },
-            data: { status: "PAID" },
+        if (potentialCodes.length > 0) {
+          const orders = await prisma.order.findMany({
+            where: {
+              orderCode: { in: potentialCodes },
+              status: "PENDING",
+            },
           });
-          console.log(`✅ Successfully updated order ${order.orderCode} to PAID!`);
+
+          console.log("Matched PENDING orders in Database:", orders.map((o) => o.orderCode));
+
+          // Update matched pending orders to PAID
+          for (const order of orders) {
+            await prisma.order.update({
+              where: { id: order.id },
+              data: { status: "PAID" },
+            });
+            console.log(`✅ Successfully updated order ${order.orderCode} to PAID!`);
+          }
         }
       }
     }
