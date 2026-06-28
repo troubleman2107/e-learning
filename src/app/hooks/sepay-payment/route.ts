@@ -4,31 +4,41 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    // Use arrayBuffer to ensure exact byte matching for HMAC (avoids UTF-8 string encoding issues)
+    // Use arrayBuffer to ensure exact byte matching for HMAC
     const arrayBuffer = await req.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+    
     const signature = req.headers.get("x-sepay-signature");
-
-    if (!signature) {
-      console.error("401 - Missing x-sepay-signature header");
-      return NextResponse.json({ error: "Missing signature" }, { status: 401 });
-    }
-
+    const authHeader = req.headers.get("authorization");
     const secretKey = process.env.SEPAY_WEBHOOK_SECRET;
 
-    if (!secretKey) {
-      console.error("500 - Missing SEPAY_WEBHOOK_SECRET in environment variables");
-      return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-    }
+    if (secretKey) {
+      let isValid = false;
 
-    // Verify HMAC-SHA256 checksum using exact bytes
-    const hmac = crypto.createHmac("sha256", secretKey);
-    hmac.update(buffer);
-    const expectedSignature = hmac.digest("hex");
+      // Method 1: Check API Key (Authorization: Apikey <SECRET>)
+      if (authHeader && authHeader.includes(secretKey)) {
+        isValid = true;
+      }
 
-    if (signature !== expectedSignature) {
-      console.error(`401 - Invalid signature. Expected: ${expectedSignature}, Received: ${signature}`);
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      // Method 2: Check HMAC-SHA256 (x-sepay-signature)
+      if (!isValid && signature) {
+        const hmac = crypto.createHmac("sha256", secretKey);
+        hmac.update(buffer);
+        const expectedSignature = hmac.digest("hex");
+        
+        if (signature === expectedSignature) {
+          isValid = true;
+        } else {
+          console.error(`HMAC mismatch. Expected: ${expectedSignature}, Got: ${signature}`);
+        }
+      }
+
+      if (!isValid) {
+        console.error("401 Unauthorized. Headers received:", Object.fromEntries(req.headers.entries()));
+        return NextResponse.json({ error: "Unauthorized signature or API Key" }, { status: 401 });
+      }
+    } else {
+      console.warn("SEPAY_WEBHOOK_SECRET is not set. Skipping verification (Not recommended for production).");
     }
 
     const payload = JSON.parse(buffer.toString("utf8"));
