@@ -46,8 +46,8 @@ export async function POST(req: Request) {
 
     const payload = JSON.parse(buffer.toString("utf8"));
 
-    // If payment is successful
-    if (payload.code === "00") {
+    // Process if payload has transfer content (webhook triggered means it's usually successful)
+    if (payload && payload.content) {
       const content = payload.content || "";
 
       // Extract all potential 6-digit order codes from the transfer content

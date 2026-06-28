@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { OrderStatusChecker } from "@/components/order-status-checker";
 
 export default async function CheckoutPage({
   params,
@@ -65,6 +66,7 @@ export default async function CheckoutPage({
           </Button>
         </div>
       </div>
+      <OrderStatusChecker orderCode={order.orderCode} />
     </div>
   );
 }
