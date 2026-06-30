@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "@/components/providers";
+import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "VietLearn | E-learning thực chiến cho người Việt",
@@ -14,7 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className="h-full scroll-smooth">
-      <body className="flex min-h-full flex-col antialiased">{children}</body>
+      <body className="flex min-h-full flex-col antialiased">
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
