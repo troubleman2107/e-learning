@@ -99,3 +99,17 @@ export async function updateLesson({
 
   revalidatePath(`/admin/courses/${courseId}`);
 }
+
+export async function deleteLesson(lessonId: string, courseId: string) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.lesson.delete({
+    where: { id: lessonId },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CreateModuleModal } from "./module-modal";
 import { CreateLessonModal } from "./lesson-modal";
 import { EditLessonModal } from "./edit-lesson-modal";
+import { DeleteLessonButton } from "./delete-lesson-button";
 import {
   Accordion,
   AccordionContent,
@@ -146,7 +147,10 @@ export default async function CourseManagementPage({
                                 Video ID: <span className="font-mono">{lesson.bunnyVideoId}</span>
                               </div>
                             </div>
-                            <EditLessonModal lesson={lesson} courseId={course.id} />
+                            <div className="flex items-center gap-1 self-end sm:self-auto">
+                              <EditLessonModal lesson={lesson} courseId={course.id} />
+                              <DeleteLessonButton lessonId={lesson.id} courseId={course.id} />
+                            </div>
                           </li>
                         ))}
                       </ul>
