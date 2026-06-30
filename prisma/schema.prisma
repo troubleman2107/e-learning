@@ -86,7 +86,33 @@ model Course {
   trailerUrl  String
   bunnyVideoId String?
 
-  orders Order[]
+  orders  Order[]
+  modules Module[]
+}
+
+model Module {
+  id       String  @id @default(cuid())
+  title    String
+  order    Int
+  courseId String
+
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons  Lesson[]
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id            String  @id @default(cuid())
+  title         String
+  bunnyVideoId  String
+  isFreePreview Boolean @default(false)
+  order         Int
+  moduleId      String
+
+  module        Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
 }
 
 model Order {

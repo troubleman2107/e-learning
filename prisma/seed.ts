@@ -1,55 +1,63 @@
-import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../src/generated/prisma/client";
-
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  throw new Error("DATABASE_URL is required to seed the database.");
-}
-
-const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+import { prisma } from "../src/lib/prisma";
 
 async function main() {
-  const courses = [
-    {
-      id: "course_business_english",
-      title: "Tiếng Anh giao tiếp công việc",
-      description:
-        "Luyện phản xạ hội thoại, email và thuyết trình cho môi trường văn phòng.",
-      price: 699000,
-      trailerUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      downloadUrl:
-        "https://cdn.vietlearn.example/secure/courses/business-english.zip",
-    },
-    {
-      id: "course_data_analytics",
-      title: "Data Analytics cho người mới",
-      description:
-        "Làm chủ spreadsheet, dashboard và tư duy dữ liệu qua bài tập thực tế.",
-      price: 849000,
-      trailerUrl: "https://www.youtube.com/watch?v=ysz5S6PUM-U",
-      downloadUrl:
-        "https://cdn.vietlearn.example/secure/courses/data-analytics.zip",
-    },
-  ];
+  console.log("Seeding database with Course, Module, and Lessons...");
 
-  for (const course of courses) {
-    await prisma.course.upsert({
-      where: { id: course.id },
-      update: course,
-      create: course,
-    });
-  }
+  const course = await prisma.course.create({
+    data: {
+      title: "Mastering Next.js 14 & Prisma",
+      description: "Learn how to build full-stack applications with the latest App Router.",
+      price: 499000,
+      trailerUrl: "https://youtube.com/watch?v=dQw4w9WgXcQ",
+      bunnyVideoId: "trailer_video_id_here",
+      modules: {
+        create: {
+          title: "Module 1: Getting Started",
+          order: 1,
+          lessons: {
+            create: [
+              {
+                title: "Lesson 1: Introduction to Next.js",
+                bunnyVideoId: "your_free_preview_video_id",
+                isFreePreview: true,
+                order: 1,
+              },
+              {
+                title: "Lesson 2: Setting up Prisma",
+                bunnyVideoId: "your_locked_video_id_1",
+                isFreePreview: false,
+                order: 2,
+              },
+              {
+                title: "Lesson 3: Auth.js Integration",
+                bunnyVideoId: "your_locked_video_id_2",
+                isFreePreview: false,
+                order: 3,
+              },
+            ],
+          },
+        },
+      },
+    },
+    include: {
+      modules: {
+        include: {
+          lessons: true,
+        },
+      },
+    },
+  });
+
+  console.log("Seeded successfully!");
+  console.log("Created Course ID:", course.id);
+  console.log(`Created ${course.modules.length} Module(s) and ${course.modules[0].lessons.length} Lesson(s).`);
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    console.error(error);
-    await prisma.$disconnect();
+  .catch((e) => {
+    console.error(e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
