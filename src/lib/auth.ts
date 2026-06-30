@@ -17,16 +17,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
-      // On initial sign-in, persist the user ID into the JWT
+      // On initial sign-in, persist the user ID and role into the JWT
       if (user) {
         token.id = user.id;
+
+        // Fetch the role from the database
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { role: true },
+        });
+
+        token.role = dbUser?.role ?? "USER";
       }
       return token;
     },
     async session({ session, token }) {
-      // Expose the user ID on the session object
-      if (session.user && token.id) {
+      // Expose the user ID and role on the session object
+      if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
