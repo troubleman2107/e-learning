@@ -7,6 +7,8 @@ import { CreateModuleModal } from "./module-modal";
 import { CreateLessonModal } from "./lesson-modal";
 import { EditLessonModal } from "./edit-lesson-modal";
 import { DeleteLessonButton } from "./delete-lesson-button";
+import { EditModuleModal } from "./edit-module-modal";
+import { DeleteModuleButton } from "./delete-module-button";
 import {
   Accordion,
   AccordionContent,
@@ -104,14 +106,20 @@ export default async function CourseManagementPage({
                 value={module.id}
                 className="rounded-lg border bg-white px-4"
               >
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex items-center font-semibold text-gray-900">
-                    <span className="mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs text-indigo-600">
-                      {module.order}
-                    </span>
-                    {module.title}
+                <div className="flex items-center justify-between">
+                  <AccordionTrigger className="hover:no-underline flex-1">
+                    <div className="flex items-center font-semibold text-gray-900">
+                      <span className="mr-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs text-indigo-600">
+                        {module.order}
+                      </span>
+                      {module.title}
+                    </div>
+                  </AccordionTrigger>
+                  <div className="flex items-center gap-1 pl-2">
+                    <EditModuleModal module={module} courseId={course.id} />
+                    <DeleteModuleButton moduleId={module.id} courseId={course.id} />
                   </div>
-                </AccordionTrigger>
+                </div>
                 <AccordionContent>
                   <div className="pl-9 pr-2">
                     {module.lessons.length === 0 ? (

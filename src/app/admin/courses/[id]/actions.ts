@@ -113,3 +113,40 @@ export async function deleteLesson(lessonId: string, courseId: string) {
 
   revalidatePath(`/admin/courses/${courseId}`);
 }
+
+export async function updateModule({
+  moduleId,
+  courseId,
+  title,
+}: {
+  moduleId: string;
+  courseId: string;
+  title: string;
+}) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.module.update({
+    where: { id: moduleId },
+    data: { title },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}
+
+export async function deleteModule(moduleId: string, courseId: string) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.module.delete({
+    where: { id: moduleId },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}
