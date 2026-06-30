@@ -9,9 +9,14 @@ export default async function EditCoursePage({
 }) {
   const { id } = await params;
   
-  const course = await prisma.course.findUnique({
-    where: { id },
-  });
+  const [course, categories] = await Promise.all([
+    prisma.course.findUnique({
+      where: { id },
+    }),
+    prisma.category.findMany({
+      orderBy: { name: 'asc' },
+    }),
+  ]);
 
   if (!course) {
     notFound();
@@ -19,7 +24,7 @@ export default async function EditCoursePage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
-      <EditCourseForm course={course} />
+      <EditCourseForm course={course} categories={categories} />
     </div>
   );
 }

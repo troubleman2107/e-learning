@@ -16,6 +16,7 @@ export default async function AdminCoursesPage() {
   const courses = await prisma.course.findMany({
     orderBy: { id: "desc" },
     include: {
+      category: true,
       _count: {
         select: { orders: true },
       },
@@ -51,6 +52,9 @@ export default async function AdminCoursesPage() {
                 Tên khóa học
               </TableHead>
               <TableHead className="font-semibold text-gray-600">
+                Danh mục
+              </TableHead>
+              <TableHead className="font-semibold text-gray-600">
                 Giá
               </TableHead>
               <TableHead className="font-semibold text-gray-600">
@@ -74,6 +78,15 @@ export default async function AdminCoursesPage() {
                       {course.description}
                     </p>
                   </div>
+                </TableCell>
+                <TableCell>
+                  {course.category ? (
+                    <Badge variant="outline" className="font-normal text-gray-600">
+                      {course.category.name}
+                    </Badge>
+                  ) : (
+                    <span className="text-sm text-gray-400 italic">Chưa phân loại</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Badge
@@ -123,7 +136,7 @@ export default async function AdminCoursesPage() {
             {courses.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-32 text-center text-gray-400"
                 >
                   Chưa có khóa học nào. Hãy thêm khóa học đầu tiên!

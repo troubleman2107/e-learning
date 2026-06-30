@@ -6,8 +6,6 @@ import { z } from "zod";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import Link from "next/link";
-import { ArrowLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateCourse } from "../../actions";
+import { createCourse } from "../actions";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { Category } from "@prisma/client";
 
 const formSchema = z.object({
@@ -34,7 +34,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function EditCourseForm({ course, categories }: { course: any, categories: Category[] }) {
+interface CreateCourseFormProps {
+  categories: Category[];
+}
+
+export function CreateCourseForm({ categories }: CreateCourseFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -46,20 +50,20 @@ export function EditCourseForm({ course, categories }: { course: any, categories
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: course.title,
-      description: course.description,
-      price: course.price,
-      trailerUrl: course.trailerUrl,
-      bunnyVideoId: course.bunnyVideoId || "",
-      categoryId: course.categoryId || "none",
+      title: "",
+      description: "",
+      price: 0,
+      trailerUrl: "",
+      bunnyVideoId: "",
+      categoryId: undefined,
     },
   });
 
   const onSubmit = (data: FormValues) => {
     startTransition(async () => {
       try {
-        await updateCourse(course.id, data);
-        toast.success("Cập nhật khóa học thành công!");
+        await createCourse(data);
+        toast.success("Khóa học đã được tạo thành công!");
       } catch {
         toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
       }
@@ -67,7 +71,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
   };
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-2xl space-y-8">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button
@@ -85,10 +89,10 @@ export function EditCourseForm({ course, categories }: { course: any, categories
 
       <div>
         <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-          Chỉnh sửa khóa học
+          Thêm khóa học mới
         </h1>
         <p className="mt-1 text-sm text-gray-500">
-          Cập nhật thông tin chi tiết của khóa học.
+          Điền thông tin bên dưới để tạo một khóa học mới.
         </p>
       </div>
 
@@ -97,11 +101,12 @@ export function EditCourseForm({ course, categories }: { course: any, categories
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-6 rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm"
       >
+        {/* Title */}
         <div className="space-y-2">
           <Label htmlFor="title">Tên khóa học *</Label>
           <Input
             id="title"
-            placeholder="Ví dụ: Lập trình React..."
+            placeholder="Ví dụ: Lập trình React từ cơ bản đến nâng cao"
             {...register("title")}
           />
           {errors.title && (
@@ -139,10 +144,12 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           )}
         </div>
 
+        {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="description">Mô tả *</Label>
           <Textarea
             id="description"
+            placeholder="Mô tả chi tiết về nội dung khóa học..."
             rows={4}
             {...register("description")}
           />
@@ -153,11 +160,13 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           )}
         </div>
 
+        {/* Price */}
         <div className="space-y-2">
           <Label htmlFor="price">Giá (VNĐ) *</Label>
           <Input
             id="price"
             type="number"
+            placeholder="Ví dụ: 699000"
             {...register("price")}
           />
           {errors.price && (
@@ -165,11 +174,13 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           )}
         </div>
 
+        {/* Trailer URL */}
         <div className="space-y-2">
           <Label htmlFor="trailerUrl">URL Video giới thiệu *</Label>
           <Input
             id="trailerUrl"
             type="url"
+            placeholder="https://youtube.com/watch?v=..."
             {...register("trailerUrl")}
           />
           {errors.trailerUrl && (
@@ -179,10 +190,12 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           )}
         </div>
 
+        {/* BunnyVideoId */}
         <div className="space-y-2">
           <Label htmlFor="bunnyVideoId">Bunny Stream Video ID</Label>
           <Input
             id="bunnyVideoId"
+            placeholder="Ví dụ: b3d9c7f1-..."
             {...register("bunnyVideoId")}
           />
           {errors.bunnyVideoId && (
@@ -192,6 +205,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           )}
         </div>
 
+        {/* Submit */}
         <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-6">
           <Button
             type="button"
@@ -206,7 +220,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
             className="gap-2 bg-indigo-600 hover:bg-indigo-700"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isPending ? "Đang lưu..." : "Lưu thay đổi"}
+            {isPending ? "Đang tạo..." : "Tạo khóa học"}
           </Button>
         </div>
       </form>
