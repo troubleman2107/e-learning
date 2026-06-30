@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="h-full scroll-smooth">
+    <html lang="vi" className="h-full scroll-smooth" suppressHydrationWarning>
       <body className="flex min-h-full flex-col antialiased">
         <Providers>
           <Navbar />

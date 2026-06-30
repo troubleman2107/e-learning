@@ -36,3 +36,30 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
   revalidatePath("/admin/courses");
   redirect("/admin/courses");
 }
+
+export async function updateCourse(
+  id: string,
+  formData: z.infer<typeof courseSchema>
+) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const validated = courseSchema.parse(formData);
+
+  await prisma.course.update({
+    where: { id },
+    data: {
+      title: validated.title,
+      description: validated.description,
+      price: validated.price,
+      trailerUrl: validated.trailerUrl,
+      bunnyVideoId: validated.bunnyVideoId,
+    },
+  });
+
+  revalidatePath("/admin/courses");
+  redirect("/admin/courses");
+}
