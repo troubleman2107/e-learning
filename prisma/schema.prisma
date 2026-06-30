@@ -85,9 +85,13 @@ model Course {
   price       Int
   trailerUrl  String
   bunnyVideoId String?
+  categoryId   String?
 
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   orders  Order[]
   modules Module[]
+
+  @@index([categoryId])
 }
 
 model Module {
@@ -129,4 +133,12 @@ model Order {
 
   @@index([userId])
   @@index([courseId])
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  slug  String @unique
+
+  courses Course[]
 }
