@@ -1,4 +1,27 @@
-export default function AdminUsersPage() {
+import { prisma } from "@/lib/prisma";
+import { UsersTable } from "./users-table";
+
+export default async function AdminUsersPage() {
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: {
+        select: { orders: true },
+      },
+    },
+  });
+
+  // Serialize dates for the client component
+  const serializedUsers = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+    role: user.role,
+    createdAt: user.createdAt.toISOString(),
+    orderCount: user._count.orders,
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -10,11 +33,7 @@ export default function AdminUsersPage() {
         </p>
       </div>
 
-      <div className="flex items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-white p-16">
-        <p className="text-sm text-gray-400">
-          Nội dung quản lý người dùng sẽ được xây dựng tại đây.
-        </p>
-      </div>
+      <UsersTable users={serializedUsers} />
     </div>
   );
 }
