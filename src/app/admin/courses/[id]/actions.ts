@@ -29,3 +29,73 @@ export async function createModule(courseId: string, title: string) {
 
   revalidatePath(`/admin/courses/${courseId}`);
 }
+
+export async function createLesson({
+  moduleId,
+  courseId,
+  title,
+  bunnyVideoId,
+  isFreePreview,
+}: {
+  moduleId: string;
+  courseId: string;
+  title: string;
+  bunnyVideoId: string;
+  isFreePreview: boolean;
+}) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const lastLesson = await prisma.lesson.findFirst({
+    where: { moduleId },
+    orderBy: { order: "desc" },
+  });
+
+  const nextOrder = lastLesson ? lastLesson.order + 1 : 1;
+
+  await prisma.lesson.create({
+    data: {
+      title,
+      bunnyVideoId,
+      isFreePreview,
+      moduleId,
+      order: nextOrder,
+    },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}
+
+export async function updateLesson({
+  lessonId,
+  courseId,
+  title,
+  bunnyVideoId,
+  isFreePreview,
+}: {
+  lessonId: string;
+  courseId: string;
+  title: string;
+  bunnyVideoId: string;
+  isFreePreview: boolean;
+}) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.lesson.update({
+    where: { id: lessonId },
+    data: {
+      title,
+      bunnyVideoId,
+      isFreePreview,
+    },
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}

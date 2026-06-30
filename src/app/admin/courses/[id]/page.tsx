@@ -4,6 +4,8 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, Settings, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateModuleModal } from "./module-modal";
+import { CreateLessonModal } from "./lesson-modal";
+import { EditLessonModal } from "./edit-lesson-modal";
 import {
   Accordion,
   AccordionContent,
@@ -120,41 +122,37 @@ export default async function CourseManagementPage({
                         {module.lessons.map((lesson) => (
                           <li
                             key={lesson.id}
-                            className="flex items-center justify-between rounded-md border border-gray-100 bg-gray-50/50 p-3 text-sm"
+                            className="flex flex-col gap-2 rounded-md border border-gray-100 bg-gray-50/50 p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
                           >
-                            <div className="flex items-center gap-3">
-                              <span className="font-mono text-xs text-gray-400">
-                                {lesson.order}.
-                              </span>
-                              <span className="font-medium text-gray-700">
-                                {lesson.title}
-                              </span>
-                              {lesson.isFreePreview && (
-                                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
-                                  Học thử
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono text-xs text-gray-400">
+                                  {lesson.order}.
+                               </span>
+                                <span className="font-medium text-gray-700">
+                                  {lesson.title}
                                 </span>
-                              )}
+                                {lesson.isFreePreview ? (
+                                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                                    Xem thử miễn phí
+                                  </span>
+                                ) : (
+                                  <span className="rounded-full bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                                    Khóa
+                                  </span>
+                                )}
+                              </div>
+                              <div className="pl-6 text-xs text-gray-500">
+                                Video ID: <span className="font-mono">{lesson.bunnyVideoId}</span>
+                              </div>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-gray-400 hover:text-indigo-600"
-                            >
-                              <Pencil className="h-3 w-3" />
-                            </Button>
+                            <EditLessonModal lesson={lesson} courseId={course.id} />
                           </li>
                         ))}
                       </ul>
                     )}
                     <div className="mt-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 gap-1.5 text-xs text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700"
-                      >
-                        <Plus className="h-3 w-3" />
-                        Thêm bài giảng
-                      </Button>
+                      <CreateLessonModal moduleId={module.id} courseId={course.id} />
                     </div>
                   </div>
                 </AccordionContent>
