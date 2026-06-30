@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Settings } from "lucide-react";
 
 export default async function AdminCoursesPage() {
   const courses = await prisma.course.findMany({
@@ -103,9 +103,9 @@ export default async function AdminCoursesPage() {
                       size="sm"
                       className="h-8 gap-1.5 text-gray-500 hover:text-indigo-600"
                     >
-                      <Link href={`/admin/courses/${course.id}/edit`}>
-                        <Pencil className="h-3.5 w-3.5" />
-                        Sửa
+                      <Link href={`/admin/courses/${course.id}`}>
+                        <Settings className="h-3.5 w-3.5" />
+                        Quản lý
                       </Link>
                     </Button>
                     <Button
