@@ -84,7 +84,7 @@ model Course {
   description String
   price       Int
   trailerUrl  String
-  downloadUrl String
+  bunnyVideoId String?
 
   orders Order[]
 }

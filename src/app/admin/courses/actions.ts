@@ -11,7 +11,7 @@ const courseSchema = z.object({
   description: z.string().min(1, "Mô tả không được để trống"),
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
-  downloadUrl: z.string().url("URL tải xuống không hợp lệ"),
+  bunnyVideoId: z.string().optional(),
 });
 
 export async function createCourse(formData: z.infer<typeof courseSchema>) {
@@ -29,7 +29,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
       description: validated.description,
       price: validated.price,
       trailerUrl: validated.trailerUrl,
-      downloadUrl: validated.downloadUrl,
+      bunnyVideoId: validated.bunnyVideoId,
     },
   });
 

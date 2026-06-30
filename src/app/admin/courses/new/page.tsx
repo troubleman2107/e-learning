@@ -20,7 +20,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Mô tả không được để trống"),
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
-  downloadUrl: z.string().url("URL tải xuống không hợp lệ"),
+  bunnyVideoId: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,7 +40,7 @@ export default function NewCoursePage() {
       description: "",
       price: 0,
       trailerUrl: "",
-      downloadUrl: "",
+      bunnyVideoId: "",
     },
   });
 
@@ -145,18 +145,17 @@ export default function NewCoursePage() {
           )}
         </div>
 
-        {/* Download URL */}
+        {/* BunnyVideoId */}
         <div className="space-y-2">
-          <Label htmlFor="downloadUrl">URL Tải xuống *</Label>
+          <Label htmlFor="bunnyVideoId">Bunny Stream Video ID</Label>
           <Input
-            id="downloadUrl"
-            type="url"
-            placeholder="https://drive.google.com/..."
-            {...register("downloadUrl")}
+            id="bunnyVideoId"
+            placeholder="Ví dụ: b3d9c7f1-..."
+            {...register("bunnyVideoId")}
           />
-          {errors.downloadUrl && (
+          {errors.bunnyVideoId && (
             <p className="text-sm text-red-500">
-              {errors.downloadUrl.message}
+              {errors.bunnyVideoId.message}
             </p>
           )}
         </div>
