@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Users } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Tags } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -15,6 +15,11 @@ const navItems = [
     label: "Quản lý Khóa học",
     href: "/admin/courses",
     icon: BookOpen,
+  },
+  {
+    label: "Quản lý Danh mục",
+    href: "/admin/categories",
+    icon: Tags,
   },
   {
     label: "Quản lý Người dùng",

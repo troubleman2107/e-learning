@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -20,6 +20,35 @@ export async function createCategory(data: z.infer<typeof categorySchema>) {
 
   await prisma.category.create({
     data: parsed,
+  });
+
+  revalidatePath("/admin/categories");
+}
+
+export async function updateCategory(id: string, data: z.infer<typeof categorySchema>) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const parsed = categorySchema.parse(data);
+
+  await prisma.category.update({
+    where: { id },
+    data: parsed,
+  });
+
+  revalidatePath("/admin/categories");
+}
+
+export async function deleteCategory(id: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.category.delete({
+    where: { id },
   });
 
   revalidatePath("/admin/categories");

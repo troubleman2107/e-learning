@@ -9,6 +9,9 @@ import {
 } from "@/components/ui/table";
 import { CreateCategoryModal } from "./create-category-modal";
 
+import { EditCategoryModal } from "./edit-category-modal";
+import { DeleteCategoryButton } from "./delete-category-button";
+
 export default async function CategoriesPage() {
   const categories = await prisma.category.findMany({
     include: {
@@ -33,7 +36,7 @@ export default async function CategoriesPage() {
               <TableHead>Tên danh mục</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Số khóa học</TableHead>
-              <TableHead className="w-[120px]">Hành động</TableHead>
+              <TableHead className="w-[120px] text-right">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -55,8 +58,11 @@ export default async function CategoriesPage() {
                       {category._count.courses} khóa học
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-gray-400">Đang cập nhật</span>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <EditCategoryModal category={category as any} />
+                      <DeleteCategoryButton id={category.id} />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
