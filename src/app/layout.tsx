@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "VietLearn | E-learning thực chiến cho người Việt",
+  title: "VietLearn | Hệ Thống Đào Tạo Thực Chiến cho Người Việt",
   description:
-    "Khám phá các khóa học kỹ năng ngắn, thực tế và phù hợp cho người Việt đi làm.",
+    "Nắm vững AI, Cloud và kỹ năng trending với khóa học thiết kế riêng cho thị trường Việt Nam. Học từ chuyên gia, thực hành trên dự án thật.",
 };
 
 export default function RootLayout({
@@ -15,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" className="h-full scroll-smooth" suppressHydrationWarning>
+    <html lang="vi" className={`h-full scroll-smooth ${inter.className}`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col antialiased">
         <Providers>
           <Navbar />
@@ -25,3 +31,4 @@ export default function RootLayout({
     </html>
   );
 }
+
