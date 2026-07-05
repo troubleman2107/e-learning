@@ -129,7 +129,7 @@ model Order {
   createdAt DateTime    @default(now())
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([courseId])
