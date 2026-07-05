@@ -66,7 +66,7 @@ export default async function CheckoutPage({
           </Button>
         </div>
       </div>
-      <OrderStatusChecker orderCode={order.orderCode} />
+      <OrderStatusChecker orderCode={order.orderCode} courseId={order.course.id} />
     </div>
   );
 }

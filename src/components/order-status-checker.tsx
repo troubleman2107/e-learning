@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function OrderStatusChecker({ orderCode }: { orderCode: number }) {
+export function OrderStatusChecker({ orderCode, courseId }: { orderCode: number; courseId?: string }) {
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +16,11 @@ export function OrderStatusChecker({ orderCode }: { orderCode: number }) {
           if (data.status === "PAID") {
             clearInterval(interval);
             toast.success("Thanh toán thành công! Chào mừng bạn.");
-            router.push("/");
+            if (courseId) {
+              router.push(`/course/${courseId}`);
+            } else {
+              router.push("/");
+            }
           }
         }
       } catch (error) {
@@ -25,7 +29,7 @@ export function OrderStatusChecker({ orderCode }: { orderCode: number }) {
     }, 3000); // Check every 3 seconds
 
     return () => clearInterval(interval);
-  }, [orderCode, router]);
+  }, [orderCode, router, courseId]);
 
   return null; // Hidden component
 }
