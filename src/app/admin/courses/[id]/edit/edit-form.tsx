@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateCourse } from "../../actions";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma/client";
 
 const formSchema = z.object({
   title: z.string().min(1, "Tên khóa học không được để trống"),
@@ -44,7 +44,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       title: course.title,
       description: course.description,

@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, Pencil } from "lucide-react";
 import { updateCategory } from "./actions";
 import { toast } from "sonner";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma/client";
 
 const schema = z.object({
   name: z.string().min(1, "Vui lòng nhập tên danh mục"),

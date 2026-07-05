@@ -21,7 +21,7 @@ import {
 import { createCourse } from "../actions";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma/client";
 
 const formSchema = z.object({
   title: z.string().min(1, "Tên khóa học không được để trống"),
@@ -48,7 +48,7 @@ export function CreateCourseForm({ categories }: CreateCourseFormProps) {
     control,
     formState: { errors },
   } = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       title: "",
       description: "",
