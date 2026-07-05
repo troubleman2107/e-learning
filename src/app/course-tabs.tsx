@@ -27,6 +27,7 @@ export interface SerializedCourse {
   moduleCount: number;
   studentCount: number;
   visualIndex: number;
+  isPaid?: boolean;
 }
 
 interface CourseTabsProps {
@@ -109,17 +110,29 @@ function CourseCard({ course }: { course: SerializedCourse }) {
 
       <CardFooter className="flex items-center justify-between border-t-0 bg-transparent pt-0">
         <span className="text-lg font-bold text-indigo-600">
-          {course.price === 0
+          {course.isPaid
+            ? "Đã sở hữu"
+            : course.price === 0
             ? "Miễn phí"
             : `${course.price.toLocaleString("vi-VN")}đ`}
         </span>
-        <Button
-          asChild
-          size="sm"
-          className="rounded-xl bg-indigo-600 px-4 text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-300"
-        >
-          <Link href={`/course/${course.id}`}>Đăng ký ngay</Link>
-        </Button>
+        {course.isPaid ? (
+          <Button
+            asChild
+            size="sm"
+            className="rounded-xl bg-emerald-600 px-4 text-white shadow-md shadow-emerald-200 transition-all hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-300"
+          >
+            <Link href={`/course/${course.id}`}>Vào học ngay</Link>
+          </Button>
+        ) : (
+          <Button
+            asChild
+            size="sm"
+            className="rounded-xl bg-indigo-600 px-4 text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-300"
+          >
+            <Link href={`/course/${course.id}`}>Đăng ký ngay</Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

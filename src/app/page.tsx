@@ -29,6 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { CourseTabs } from "./course-tabs";
 
 /* ───────────────────────── STATIC DATA ───────────────────────── */
@@ -103,6 +104,20 @@ function StarRating({ count }: { count: number }) {
 /* ───────────────────────── PAGE ────────────────────────── */
 
 export default async function Home() {
+  const session = await auth();
+  let paidCourseIds: string[] = [];
+
+  if (session?.user?.id) {
+    const paidOrders = await prisma.order.findMany({
+      where: {
+        userId: session.user.id,
+        status: "PAID",
+      },
+      select: { courseId: true },
+    });
+    paidCourseIds = paidOrders.map(o => o.courseId);
+  }
+
   /* Fetch real courses from database */
   const dbCourses = await prisma.course.findMany({
     include: {
@@ -142,6 +157,7 @@ export default async function Home() {
     moduleCount: course._count.modules,
     studentCount: course._count.orders,
     visualIndex: index,
+    isPaid: paidCourseIds.includes(course.id),
   }));
 
   return (
