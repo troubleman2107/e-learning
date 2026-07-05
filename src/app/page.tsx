@@ -1,13 +1,7 @@
-"use client";
-
 import {
   ArrowRight,
   Award,
   BookOpenCheck,
-  Brain,
-  CheckCircle2,
-  Cloud,
-  Dumbbell,
   GraduationCap,
   Infinity,
   MessageSquareQuote,
@@ -24,7 +18,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,105 +28,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { prisma } from "@/lib/prisma";
+import { CourseTabs } from "./course-tabs";
 
-/* ───────────────────────── DATA ───────────────────────── */
-
-type Category = "all" | "ai" | "aws" | "fitness";
-
-interface Course {
-  id: string;
-  title: string;
-  description: string;
-  thumbnail: string;
-  category: Category;
-  categoryLabel: string;
-  originalPrice: string;
-  discountedPrice: string;
-  rating: string;
-  students: string;
-}
-
-const courses: Course[] = [
-  {
-    id: "prompt-engineering-mastery",
-    title: "Prompt Engineering Mastery",
-    description:
-      "Viết prompt chuyên nghiệp cho ChatGPT, Claude, Gemini. Tối ưu output cho marketing, coding và phân tích dữ liệu.",
-    thumbnail: "/course-prompt.png",
-    category: "ai",
-    categoryLabel: "AI & Generative Models",
-    originalPrice: "2.499.000đ",
-    discountedPrice: "1.299.000đ",
-    rating: "4.9",
-    students: "1.8k",
-  },
-  {
-    id: "stable-diffusion-pro",
-    title: "Stable Diffusion từ Zero đến Pro",
-    description:
-      "Tạo hình ảnh AI chất lượng cao. Từ cài đặt, training LoRA đến xây dựng workflow ComfyUI cho dự án thực tế.",
-    thumbnail: "/course-diffusion.png",
-    category: "ai",
-    categoryLabel: "AI & Generative Models",
-    originalPrice: "3.199.000đ",
-    discountedPrice: "1.799.000đ",
-    rating: "4.8",
-    students: "1.2k",
-  },
-  {
-    id: "ai-full-stack",
-    title: "AI Full-Stack: LLM + RAG Pipeline",
-    description:
-      "Xây dựng ứng dụng AI end-to-end: fine-tune model, vector database, RAG pipeline và deploy lên production.",
-    thumbnail: "/course-ai.png",
-    category: "ai",
-    categoryLabel: "AI & Generative Models",
-    originalPrice: "4.999.000đ",
-    discountedPrice: "2.999.000đ",
-    rating: "5.0",
-    students: "890",
-  },
-  {
-    id: "aws-solutions-architect",
-    title: "AWS Solutions Architect",
-    description:
-      "Thiết kế kiến trúc cloud chuyên nghiệp. Bao gồm EC2, S3, Lambda, RDS và chuẩn bị chứng chỉ SAA-C03.",
-    thumbnail: "/course-aws.png",
-    category: "aws",
-    categoryLabel: "Triển khai AWS",
-    originalPrice: "3.499.000đ",
-    discountedPrice: "1.999.000đ",
-    rating: "4.9",
-    students: "2.1k",
-  },
-  {
-    id: "docker-kubernetes-aws",
-    title: "Docker & Kubernetes trên AWS",
-    description:
-      "Container hóa ứng dụng, orchestration với K8s, CI/CD pipeline và deploy microservices trên EKS.",
-    thumbnail: "/course-docker.png",
-    category: "aws",
-    categoryLabel: "Triển khai AWS",
-    originalPrice: "2.999.000đ",
-    discountedPrice: "1.599.000đ",
-    rating: "4.7",
-    students: "1.5k",
-  },
-  {
-    id: "progressive-overload-science",
-    title: "Progressive Overload: Khoa Học Tập Luyện",
-    description:
-      "Lập trình tập luyện dựa trên khoa học. Periodization, tracking volume, và tối ưu hóa phát triển cơ bắp.",
-    thumbnail: "/course-fitness.png",
-    category: "fitness",
-    categoryLabel: "Fitness & Progressive Overload",
-    originalPrice: "1.999.000đ",
-    discountedPrice: "999.000đ",
-    rating: "4.8",
-    students: "3.4k",
-  },
-];
+/* ───────────────────────── STATIC DATA ───────────────────────── */
 
 const trustBadges = [
   { icon: QrCode, label: "Thanh toán QR tự động" },
@@ -190,76 +88,7 @@ const testimonials = [
   },
 ];
 
-const categoryTabs: { value: Category; label: string }[] = [
-  { value: "all", label: "Tất cả" },
-  { value: "ai", label: "AI & Generative Models" },
-  { value: "aws", label: "Triển khai AWS" },
-  { value: "fitness", label: "Fitness & Progressive Overload" },
-];
-
-/* ──────────────────────── COMPONENTS ──────────────────── */
-
-function CourseCard({ course }: { course: Course }) {
-  return (
-    <Card className="group/course overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
-      {/* Thumbnail */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden">
-        <Image
-          src={course.thumbnail}
-          alt={course.title}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-500 group-hover/course:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-        <Badge className="absolute left-3 top-3 rounded-lg border-0 bg-white/90 text-xs font-semibold text-gray-800 shadow-sm backdrop-blur-sm">
-          {course.categoryLabel}
-        </Badge>
-      </div>
-
-      <CardHeader className="pb-2">
-        <CardTitle className="line-clamp-2 text-base font-bold leading-snug text-gray-900">
-          {course.title}
-        </CardTitle>
-        <CardDescription className="line-clamp-2 text-sm leading-relaxed text-gray-500">
-          {course.description}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="pb-2">
-        <div className="flex items-center gap-3 text-sm text-gray-500">
-          <span className="flex items-center gap-1 text-amber-500">
-            <Star className="size-4 fill-current" />
-            {course.rating}
-          </span>
-          <span className="text-gray-300">|</span>
-          <span className="flex items-center gap-1">
-            <Users className="size-3.5" />
-            {course.students} học viên
-          </span>
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center justify-between border-t-0 bg-transparent pt-0">
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-indigo-600">
-            {course.discountedPrice}
-          </span>
-          <span className="text-sm text-gray-400 line-through">
-            {course.originalPrice}
-          </span>
-        </div>
-        <Button
-          asChild
-          size="sm"
-          className="rounded-xl bg-indigo-600 px-4 text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-300"
-        >
-          <Link href={`/course/${course.id}`}>Đăng ký ngay</Link>
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
+/* ──────────────────── VISUAL HELPERS ──────────────────── */
 
 function StarRating({ count }: { count: number }) {
   return (
@@ -273,7 +102,48 @@ function StarRating({ count }: { count: number }) {
 
 /* ───────────────────────── PAGE ────────────────────────── */
 
-export default function Home() {
+export default async function Home() {
+  /* Fetch real courses from database */
+  const dbCourses = await prisma.course.findMany({
+    include: {
+      category: true,
+      _count: {
+        select: {
+          orders: true,
+          modules: true,
+        },
+      },
+    },
+    orderBy: {
+      id: "desc",
+    },
+  });
+
+  /* Build categories from DB data for tab filtering */
+  const categoryMap = new Map<string, string>();
+  for (const course of dbCourses) {
+    if (course.category) {
+      categoryMap.set(course.category.slug, course.category.name);
+    }
+  }
+  const categories = Array.from(categoryMap.entries()).map(([slug, name]) => ({
+    slug,
+    name,
+  }));
+
+  /* Serialize courses for the client component */
+  const serializedCourses = dbCourses.map((course, index) => ({
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    price: course.price,
+    categoryName: course.category?.name || "Mọi trình độ",
+    categorySlug: course.category?.slug || "uncategorized",
+    moduleCount: course._count.modules,
+    studentCount: course._count.orders,
+    visualIndex: index,
+  }));
+
   return (
     <main className="min-h-screen bg-gray-50/50">
       {/* ═══════════ HERO SECTION ═══════════ */}
@@ -448,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════ FEATURED COURSES ═══════════ */}
+      {/* ═══════════ FEATURED COURSES (from DB) ═══════════ */}
       <section
         id="courses"
         className="bg-gradient-to-b from-gray-50 to-white py-20"
@@ -470,49 +340,16 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Tab filter */}
-          <Tabs
-            defaultValue="all"
+          {/* Tab filter + Course grid — client component for interactivity */}
+          <CourseTabs courses={serializedCourses} categories={categories} />
 
-            className="mt-12"
-          >
-            <div className="flex justify-center">
-              <TabsList className="h-auto flex-wrap gap-2 rounded-2xl border border-gray-200 bg-white p-1.5 shadow-sm">
-                {categoryTabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="rounded-xl px-5 py-2.5 text-sm font-medium text-gray-600 transition-all data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:shadow-indigo-200"
-                  >
-                    {tab.value === "ai" && (
-                      <Brain className="mr-1.5 size-4" />
-                    )}
-                    {tab.value === "aws" && (
-                      <Cloud className="mr-1.5 size-4" />
-                    )}
-                    {tab.value === "fitness" && (
-                      <Dumbbell className="mr-1.5 size-4" />
-                    )}
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+          {serializedCourses.length === 0 && (
+            <div className="mt-12 py-20 text-center">
+              <BookOpenCheck className="mx-auto size-12 text-gray-300 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900">Chưa có khóa học nào</h3>
+              <p className="mt-1 text-gray-500">Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé.</p>
             </div>
-
-            {/* All tab contents share the same grid — we use a single content area */}
-            {categoryTabs.map((tab) => (
-              <TabsContent key={tab.value} value={tab.value} className="mt-10">
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                  {(tab.value === "all"
-                    ? courses
-                    : courses.filter((c) => c.category === tab.value)
-                  ).map((course) => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
+          )}
         </div>
       </section>
 
