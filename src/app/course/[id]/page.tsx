@@ -82,6 +82,21 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
     }
   }
 
+  // Fetch completed lesson IDs for this course
+  let initialCompletedLessons: string[] = [];
+  if (session?.user?.id) {
+    const allLessonIds = course.modules.flatMap((m) => m.lessons.map((l) => l.id));
+    const completedProgress = await prisma.lessonProgress.findMany({
+      where: {
+        userId: session.user.id,
+        lessonId: { in: allLessonIds },
+        isCompleted: true,
+      },
+      select: { lessonId: true },
+    });
+    initialCompletedLessons = completedProgress.map((p) => p.lessonId);
+  }
+
   return (
     <main className="min-h-screen bg-gray-50/50 pb-12 pt-6">
       <div className="mx-auto w-full max-w-7xl px-5 pb-4 sm:px-6 lg:px-8">
@@ -93,7 +108,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
         </Button>
       </div>
 
-      <CourseClient course={course} hasPurchased={hasPurchased} />
+      <CourseClient course={course} hasPurchased={hasPurchased} initialCompletedLessons={initialCompletedLessons} />
     </main>
   );
 }

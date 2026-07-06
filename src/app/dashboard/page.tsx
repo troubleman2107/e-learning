@@ -37,6 +37,34 @@ export default async function StudentDashboardPage() {
   });
 
   const enrolledCourses = paidOrders.map((order) => order.course);
+
+  // Fetch all completed lesson progress for this user
+  const completedProgress = await prisma.lessonProgress.findMany({
+    where: {
+      userId: session.user.id,
+      isCompleted: true,
+    },
+    select: {
+      lessonId: true,
+    },
+  });
+  const completedLessonIds = new Set(completedProgress.map((p) => p.lessonId));
+
+  // Build progress map per course
+  const courseProgressMap = new Map<string, { total: number; completed: number }>();
+  enrolledCourses.forEach((course) => {
+    let total = 0;
+    let completed = 0;
+    course.modules.forEach((mod) => {
+      mod.lessons.forEach((lesson) => {
+        total++;
+        if (completedLessonIds.has(lesson.id)) {
+          completed++;
+        }
+      });
+    });
+    courseProgressMap.set(course.id, { total, completed });
+  });
   
   // Total stats
   const totalCourses = enrolledCourses.length;
@@ -179,15 +207,23 @@ export default async function StudentDashboardPage() {
 
                   <CardContent className="pb-3 pt-0 space-y-3">
                     {/* Progress Bar */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
-                        <span>Tiến độ học tập</span>
-                        <span>0%</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300" style={{ width: '0%' }} />
-                      </div>
-                    </div>
+                    {(() => {
+                      const progress = courseProgressMap.get(course.id);
+                      const percent = progress && progress.total > 0
+                        ? Math.round((progress.completed / progress.total) * 100)
+                        : 0;
+                      return (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                            <span>Tiến độ học tập</span>
+                            <span>{percent}%</span>
+                          </div>
+                          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </CardContent>
 
                   <CardContent className="pb-4 pt-0">

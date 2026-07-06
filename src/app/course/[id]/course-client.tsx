@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
@@ -67,9 +67,11 @@ const getYouTubeEmbedUrl = (url: string) => {
 export function CourseClient({
   course,
   hasPurchased,
+  initialCompletedLessons = [],
 }: {
   course: any;
   hasPurchased: boolean;
+  initialCompletedLessons?: string[];
 }) {
   const allLessons = course.modules.flatMap((m: any) => m.lessons);
   const firstLesson = allLessons[0];
@@ -80,6 +82,7 @@ export function CourseClient({
   const [iframeUrl, setIframeUrl] = useState<string>(
     getYouTubeEmbedUrl(course.trailerUrl)
   );
+  const [completedLessons, setCompletedLessons] = useState<string[]>(initialCompletedLessons);
 
   // Fetch token for current lesson
   useEffect(() => {
@@ -110,6 +113,79 @@ export function CourseClient({
     fetchToken();
   }, [currentLessonId, hasPurchased, course.trailerUrl]);
 
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Listen for Bunny video completion using Player.js standard
+  useEffect(() => {
+    const handleMessage = async (event: MessageEvent) => {
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        
+        // Ensure this is a player.js message
+        if (data.context === "player.js") {
+          console.log("[Player.js Event]:", data);
+          
+          if (data.event === "ready") {
+            // Handshake: tell the iframe we want to listen to 'ended' events
+            if (iframeRef.current && iframeRef.current.contentWindow) {
+              iframeRef.current.contentWindow.postMessage(
+                JSON.stringify({
+                  context: "player.js",
+                  version: "0.1.11",
+                  method: "addEventListener",
+                  value: "ended",
+                }),
+                "*"
+              );
+              console.log("[Player.js] Requested to listen to 'ended' event");
+            }
+          }
+
+          if (data.event === "ended") {
+            if (!currentLessonId) return;
+
+            // Call progress API
+            const res = await fetch("/api/progress", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ lessonId: currentLessonId }),
+            });
+
+            if (res.ok) {
+              setCompletedLessons((prev) => {
+                if (!prev.includes(currentLessonId)) {
+                  return [...prev, currentLessonId];
+                }
+                return prev;
+              });
+              
+              // Move to next lesson automatically
+              const currentIndex = allLessons.findIndex((l: any) => l.id === currentLessonId);
+              if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
+                const nextLesson = allLessons[currentIndex + 1];
+                if (nextLesson.isFreePreview || hasPurchased) {
+                  setCurrentLessonId(nextLesson.id);
+                  toast.success("Đã hoàn thành bài học. Tự động chuyển bài tiếp theo.");
+                } else {
+                  toast.success("Đã hoàn thành bài học.");
+                }
+              } else {
+                toast.success("Đã hoàn thành bài học.");
+              }
+            } else {
+              console.error("Failed to mark lesson as completed", await res.text());
+            }
+          }
+        }
+      } catch (err) {
+        // Ignore parse errors (e.g. from react devtools or other extensions)
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [currentLessonId, allLessons, hasPurchased]);
+
   const handleLessonClick = (lesson: any) => {
     if (!lesson.isFreePreview && !hasPurchased) {
       toast.error("Vui lòng mua khóa học để xem bài này");
@@ -125,6 +201,7 @@ export function CourseClient({
         <div className="relative aspect-video w-full">
           {iframeUrl ? (
             <iframe
+              ref={iframeRef}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="absolute inset-0 h-full w-full border-none"
@@ -228,9 +305,14 @@ export function CourseClient({
                                       {lesson.title}
                                     </span>
                                   </div>
-                                  {isLocked && (
-                                    <Lock className="h-4 w-4 text-gray-300" />
-                                  )}
+                                  <div className="flex items-center gap-2">
+                                    {completedLessons.includes(lesson.id) && (
+                                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                                    )}
+                                    {isLocked && (
+                                      <Lock className="h-4 w-4 text-gray-300" />
+                                    )}
+                                  </div>
                                 </button>
                               );
                             })}

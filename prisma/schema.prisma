@@ -34,6 +34,7 @@ model User {
   accounts Account[]
   sessions Session[]
   orders   Order[]
+  lessonProgresses LessonProgress[]
 }
 
 model Account {
@@ -115,6 +116,7 @@ model Lesson {
   moduleId      String
 
   module        Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress      LessonProgress[]
 
   @@index([moduleId])
 }
@@ -141,4 +143,20 @@ model Category {
   slug  String @unique
 
   courses Course[]
+}
+
+model LessonProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  lessonId    String
+  isCompleted Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
 }
