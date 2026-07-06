@@ -4,14 +4,20 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, BookOpen } from "lucide-react";
+import {
+  LogIn,
+  LogOut,
+  BookOpen,
+  LayoutDashboard,
+  GraduationCap,
+} from "lucide-react";
 
 export function Navbar() {
   const { data: session, status } = useSession();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/60 bg-white/80 backdrop-blur-lg">
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <nav className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-md shadow-indigo-200 transition-shadow group-hover:shadow-lg group-hover:shadow-indigo-300">
@@ -21,6 +27,26 @@ export function Navbar() {
             VietLearn
           </span>
         </Link>
+
+        {/* Center Nav Links */}
+        {status === "authenticated" && (
+          <div className="hidden sm:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            <Link
+              href="/courses"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            >
+              <GraduationCap className="h-4 w-4" />
+              Khóa học
+            </Link>
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </div>
+        )}
 
         {/* Auth Section */}
         <div className="flex items-center gap-3">
