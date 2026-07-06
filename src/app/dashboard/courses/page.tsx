@@ -5,6 +5,8 @@ import Link from "next/link";
 import { BookOpen, GraduationCap, Play } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 
 export default async function MyCoursesPage() {
   const session = await auth();
@@ -71,41 +73,57 @@ export default async function MyCoursesPage() {
         </Card>
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {enrolledCourses.map((course) => {
+          {enrolledCourses.map((course, index) => {
             // Count total lessons
             let lessonCount = 0;
             course.modules.forEach((mod) => {
               lessonCount += mod.lessons.length;
             });
 
+            const visuals = [
+              "border-teal-100 bg-gradient-to-br from-teal-500/10 to-teal-600/10 text-teal-700",
+              "border-sky-100 bg-gradient-to-br from-sky-500/10 to-sky-600/10 text-sky-700",
+              "border-amber-100 bg-gradient-to-br from-amber-500/10 to-amber-600/10 text-amber-700",
+              "border-rose-100 bg-gradient-to-br from-rose-500/10 to-rose-600/10 text-rose-700"
+            ];
+            const visualClass = visuals[index % visuals.length];
+
             return (
-              <Card key={course.id} className="group flex flex-col justify-between border border-slate-200/50 bg-white shadow-sm transition-all hover:shadow-md">
-                <CardHeader className="pb-3">
+              <Card key={course.id} className="group overflow-hidden flex flex-col justify-between border border-slate-200/50 bg-white shadow-sm transition-all hover:shadow-md">
+                {/* Course Thumbnail */}
+                <div className={cn("relative flex h-32 items-center justify-center border-b border-slate-100", visualClass)}>
+                  <BookOpen className="h-10 w-10 opacity-75" />
+                  <span className="absolute top-3 right-3 rounded-full bg-emerald-500/90 text-white px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase shadow-sm">
+                    Đã sở hữu
+                  </span>
+                </div>
+
+                <CardHeader className="pb-3 pt-4">
                   {course.category && (
-                    <span className="w-fit rounded-full bg-violet-50 border border-violet-100/50 px-2.5 py-0.5 text-[10px] font-medium text-violet-700">
+                    <span className="w-fit rounded-full bg-slate-100 px-2.5 py-0.5 text-[9px] font-medium text-slate-600">
                       {course.category.name}
                     </span>
                   )}
-                  <CardTitle className="line-clamp-2 text-sm font-semibold text-slate-800 mt-2 min-h-[40px] group-hover:text-violet-700 transition-colors">
+                  <CardTitle className="line-clamp-2 text-sm font-semibold text-slate-800 mt-1 min-h-[40px] group-hover:text-violet-700 transition-colors">
                     {course.title}
                   </CardTitle>
-                  <CardDescription className="line-clamp-2 text-[11px] text-slate-400 mt-1 min-h-[32px]">
-                    {course.description}
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="pb-3 border-t border-slate-50 pt-3">
-                  <div className="flex items-center justify-between text-[11px] text-slate-500">
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{course.modules.length} chương</span>
+
+                <CardContent className="pb-3 pt-0 space-y-3">
+                  {/* Progress Bar */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                      <span>Tiến độ học tập</span>
+                      <span>0%</span>
                     </div>
-                    <div>
-                      <span>{lessonCount} bài học</span>
+                    <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300" style={{ width: '0%' }} />
                     </div>
                   </div>
                 </CardContent>
+
                 <CardContent className="pb-4 pt-0">
-                  <Button asChild className="w-full gap-2 bg-slate-900 text-white hover:bg-violet-600 transition-all font-medium text-xs py-1.5 h-8">
+                  <Button asChild className="w-full gap-2 bg-slate-900 text-white hover:bg-violet-600 transition-all font-medium text-xs py-1.5 h-8 shadow-sm">
                     <Link href={`/course/${course.id}`}>
                       <Play className="h-3 w-3 fill-current" />
                       Vào học ngay
