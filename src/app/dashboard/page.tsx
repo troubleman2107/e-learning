@@ -187,8 +187,12 @@ export default async function StudentDashboardPage() {
               return (
                 <Card key={course.id} className="group overflow-hidden flex flex-col justify-between border border-slate-200/50 bg-white shadow-sm transition-all hover:shadow-md">
                   {/* Course Thumbnail */}
-                  <div className={cn("relative flex h-32 items-center justify-center border-b border-slate-100", visualClass)}>
-                    <BookOpen className="h-10 w-10 opacity-75" />
+                  <div className="relative flex h-32 w-full overflow-hidden border-b border-slate-100 bg-slate-50">
+                    <img
+                      src={course.thumbnail || "/course-docker.png"}
+                      alt={course.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
                     <span className="absolute top-3 right-3 rounded-full bg-emerald-500/90 text-white px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase shadow-sm">
                       Đã sở hữu
                     </span>

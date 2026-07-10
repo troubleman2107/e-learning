@@ -87,6 +87,7 @@ model Course {
   trailerUrl  String
   bunnyVideoId String?
   categoryId   String?
+  thumbnail    String?
 
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   orders  Order[]

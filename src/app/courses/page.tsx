@@ -68,14 +68,16 @@ export default async function CoursesPage() {
             return (
               <Card
                 key={course.id}
-                className="flex flex-col rounded-xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+                className="group flex flex-col rounded-xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md overflow-hidden"
               >
-                <CardHeader>
-                  <div
-                    className={`mb-3 flex h-28 items-end justify-between rounded-lg border p-4 ${visualClass}`}
-                  >
-                    <Icon className="size-9 opacity-80" />
-                    <span className="rounded-md bg-white/90 px-2.5 py-1 text-xs font-semibold text-foreground shadow-sm">
+                <CardHeader className="p-4 pb-0">
+                  <div className="relative mb-3 aspect-[16/10] w-full overflow-hidden rounded-lg border bg-slate-50">
+                    <img
+                      src={course.thumbnail || "/course-docker.png"}
+                      alt={course.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute right-2 top-2 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-gray-750 shadow-sm backdrop-blur-sm">
                       {course.category?.name || "Mọi trình độ"}
                     </span>
                   </div>

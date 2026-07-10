@@ -13,6 +13,7 @@ const courseSchema = z.object({
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
+  thumbnail: z.string().optional(),
 });
 
 export async function createCourse(formData: z.infer<typeof courseSchema>) {
@@ -32,6 +33,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
       trailerUrl: validated.trailerUrl,
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId,
+      thumbnail: validated.thumbnail,
     },
   });
 
@@ -60,6 +62,7 @@ export async function updateCourse(
       trailerUrl: validated.trailerUrl,
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId,
+      thumbnail: validated.thumbnail,
     },
   });
 

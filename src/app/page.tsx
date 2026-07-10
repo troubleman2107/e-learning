@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { CourseTabs } from "./course-tabs";
+import { FeaturedCourses } from "./featured-courses";
 
 /* ───────────────────────── STATIC DATA ───────────────────────── */
 
@@ -158,6 +158,7 @@ export default async function Home() {
     studentCount: course._count.orders,
     visualIndex: index,
     isPaid: paidCourseIds.includes(course.id),
+    thumbnail: course.thumbnail,
   }));
 
   return (
@@ -337,33 +338,23 @@ export default async function Home() {
       {/* ═══════════ FEATURED COURSES (from DB) ═══════════ */}
       <section
         id="courses"
-        className="bg-gradient-to-b from-gray-50 to-white py-20"
+        className="bg-gradient-to-b from-gray-50/80 to-white py-20"
       >
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge
-              variant="secondary"
-              className="mb-4 rounded-lg bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600"
-            >
-              Khóa Học Nổi Bật
-            </Badge>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Đầu tư đúng kỹ năng, nhận lại gấp 10x
-            </h2>
-            <p className="mt-4 text-lg text-gray-500">
-              Các khóa học được thiết kế bởi chuyên gia hàng đầu, cập nhật nội
-              dung liên tục theo thị trường.
-            </p>
-          </div>
-
-          {/* Tab filter + Course grid — client component for interactivity */}
-          <CourseTabs courses={serializedCourses} categories={categories} />
-
-          {serializedCourses.length === 0 && (
-            <div className="mt-12 py-20 text-center">
+          {serializedCourses.length > 0 ? (
+            <FeaturedCourses
+              courses={serializedCourses}
+              categories={categories}
+            />
+          ) : (
+            <div className="py-20 text-center">
               <BookOpenCheck className="mx-auto size-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900">Chưa có khóa học nào</h3>
-              <p className="mt-1 text-gray-500">Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé.</p>
+              <h3 className="text-lg font-medium text-gray-900">
+                Chưa có khóa học nào
+              </h3>
+              <p className="mt-1 text-gray-500">
+                Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé.
+              </p>
             </div>
           )}
         </div>

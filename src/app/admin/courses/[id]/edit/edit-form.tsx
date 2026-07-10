@@ -30,6 +30,7 @@ const formSchema = z.object({
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
+  thumbnail: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -52,6 +53,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
       trailerUrl: course.trailerUrl,
       bunnyVideoId: course.bunnyVideoId || "",
       categoryId: course.categoryId || "none",
+      thumbnail: course.thumbnail || "",
     },
   });
 
@@ -175,6 +177,22 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           {errors.trailerUrl && (
             <p className="text-sm text-red-500">
               {errors.trailerUrl.message}
+            </p>
+          )}
+        </div>
+
+        {/* Thumbnail URL */}
+        <div className="space-y-2">
+          <Label htmlFor="thumbnail">URL ảnh thu nhỏ (Thumbnail)</Label>
+          <Input
+            id="thumbnail"
+            type="text"
+            placeholder="Ví dụ: /course-docker.png hoặc https://..."
+            {...register("thumbnail")}
+          />
+          {errors.thumbnail && (
+            <p className="text-sm text-red-500">
+              {errors.thumbnail.message}
             </p>
           )}
         </div>
