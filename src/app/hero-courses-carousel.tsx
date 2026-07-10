@@ -5,7 +5,11 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FeaturedCourse } from "./featured-courses";
 
-export function HeroCoursesCarousel({ courses }: { courses: FeaturedCourse[] }) {
+export function HeroCoursesCarousel({
+  courses,
+}: {
+  courses: FeaturedCourse[];
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -43,10 +47,9 @@ export function HeroCoursesCarousel({ courses }: { courses: FeaturedCourse[] }) 
     >
       {/* Glow background behind the carousel */}
       <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 blur-xl transition duration-1000 group-hover:opacity-30 group-hover:duration-200" />
-      
+
       {/* Wrapper with 3D-like perspectives / depth */}
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-4 shadow-2xl backdrop-blur-md">
-        
         {/* Slides container */}
         <div className="relative h-[370px] w-full">
           {courses.map((course, idx) => {
@@ -83,12 +86,16 @@ export function HeroCoursesCarousel({ courses }: { courses: FeaturedCourse[] }) 
                   <p className="mt-2 text-xs sm:text-sm text-gray-300 line-clamp-2 leading-relaxed">
                     {course.description}
                   </p>
-                  
+
                   <div className="mt-auto pt-3 flex items-center justify-between border-t border-white/5">
                     <div>
-                      <p className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">Giá khóa học</p>
+                      <p className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">
+                        Giá khóa học
+                      </p>
                       <span className="text-sm sm:text-base font-extrabold text-indigo-400">
-                        {course.price === 0 ? "Miễn phí" : formatVnd(course.price)}
+                        {course.price === 0
+                          ? "Miễn phí"
+                          : formatVnd(course.price)}
                       </span>
                     </div>
                     <Link
@@ -99,7 +106,6 @@ export function HeroCoursesCarousel({ courses }: { courses: FeaturedCourse[] }) 
                     </Link>
                   </div>
                 </div>
-
               </div>
             );
           })}
