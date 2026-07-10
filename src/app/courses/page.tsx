@@ -55,7 +55,7 @@ export default async function CoursesPage({
     ],
   };
 
-  const [dbCourses, totalCoursesCount, categories] = await Promise.all([
+  const [dbCourses, totalCoursesCount, allCoursesCount, categories] = await Promise.all([
     prisma.course.findMany({
       where: whereClause,
       include: {
@@ -76,7 +76,15 @@ export default async function CoursesPage({
     prisma.course.count({
       where: whereClause,
     }),
+    prisma.course.count(),
     prisma.category.findMany({
+      include: {
+        _count: {
+          select: {
+            courses: true,
+          },
+        },
+      },
       orderBy: {
         name: "asc",
       },
@@ -145,7 +153,7 @@ export default async function CoursesPage({
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             }`}
           >
-            Tất cả
+            Tất cả ({allCoursesCount})
           </Link>
           {categories.map((cat) => {
             const isActive = activeCategory === cat.slug;
@@ -161,7 +169,7 @@ export default async function CoursesPage({
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
                 }`}
               >
-                {cat.name}
+                {cat.name} ({cat._count.courses})
               </Link>
             );
           })}
