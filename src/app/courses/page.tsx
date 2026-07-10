@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { BookOpenCheck, Clock3, Star, UsersRound, GraduationCap } from "lucide-react";
+import { BookOpenCheck, Clock3, Star, UsersRound, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/course-card";
 import { SearchInput } from "./search-input";
@@ -27,31 +27,37 @@ const visuals = [
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; search?: string }>;
+  searchParams: Promise<{ category?: string; search?: string; page?: string }>;
 }) {
-  const { category: activeCategory, search: searchQuery } = await searchParams;
+  const { category: activeCategory, search: searchQuery, page: pageParam } = await searchParams;
 
-  const [dbCourses, categories] = await Promise.all([
+  const limit = 12; // Divisible by 2, 3, and 4 for perfect grid rows
+  const currentPage = Math.max(1, Number(pageParam) || 1);
+  const skip = (currentPage - 1) * limit;
+
+  const whereClause = {
+    AND: [
+      activeCategory
+        ? {
+            category: {
+              slug: activeCategory,
+            },
+          }
+        : {},
+      searchQuery
+        ? {
+            OR: [
+              { title: { contains: searchQuery, mode: "insensitive" } as any },
+              { description: { contains: searchQuery, mode: "insensitive" } as any },
+            ],
+          }
+        : {},
+    ],
+  };
+
+  const [dbCourses, totalCoursesCount, categories] = await Promise.all([
     prisma.course.findMany({
-      where: {
-        AND: [
-          activeCategory
-            ? {
-                category: {
-                  slug: activeCategory,
-                },
-              }
-            : {},
-          searchQuery
-            ? {
-                OR: [
-                  { title: { contains: searchQuery, mode: "insensitive" } },
-                  { description: { contains: searchQuery, mode: "insensitive" } },
-                ],
-              }
-            : {},
-        ],
-      },
+      where: whereClause,
       include: {
         category: true,
         _count: {
@@ -64,6 +70,11 @@ export default async function CoursesPage({
       orderBy: {
         id: "desc",
       },
+      skip,
+      take: limit,
+    }),
+    prisma.course.count({
+      where: whereClause,
     }),
     prisma.category.findMany({
       orderBy: {
@@ -71,6 +82,33 @@ export default async function CoursesPage({
       },
     }),
   ]);
+
+  const totalPages = Math.ceil(totalCoursesCount / limit);
+
+  const createPageLink = (pageNumber: number) => {
+    const params = new URLSearchParams();
+    if (activeCategory) params.set("category", activeCategory);
+    if (searchQuery) params.set("search", searchQuery);
+    params.set("page", pageNumber.toString());
+    return `/courses?${params.toString()}`;
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   return (
     <main className="min-h-screen bg-background text-foreground py-12">
@@ -150,6 +188,59 @@ export default async function CoursesPage({
             </div>
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex items-center justify-center gap-1.5">
+            <Link
+              href={createPageLink(currentPage - 1)}
+              className={`flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border bg-white hover:bg-slate-50 transition-colors ${
+                currentPage === 1 ? "pointer-events-none opacity-40" : ""
+              }`}
+            >
+              <ChevronLeft className="size-4" />
+              Trước
+            </Link>
+
+            {getPageNumbers().map((pageNum, idx) => {
+              if (pageNum === "...") {
+                return (
+                  <span
+                    key={`dots-${idx}`}
+                    className="flex size-9 items-center justify-center text-slate-400 font-normal text-xs"
+                  >
+                    ...
+                  </span>
+                );
+              }
+
+              const isActive = pageNum === currentPage;
+              return (
+                <Link
+                  key={`page-${pageNum}`}
+                  href={createPageLink(pageNum as number)}
+                  className={`flex size-9 items-center justify-center rounded-lg text-xs transition-all duration-200 ${
+                    isActive
+                      ? "bg-indigo-600 text-white font-bold shadow-sm shadow-indigo-500/20"
+                      : "border bg-white hover:bg-slate-50 font-semibold text-slate-700 hover:text-slate-900"
+                  }`}
+                >
+                  {pageNum}
+                </Link>
+              );
+            })}
+
+            <Link
+              href={createPageLink(currentPage + 1)}
+              className={`flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border bg-white hover:bg-slate-50 transition-colors ${
+                currentPage === totalPages ? "pointer-events-none opacity-40" : ""
+              }`}
+            >
+              Sau
+              <ChevronRight className="size-4" />
+            </Link>
+          </div>
+        )}
       </div>
     </main>
   );
