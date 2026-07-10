@@ -465,12 +465,12 @@ export function CourseClient({
 
           {/* Details Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-6 flex w-full justify-start gap-1 md:gap-2 border-b border-gray-200 bg-transparent p-0 overflow-x-auto scrollbar-none">
+            <TabsList className="mb-8 flex w-full justify-start gap-2 md:gap-3 bg-transparent p-0 overflow-x-auto scrollbar-none border-0">
               {["overview", "author", "faq", "announcements", "reviews"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
-                  className="relative rounded-none border-b-2 border-transparent bg-transparent px-3 md:px-4 pb-3 pt-2 text-xs md:text-sm font-semibold text-gray-500 transition-all duration-200 data-[state=active]:border-indigo-600 data-[state=active]:text-indigo-600 hover:text-gray-900 cursor-pointer shadow-none data-[state=active]:shadow-none"
+                  className="relative rounded-full px-5 py-2 text-xs md:text-sm font-bold text-gray-500 transition-all duration-200 hover:text-gray-900 cursor-pointer border-0 shadow-none data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none data-[state=active]:border-0 data-[state=active]:border-transparent bg-transparent outline-none focus:outline-none"
                 >
                   {tab === "overview" && "Overview"}
                   {tab === "author" && "Author"}
