@@ -21,6 +21,7 @@ const getCourse = cache(async (id: string) => {
   return prisma.course.findUnique({
     where: { id },
     include: {
+      category: true,
       modules: {
         orderBy: { order: "asc" },
         include: {
@@ -108,7 +109,12 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
         </Button>
       </div>
 
-      <CourseClient course={course} hasPurchased={hasPurchased} initialCompletedLessons={initialCompletedLessons} />
+      <CourseClient
+        course={course}
+        hasPurchased={hasPurchased}
+        initialCompletedLessons={initialCompletedLessons}
+        userEmail={session?.user?.email || ""}
+      />
     </main>
   );
 }

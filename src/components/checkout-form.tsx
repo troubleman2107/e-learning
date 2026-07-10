@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-export function CheckoutForm({ courseId }: { courseId: string }) {
+export function CheckoutForm({ courseId, defaultEmail = "" }: { courseId: string; defaultEmail?: string }) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
 
   const handleCheckout = async (e: React.FormEvent) => {
