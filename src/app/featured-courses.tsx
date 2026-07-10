@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { BookOpenCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { CourseCard as SharedCourseCard } from "@/components/course-card";
 
 /* ───────────────────────── TYPES ───────────────────────── */
 
@@ -116,54 +117,10 @@ function CourseCard({
   course: FeaturedCourse;
   index: number;
 }) {
-  const gradientClass = cardGradients[index % cardGradients.length];
-  const pattern = cardPatterns[index % cardPatterns.length];
-  const originalPrice = course.price * 2;
-
   return (
-    <Link
-      href={`/course/${course.id}`}
-      className="group block w-[75vw] flex-shrink-0 snap-start sm:w-[45vw] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)]"
-    >
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        {/* Thumbnail */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-50">
-          <img
-            src={course.thumbnail || "/course-docker.png"}
-            alt={course.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          {/* Category badge */}
-          <span className="absolute left-2.5 top-2.5 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-gray-700 shadow-sm backdrop-blur-sm sm:left-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-[11px]">
-            {course.categoryName}
-          </span>
-        </div>
-
-        {/* Content */}
-        <div className="p-3 sm:p-4">
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] font-bold leading-snug text-gray-900 transition-colors group-hover:text-indigo-600 sm:min-h-[2.75rem] sm:text-sm">
-            {course.title}
-          </h3>
-
-          {/* Pricing */}
-          <div className="mt-2 flex items-baseline gap-2 sm:mt-3">
-            {course.price > 0 && (
-              <span className="text-xs text-gray-400 line-through sm:text-sm">
-                {formatVnd(originalPrice)}
-              </span>
-            )}
-            <span className="text-sm font-bold text-red-500 sm:text-base">
-              {course.isPaid
-                ? "Đã sở hữu"
-                : course.price === 0
-                ? "Miễn phí"
-                : formatVnd(course.price)}
-            </span>
-          </div>
-        </div>
-      </div>
-    </Link>
+    <div className="w-[75vw] flex-shrink-0 snap-start sm:w-[45vw] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)]">
+      <SharedCourseCard course={course} index={index} />
+    </div>
   );
 }
 

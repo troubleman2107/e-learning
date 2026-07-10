@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { BookOpenCheck, Clock3, Star, UsersRound, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CourseCard } from "@/components/course-card";
 import {
   Card,
   CardContent,
@@ -66,62 +67,11 @@ export default async function CoursesPage() {
             const visualClass = visuals[index % visuals.length];
             
             return (
-              <Card
+              <CourseCard
                 key={course.id}
-                className="group flex flex-col rounded-xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md overflow-hidden"
-              >
-                <CardHeader className="p-4 pb-0">
-                  <div className="relative mb-3 aspect-[16/10] w-full overflow-hidden rounded-lg border bg-slate-50">
-                    <img
-                      src={course.thumbnail || "/course-docker.png"}
-                      alt={course.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <span className="absolute right-2 top-2 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold text-gray-750 shadow-sm backdrop-blur-sm">
-                      {course.category?.name || "Mọi trình độ"}
-                    </span>
-                  </div>
-                  <CardTitle className="line-clamp-2 text-lg leading-tight" title={course.title}>
-                    {course.title}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2 min-h-[2.5rem]">
-                    {course.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="mt-auto">
-                  <div className="grid gap-2.5 text-sm text-muted-foreground">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="flex items-center gap-2">
-                        <Clock3 className="size-4 opacity-70" />
-                        Tự tốc độ
-                      </span>
-                      <span>{course._count.modules} phần</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="flex items-center gap-2">
-                        <UsersRound className="size-4 opacity-70" />
-                        {course._count.orders} học viên
-                      </span>
-                      <span className="flex items-center gap-1 font-medium text-amber-600">
-                        <Star className="size-4 fill-current" />
-                        4.9
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter className="justify-between border-t border-gray-100 bg-gray-50/50 pt-4">
-                  <span className="font-bold text-indigo-700 text-lg">
-                    {course.price === 0 ? "Miễn phí" : `${course.price.toLocaleString("vi-VN")}đ`}
-                  </span>
-                  <Button
-                    asChild
-                    size="sm"
-                    className="rounded-lg bg-indigo-600 hover:bg-indigo-700"
-                  >
-                    <Link href={`/course/${course.id}`}>Xem chi tiết</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+                course={course}
+                index={index}
+              />
             );
           })}
           {dbCourses.length === 0 && (
