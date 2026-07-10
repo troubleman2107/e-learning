@@ -23,21 +23,41 @@ const visuals = [
   "border-rose-100 bg-rose-50 text-rose-700"
 ];
 
-export default async function CoursesPage() {
-  const dbCourses = await prisma.course.findMany({
-    include: {
-      category: true,
-      _count: {
-        select: {
-          orders: true,
-          modules: true,
-        }
-      }
-    },
-    orderBy: {
-      id: "desc",
-    }
-  });
+export default async function CoursesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string }>;
+}) {
+  const { category: activeCategory } = await searchParams;
+
+  const [dbCourses, categories] = await Promise.all([
+    prisma.course.findMany({
+      where: activeCategory
+        ? {
+            category: {
+              slug: activeCategory,
+            },
+          }
+        : undefined,
+      include: {
+        category: true,
+        _count: {
+          select: {
+            orders: true,
+            modules: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    }),
+    prisma.category.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-background text-foreground py-12">
@@ -61,24 +81,54 @@ export default async function CoursesPage() {
           </Button>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {dbCourses.map((course, index) => {
-            const Icon = BookOpenCheck; // Fallback icon
-            const visualClass = visuals[index % visuals.length];
-            
+        {/* Categories Filter List */}
+        <div className="mb-10 flex flex-wrap gap-2.5">
+          <Link
+            href="/courses"
+            className={`rounded-full px-4 py-2 text-xs font-semibold transition-all duration-250 ${
+              !activeCategory
+                ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/20"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+            }`}
+          >
+            Tất cả
+          </Link>
+          {categories.map((cat) => {
+            const isActive = activeCategory === cat.slug;
             return (
-              <CourseCard
-                key={course.id}
-                course={course}
-                index={index}
-              />
+              <Link
+                key={cat.id}
+                href={`/courses?category=${cat.slug}`}
+                className={`rounded-full px-4 py-2 text-xs font-semibold transition-all duration-250 ${
+                  isActive
+                    ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/20"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                }`}
+              >
+                {cat.name}
+              </Link>
             );
           })}
+        </div>
+
+        {/* Course Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {dbCourses.map((course, index) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              index={index}
+            />
+          ))}
           {dbCourses.length === 0 && (
             <div className="col-span-full py-20 text-center">
               <BookOpenCheck className="mx-auto size-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900">Chưa có khóa học nào</h3>
-              <p className="mt-1 text-gray-500">Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé.</p>
+              <h3 className="text-lg font-medium text-gray-900">Không tìm thấy khóa học</h3>
+              <p className="mt-1 text-gray-500">
+                {activeCategory 
+                  ? "Chưa có khóa học nào thuộc danh mục này."
+                  : "Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé."}
+              </p>
             </div>
           )}
         </div>
