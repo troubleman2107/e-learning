@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BookOpenCheck, Clock3, Star, UsersRound, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/course-card";
+import { SearchInput } from "./search-input";
 import {
   Card,
   CardContent,
@@ -26,19 +27,31 @@ const visuals = [
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; search?: string }>;
 }) {
-  const { category: activeCategory } = await searchParams;
+  const { category: activeCategory, search: searchQuery } = await searchParams;
 
   const [dbCourses, categories] = await Promise.all([
     prisma.course.findMany({
-      where: activeCategory
-        ? {
-            category: {
-              slug: activeCategory,
-            },
-          }
-        : undefined,
+      where: {
+        AND: [
+          activeCategory
+            ? {
+                category: {
+                  slug: activeCategory,
+                },
+              }
+            : {},
+          searchQuery
+            ? {
+                OR: [
+                  { title: { contains: searchQuery, mode: "insensitive" } },
+                  { description: { contains: searchQuery, mode: "insensitive" } },
+                ],
+              }
+            : {},
+        ],
+      },
       include: {
         category: true,
         _count: {
@@ -76,15 +89,18 @@ export default async function CoursesPage({
               Khám phá các khóa học thực chiến từ chuyên gia để nâng tầm kỹ năng của bạn.
             </p>
           </div>
-          <Button asChild variant="outline" className="shrink-0">
-            <Link href="/">Quay về trang chủ</Link>
-          </Button>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+            <SearchInput />
+            <Button asChild variant="outline" className="shrink-0">
+              <Link href="/">Quay về trang chủ</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Categories Filter List */}
         <div className="mb-10 flex flex-wrap gap-2.5">
           <Link
-            href="/courses"
+            href={searchQuery ? `/courses?search=${searchQuery}` : "/courses"}
             className={`rounded-full px-4 py-2 text-xs font-semibold transition-all duration-250 ${
               !activeCategory
                 ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/20"
@@ -98,7 +114,9 @@ export default async function CoursesPage({
             return (
               <Link
                 key={cat.id}
-                href={`/courses?category=${cat.slug}`}
+                href={`/courses?category=${cat.slug}${
+                  searchQuery ? `&search=${searchQuery}` : ""
+                }`}
                 className={`rounded-full px-4 py-2 text-xs font-semibold transition-all duration-250 ${
                   isActive
                     ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/20"
