@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { X, Copy, Check, Clock, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { X, XCircle, Copy, Check, Clock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onRetry: () => void;
   orderCode: number;
   amount: number;
   courseTitle: string;
@@ -23,6 +24,7 @@ const formatVnd = (amount: number) => {
 export function CheckoutModal({
   isOpen,
   onClose,
+  onRetry,
   orderCode,
   amount,
   courseTitle,
@@ -31,6 +33,7 @@ export function CheckoutModal({
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const endTimeRef = useRef<number>(0);
 
   // Bank details
   const bankName = "TPBank";
@@ -38,29 +41,44 @@ export function CheckoutModal({
   const accountHolder = "NGUYEN THAI BAO";
   const transferContent = `DH${orderCode}`;
 
-  const qrUrl = `https://vietqr.app/img?bank=${bankName}&acc=${bankAccount}&template=compact&showinfo=true&holder=${encodeURIComponent(accountHolder)}&amount=${amount}&des=${orderCode}`;
+  const qrUrl = `https://vietqr.app/img?bank=${bankName}&acc=${bankAccount}&template=&showinfo=true&holder=${encodeURIComponent(accountHolder)}&amount=${amount}&des=${orderCode}`;
 
-  // Countdown timer
+  // Timestamp-based countdown timer — immune to tab throttling
   useEffect(() => {
     if (!isOpen) return;
+
+    endTimeRef.current = Date.now() + TIMER_SECONDS * 1000;
     setTimeLeft(TIMER_SECONDS);
 
+    const calcRemaining = () => {
+      const remaining = Math.max(0, Math.ceil((endTimeRef.current - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      return remaining;
+    };
+
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
+      if (calcRemaining() <= 0) clearInterval(interval);
     }, 1000);
 
-    return () => clearInterval(interval);
+    // Recalculate immediately when the user returns to this tab
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        if (calcRemaining() <= 0) clearInterval(interval);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [isOpen]);
 
-  // Poll for payment status
+  const isExpired = timeLeft === 0;
+
+  // Poll for payment status (stop when expired)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isExpired) return;
 
     const interval = setInterval(async () => {
       try {
@@ -80,7 +98,7 @@ export function CheckoutModal({
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isOpen, orderCode, courseId, router, onClose]);
+  }, [isOpen, isExpired, orderCode, courseId, router, onClose]);
 
   // Copy to clipboard
   const handleCopy = useCallback(async (text: string, field: string) => {
@@ -121,6 +139,59 @@ export function CheckoutModal({
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
   const timerStr = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+  // ── Expired View ──
+  if (isExpired) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+          onClick={onClose}
+        />
+        <div className="relative z-10 w-full max-w-[460px] mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+          <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+              <h2 className="text-white font-bold text-lg flex items-center gap-2">
+                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+                </svg>
+                Thanh toán
+              </h2>
+              <button
+                onClick={onClose}
+                className="rounded-full p-1.5 text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Expired Content */}
+            <div className="flex flex-col items-center px-5 pt-6 pb-8">
+              <div className="mb-5">
+                <XCircle className="h-16 w-16 text-red-500" />
+              </div>
+              <h3 className="text-white font-bold text-xl mb-2">
+                Hết thời gian thanh toán
+              </h3>
+              <p className="text-gray-400 text-sm mb-8">
+                Phiên thanh toán đã hết hạn. Vui lòng thử lại.
+              </p>
+              <button
+                onClick={() => {
+                  onClose();
+                  onRetry();
+                }}
+                className="rounded-xl border border-violet-500/50 bg-transparent px-6 py-2.5 text-sm font-semibold text-white hover:bg-violet-500/10 transition-all cursor-pointer"
+              >
+                Tạo thanh toán mới
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center">

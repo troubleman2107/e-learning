@@ -29,7 +29,7 @@ export default async function CheckoutPage({
   const bank = "TPBank";
   const accountName = "NGUYEN%20THAI%20BAO";
 
-  const qrUrl = `https://vietqr.app/img?bank=${bank}&acc=${bankAccount}&template=compact&showinfo=true&holder=${accountName}&amount=${order.amount}&des=${order.orderCode}`;
+  const qrUrl = `https://vietqr.app/img?bank=${bank}&acc=${bankAccount}&template=&showinfo=true&holder=${accountName}&amount=${order.amount}&des=${order.orderCode}`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">

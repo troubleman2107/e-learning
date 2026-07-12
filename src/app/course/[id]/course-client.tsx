@@ -821,6 +821,7 @@ export function CourseClient({
         <CheckoutModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          onRetry={handleEnroll}
           orderCode={checkoutData.orderCode}
           amount={checkoutData.amount}
           courseTitle={checkoutData.courseTitle}
