@@ -10,13 +10,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Lock,
   Play,
   Check,
@@ -28,7 +21,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
-import { CheckoutForm } from "@/components/checkout-form";
+import { useSession, signIn } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -202,6 +196,65 @@ export function CourseClient({
     getYouTubeEmbedUrl(course.trailerUrl)
   );
   const [completedLessons, setCompletedLessons] = useState<string[]>(initialCompletedLessons);
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const initiateCheckout = async (email: string) => {
+    setIsCheckingOut(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courseId: course.id, email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Có lỗi xảy ra");
+      }
+
+      if (data.checkoutUrl) {
+        router.push(data.checkoutUrl);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Không thể khởi tạo thanh toán");
+      setIsCheckingOut(false);
+    }
+  };
+
+  const handleEnroll = async () => {
+    if (status === "unauthenticated" || !session?.user) {
+      // Not logged in -> Sign in with Google and redirect back to this page with action=checkout
+      const callbackUrl = `${window.location.origin}/course/${course.id}?action=checkout`;
+      await signIn("google", { callbackUrl });
+      return;
+    }
+
+    // Logged in -> initiate checkout
+    const email = session?.user?.email || userEmail;
+    if (email) {
+      await initiateCheckout(email);
+    } else {
+      toast.error("Không tìm thấy email của bạn. Vui lòng đăng nhập lại.");
+    }
+  };
+
+  // Handle auto-checkout when redirected back from Google OAuth
+  useEffect(() => {
+    const action = searchParams.get("action");
+    if (action === "checkout" && status === "authenticated" && session?.user?.email) {
+      // Clean up the URL parameter first to prevent repeated triggers on reload
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
+      
+      initiateCheckout(session.user.email);
+    }
+  }, [status, session, searchParams]);
 
   // Deterministic stats
   const reviewCount = (course.title.length * 3 + 12) % 150 + 15;
@@ -413,27 +466,23 @@ export function CourseClient({
               Vào học ngay
             </button>
           ) : (
-            <Dialog>
-              <DialogTrigger asChild>
-                <button className="flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-xs md:text-sm font-bold text-white transition-all hover:bg-indigo-500 shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+            <button 
+              onClick={handleEnroll}
+              disabled={isCheckingOut || status === "loading"}
+              className="flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-xs md:text-sm font-bold text-white transition-all hover:bg-indigo-500 shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isCheckingOut ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Processing...
+                </>
+              ) : (
+                <>
                   <Lock className="h-4 w-4" />
                   Enroll Now
-                </button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] rounded-2xl bg-white border border-gray-100 shadow-xl p-6">
-                <DialogHeader className="mb-4">
-                  <DialogTitle className="text-lg font-bold text-gray-900">
-                    Đăng ký khóa học
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="text-sm text-gray-500 mb-6">
-                  Khóa học: <strong className="text-gray-800 font-semibold">{course.title}</strong>
-                  <br />
-                  Học phí: <strong className="text-indigo-600 font-bold text-base">{formatVnd(course.price)}</strong>
-                </div>
-                <CheckoutForm courseId={course.id} defaultEmail={userEmail} />
-              </DialogContent>
-            </Dialog>
+                </>
+              )}
+            </button>
           )}
         </div>
       </div>
