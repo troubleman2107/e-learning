@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CheckoutModal } from "@/components/checkout-modal";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -201,6 +202,12 @@ export function CourseClient({
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<{
+    orderCode: number;
+    amount: number;
+    courseTitle: string;
+  } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const initiateCheckout = async (email: string) => {
     setIsCheckingOut(true);
@@ -218,11 +225,16 @@ export function CourseClient({
         throw new Error(data.error || "Có lỗi xảy ra");
       }
 
-      if (data.checkoutUrl) {
-        router.push(data.checkoutUrl);
-      }
+      // Open the checkout modal with order details
+      setCheckoutData({
+        orderCode: data.orderCode,
+        amount: data.amount,
+        courseTitle: data.courseTitle,
+      });
+      setIsModalOpen(true);
     } catch (error: any) {
       toast.error(error.message || "Không thể khởi tạo thanh toán");
+    } finally {
       setIsCheckingOut(false);
     }
   };
@@ -378,6 +390,7 @@ export function CourseClient({
   };
 
   return (
+    <>
     <section className="mx-auto w-full max-w-7xl px-5 pb-16 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 mb-6 flex-wrap">
@@ -802,5 +815,18 @@ export function CourseClient({
         </div>
       </div>
     </section>
+
+      {/* Checkout Payment Modal */}
+      {checkoutData && (
+        <CheckoutModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          orderCode={checkoutData.orderCode}
+          amount={checkoutData.amount}
+          courseTitle={checkoutData.courseTitle}
+          courseId={course.id}
+        />
+      )}
+    </>
   );
 }

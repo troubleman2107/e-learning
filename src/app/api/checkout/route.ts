@@ -59,10 +59,15 @@ export async function POST(request: Request) {
       },
     });
 
-    // Return the checkout url to the frontend
+    // Return both the checkout url and order details for modal display
     const checkoutUrl = `/checkout/${order.orderCode}`;
 
-    return NextResponse.json({ checkoutUrl });
+    return NextResponse.json({
+      checkoutUrl,
+      orderCode: order.orderCode,
+      amount: order.amount,
+      courseTitle: course.title,
+    });
   } catch (error) {
     console.error("Checkout error:", error);
     return NextResponse.json(
