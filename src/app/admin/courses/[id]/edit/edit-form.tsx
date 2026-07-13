@@ -31,6 +31,7 @@ const formSchema = z.object({
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   thumbnail: z.string().optional(),
+  whatYouWillLearn: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,6 +55,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
       bunnyVideoId: course.bunnyVideoId || "",
       categoryId: course.categoryId || "none",
       thumbnail: course.thumbnail || "",
+      whatYouWillLearn: course.whatYouWillLearn ? course.whatYouWillLearn.join("\n") : "",
     },
   });
 
@@ -151,6 +153,22 @@ export function EditCourseForm({ course, categories }: { course: any, categories
           {errors.description && (
             <p className="text-sm text-red-500">
               {errors.description.message}
+            </p>
+          )}
+        </div>
+
+        {/* What You Will Learn */}
+        <div className="space-y-2">
+          <Label htmlFor="whatYouWillLearn">Bạn sẽ học được gì (nhập mỗi dòng một ý)</Label>
+          <Textarea
+            id="whatYouWillLearn"
+            placeholder={`Ví dụ:\nLàm chủ các công cụ AI\nTối ưu quy trình công việc\nThiết kế prompt tối ưu`}
+            rows={4}
+            {...register("whatYouWillLearn")}
+          />
+          {errors.whatYouWillLearn && (
+            <p className="text-sm text-red-500">
+              {errors.whatYouWillLearn.message}
             </p>
           )}
         </div>

@@ -14,6 +14,7 @@ const courseSchema = z.object({
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   thumbnail: z.string().optional(),
+  whatYouWillLearn: z.string().optional(),
 });
 
 export async function createCourse(formData: z.infer<typeof courseSchema>) {
@@ -25,6 +26,10 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
 
   const validated = courseSchema.parse(formData);
 
+  const whatYouWillLearnArray = validated.whatYouWillLearn
+    ? validated.whatYouWillLearn.split("\n").map((line) => line.trim()).filter(Boolean)
+    : [];
+
   await prisma.course.create({
     data: {
       title: validated.title,
@@ -34,6 +39,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId,
       thumbnail: validated.thumbnail,
+      whatYouWillLearn: whatYouWillLearnArray,
     },
   });
 
@@ -53,6 +59,10 @@ export async function updateCourse(
 
   const validated = courseSchema.parse(formData);
 
+  const whatYouWillLearnArray = validated.whatYouWillLearn
+    ? validated.whatYouWillLearn.split("\n").map((line) => line.trim()).filter(Boolean)
+    : [];
+
   await prisma.course.update({
     where: { id },
     data: {
@@ -63,6 +73,7 @@ export async function updateCourse(
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId,
       thumbnail: validated.thumbnail,
+      whatYouWillLearn: whatYouWillLearnArray,
     },
   });
 
