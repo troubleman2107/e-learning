@@ -17,7 +17,6 @@ import {
   Clock,
   BookOpen,
   ArrowLeft,
-  Share2,
   ChevronRight,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -32,6 +31,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -466,49 +466,6 @@ export function CourseClient({
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-3 sm:self-end md:self-auto">
-          <button 
-            onClick={handleShare}
-            className="flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 text-xs md:text-sm font-bold text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900 shadow-xs cursor-pointer"
-          >
-            <Share2 className="h-4 w-4" />
-            Share
-          </button>
-
-          {hasPurchased ? (
-            <button 
-              onClick={() => {
-                const element = iframeRef.current;
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth", block: "center" });
-                }
-              }}
-              className="flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-xs md:text-sm font-bold text-white transition-all hover:bg-indigo-500 shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
-            >
-              <Play className="h-4 w-4 fill-white" />
-              Vào học ngay
-            </button>
-          ) : (
-            <button 
-              onClick={handleEnroll}
-              disabled={isCheckingOut || status === "loading"}
-              className="flex h-10 items-center gap-2 rounded-xl bg-indigo-600 px-5 text-xs md:text-sm font-bold text-white transition-all hover:bg-indigo-500 shadow-sm shadow-indigo-100 hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isCheckingOut ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Lock className="h-4 w-4" />
-                  Enroll Now
-                </>
-              )}
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Main Grid Layout */}
@@ -718,6 +675,39 @@ export function CourseClient({
 
         {/* Right Column (Sidebar: Accordion Content & Mini Author Card) */}
         <div className="space-y-6">
+          {!hasPurchased && (
+            <div className="rounded-2xl border border-rose-100 bg-rose-50/30 p-5 shadow-xs flex flex-col gap-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">
+                    Ưu đãi giới hạn chỉ
+                  </p>
+                  <p className="text-2xl font-extrabold text-gray-900 leading-none">
+                    {formatVnd(course.price)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-slate-400 line-through font-medium block">
+                    {formatVnd(course.price * 2)}
+                  </span>
+                  <Badge className="bg-red-100 text-red-700 hover:bg-red-100 font-bold border-none text-[10px] mt-1 shrink-0">
+                    Tiết kiệm 50%
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Urgency Message / Micro-CTA */}
+              <button
+                onClick={handleEnroll}
+                disabled={isCheckingOut || status === "loading"}
+                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm transition-all shadow-sm shadow-rose-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Lock className="h-3.5 w-3.5" />
+                Đăng ký ngay
+              </button>
+            </div>
+          )}
+
           {/* Course Content Accordion Card */}
           <div className="rounded-2xl border border-gray-200/80 bg-white shadow-xs overflow-hidden">
             <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
