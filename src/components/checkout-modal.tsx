@@ -39,7 +39,7 @@ export function CheckoutModal({
   const bankName = "TPBank";
   const bankAccount = "21071997666";
   const accountHolder = "NGUYEN THAI BAO";
-  const transferContent = `DH${orderCode}`;
+  const transferContent = `${orderCode}`;
 
   const qrUrl = `https://vietqr.app/img?bank=${bankName}&acc=${bankAccount}&template=&showinfo=true&holder=${encodeURIComponent(accountHolder)}&amount=${amount}&des=${orderCode}`;
 
