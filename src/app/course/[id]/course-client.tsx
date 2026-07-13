@@ -24,6 +24,14 @@ import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckoutModal } from "@/components/checkout-modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -208,6 +216,8 @@ export function CourseClient({
     courseTitle: string;
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [selectedLockedLesson, setSelectedLockedLesson] = useState<any>(null);
 
   const initiateCheckout = async (email: string) => {
     setIsCheckingOut(true);
@@ -376,7 +386,8 @@ export function CourseClient({
 
   const handleLessonClick = (lesson: any) => {
     if (!lesson.isFreePreview && !hasPurchased) {
-      toast.error("Vui lòng mua khóa học để xem bài này");
+      setSelectedLockedLesson(lesson);
+      setIsUpgradeModalOpen(true);
       return;
     }
     setCurrentLessonId(lesson.id);
@@ -828,6 +839,38 @@ export function CourseClient({
           courseId={course.id}
         />
       )}
+
+      {/* Upgrade Content Dialog */}
+      <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
+        <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-gray-100 shadow-xl p-6 text-center">
+          <div className="flex flex-col items-center">
+            {/* Lock Icon */}
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
+              <Lock className="h-7 w-7" />
+            </div>
+
+            <DialogHeader className="space-y-2 mb-6">
+              <DialogTitle className="text-xl font-bold text-gray-900 text-center">
+                Mở khóa toàn bộ nội dung
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 leading-relaxed text-center">
+                Bài học <strong className="text-gray-800 font-semibold">{selectedLockedLesson?.title}</strong> thuộc nội dung trả phí. Đăng ký khóa học ngay để truy cập trọn bộ tài liệu và video chất lượng cao.
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* CTA Button */}
+            <Button
+              onClick={() => {
+                setIsUpgradeModalOpen(false);
+                handleEnroll();
+              }}
+              className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-md shadow-indigo-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+            >
+              Đăng ký ngay với {formatVnd(course.price)}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
