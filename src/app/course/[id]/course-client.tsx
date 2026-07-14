@@ -514,27 +514,35 @@ export function CourseClient({
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="mt-0 space-y-6 outline-none">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs">
-                <h3 className="text-lg font-bold text-gray-900 mb-3">About Course</h3>
-                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap text-sm md:text-base">
+              {/* About Course Card */}
+              <Card className="border border-slate-100 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
+                <h3 className="text-lg font-bold text-gray-900">About Course</h3>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {course.description}
                 </p>
-              </div>
+              </Card>
 
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs">
-                <h3 className="text-lg font-bold text-gray-900 mb-5">What You'll Learn</h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {getLearningPoints(course.category?.slug || "", course.title).map((point, index) => (
+              {/* What You'll Learn Card */}
+              <Card className="border border-slate-100 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
+                <h3 className="text-lg font-bold text-gray-900">What You'll Learn</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(course.whatYouWillLearn && course.whatYouWillLearn.length > 0
+                    ? course.whatYouWillLearn
+                    : getLearningPoints(course.category?.slug || "", course.title)
+                  ).map((item: string, index: number) => (
                     <div key={index} className="flex items-start gap-3">
-                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
-                        <Check className="h-3 w-3 stroke-[3]" />
+                      <div className="flex shrink-0 items-center justify-center rounded-full bg-indigo-50 p-1 text-indigo-500">
+                        <Check className="size-4" />
                       </div>
-                      <span className="text-xs md:text-sm text-gray-600 leading-tight">{point}</span>
+                      <span className="text-sm text-gray-700 leading-relaxed">
+                        {item}
+                      </span>
                     </div>
                   ))}
                 </div>
-              </div>
+              </Card>
             </TabsContent>
+
 
             {/* Author Tab */}
             <TabsContent value="author" className="mt-0 outline-none">
@@ -672,33 +680,6 @@ export function CourseClient({
               </div>
             </TabsContent>
           </Tabs>
-
-          {/* About Course Card */}
-          <Card className="mt-8 border border-slate-200/80 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
-            <h3 className="text-lg font-bold text-gray-900">About Course</h3>
-            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-              {course.description}
-            </div>
-          </Card>
-
-          {/* What You'll Learn Card */}
-          {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
-            <Card className="mt-6 border border-slate-200/80 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
-              <h3 className="text-lg font-bold text-gray-900">What You'll Learn</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {course.whatYouWillLearn.map((item: string, index: number) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-500 p-1 mt-0.5">
-                      <Check className="h-3.5 w-3.5" />
-                    </div>
-                    <span className="text-sm text-gray-700 leading-relaxed">
-                      {item}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
         </div>
 
         {/* Right Column (Sidebar: Accordion Content & Mini Author Card) */}
