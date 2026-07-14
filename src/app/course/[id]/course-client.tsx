@@ -517,9 +517,10 @@ export function CourseClient({
               {/* About Course Card */}
               <Card className="border border-slate-100 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
                 <h3 className="text-lg font-bold text-gray-900">About Course</h3>
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                  {course.description}
-                </p>
+                <div 
+                  className="rich-content text-sm text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: course.description }}
+                />
               </Card>
 
               {/* What You'll Learn Card */}

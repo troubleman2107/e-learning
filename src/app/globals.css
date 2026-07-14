@@ -137,3 +137,117 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Tiptap rich text styling for editor content and public content display */
+.tiptap, .rich-content {
+  ul {
+    list-style-type: disc !important;
+    padding-left: 1.5rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  ol {
+    list-style-type: decimal !important;
+    padding-left: 1.5rem !important;
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  table {
+    border-collapse: collapse;
+    table-layout: auto;
+    width: 100%;
+    margin: 1.25rem 0;
+    overflow-x: auto;
+    display: block;
+    max-width: 100%;
+
+    @media (min-width: 768px) {
+      display: table;
+    }
+
+    td, th {
+      border: 1px solid oklch(0.9 0.011 240);
+      box-sizing: border-box;
+      min-width: 2em;
+      padding: 8px 12px;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: oklch(0.96 0.009 240);
+      font-weight: bold;
+      text-align: left;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  blockquote {
+    border-left: 4px solid oklch(0.46 0.126 174) !important;
+    padding-left: 1.25rem !important;
+    color: oklch(0.48 0.028 240) !important;
+    font-style: italic;
+    margin: 1.5rem 0 !important;
+  }
+
+  pre {
+    background-color: oklch(0.96 0.009 240) !important;
+    padding: 0.85rem 1.25rem !important;
+    border-radius: 0.5rem !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.85rem !important;
+    overflow-x: auto;
+    margin: 1.5rem 0 !important;
+    
+    code {
+      background-color: transparent !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      color: inherit !important;
+      font-size: inherit !important;
+    }
+  }
+
+  code {
+    background-color: oklch(0.96 0.009 240) !important;
+    color: oklch(0.22 0.03 240) !important;
+    padding: 0.15rem 0.3rem !important;
+    border-radius: 0.25rem !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.85rem !important;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid oklch(0.9 0.011 240);
+    margin: 2rem 0;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: bold;
+    color: oklch(0.17 0.018 240);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+

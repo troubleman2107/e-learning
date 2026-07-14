@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -151,11 +152,15 @@ export function CreateCourseForm({ categories }: CreateCourseFormProps) {
         {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="description">Mô tả *</Label>
-          <Textarea
-            id="description"
-            placeholder="Mô tả chi tiết về nội dung khóa học..."
-            rows={4}
-            {...register("description")}
+          <Controller
+            control={control}
+            name="description"
+            render={({ field }) => (
+              <RichTextEditor
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
           />
           {errors.description && (
             <p className="text-sm text-red-500">

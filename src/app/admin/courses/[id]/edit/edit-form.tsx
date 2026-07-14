@@ -12,6 +12,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/rich-text-editor";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -145,10 +146,15 @@ export function EditCourseForm({ course, categories }: { course: any, categories
 
         <div className="space-y-2">
           <Label htmlFor="description">Mô tả *</Label>
-          <Textarea
-            id="description"
-            rows={4}
-            {...register("description")}
+          <Controller
+            control={control}
+            name="description"
+            render={({ field }) => (
+              <RichTextEditor
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
           />
           {errors.description && (
             <p className="text-sm text-red-500">
