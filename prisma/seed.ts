@@ -25,6 +25,72 @@ async function main() {
     console.log(`  ✅ Category: ${cat.name} (${record.id})`);
   }
 
+  /* ─── Authors ────────────────────────────────────────────── */
+
+  const authorsData = [
+    {
+      slug: "ung-dung-ai",
+      name: "Dr. Hoàng Minh",
+      title: "AI Specialist & Researcher",
+      bio: "Tiến sĩ Khoa học Máy tính chuyên ngành Trí tuệ Nhân tạo. Anh có hơn 10 năm kinh nghiệm nghiên cứu và phát triển các hệ thống AI tại Singapore và Việt Nam. Hiện tại anh là cố vấn công nghệ cho nhiều start-up công nghệ lớn.",
+      details: "Hoàng Minh là một trong những chuyên gia đi đầu trong việc phổ cập ứng dụng AI vào công việc hàng ngày tại Việt Nam. Các khóa học của anh luôn hướng đến tính ứng dụng cao, giúp học viên giải quyết trực tiếp các bài toán thực tế mà không cần kiến thức code chuyên sâu.",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+      rating: "4.9",
+    },
+    {
+      slug: "kinh-doanh-marketing",
+      name: "Nguyễn Duy Linh",
+      title: "Marketing Director @ Retail Chain",
+      bio: "Chuyên gia Marketing với 12 năm thực chiến tại các tập đoàn bán lẻ lớn tại Việt Nam. Anh từng trực tiếp tối ưu ngân sách quảng cáo hàng triệu USD và xây dựng hệ thống bán hàng đa kênh hiệu suất cao.",
+      details: "Nguyễn Duy Linh nổi tiếng với phong cách giảng dạy trực diện, lấy số liệu làm thước đo hiệu quả. Anh tập trung hướng dẫn học viên các bước thực hiện chi tiết (step-by-step) để đạt được mục tiêu doanh số nhanh nhất.",
+      image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+      rating: "4.8",
+    },
+    {
+      slug: "the-hinh",
+      name: "Coach Lê Nam",
+      title: "Expert Fitness Coach & Nutritionist",
+      bio: "Huấn luyện viên thể hình cá nhân được chứng nhận quốc tế (NASM-CPT) với hơn 8 năm kinh nghiệm thay đổi vóc dáng cho hàng nghìn học viên. Anh cũng là một Content Creator nổi tiếng trong lĩnh vực sức khỏe.",
+      details: "Lê Nam tin vào phương pháp tập luyện và dinh dưỡng dựa trên khoa học (Evidence-Based). Khóa học của anh không chỉ hướng dẫn động tác mà còn giúp học viên hiểu rõ nguyên lý hoạt động của cơ thể để tự làm chủ lộ trình tập luyện của mình.",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+      rating: "4.9",
+    },
+    {
+      slug: "thu-nhap-thu-dong",
+      name: "Trần Minh Nam",
+      title: "Full-Stack Engineer & Solopreneur",
+      bio: "Kỹ sư phần mềm và nhà sáng lập doanh nghiệp 1 người. Anh đã xây dựng thành công 3 sản phẩm SaaS có doanh thu ổn định và có nhiều năm kinh nghiệm tự do tài chính, làm việc từ xa.",
+      details: "Trần Minh Nam hướng dẫn học viên cách tận dụng công nghệ để giải phóng sức lao động, tự xây dựng hệ thống kinh doanh tự động hóa. Anh chú trọng chia sẻ các case-study thực tế từ chính hành trình xây dựng sự nghiệp của mình.",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+      rating: "4.9",
+    },
+  ];
+
+  const authorRecords: Record<string, string> = {};
+
+  for (const author of authorsData) {
+    const existingAuthor = await prisma.author.findFirst({
+      where: { name: author.name },
+    });
+    if (existingAuthor) {
+      authorRecords[author.slug] = existingAuthor.id;
+      console.log(`  ⏭️ Author already exists: ${author.name}`);
+    } else {
+      const record = await prisma.author.create({
+        data: {
+          name: author.name,
+          title: author.title,
+          bio: author.bio,
+          details: author.details,
+          image: author.image,
+          rating: author.rating,
+        },
+      });
+      authorRecords[author.slug] = record.id;
+      console.log(`  ✅ Author: ${author.name} (${record.id})`);
+    }
+  }
+
   /* ─── Courses ────────────────────────────────────────────── */
 
   const coursesData = [
@@ -195,8 +261,14 @@ async function main() {
       where: { title: courseData.title },
     });
 
+    const authorId = authorRecords[courseData.categorySlug];
+
     if (existing) {
-      console.log(`  ⏭️ Already exists: ${courseData.title}`);
+      await prisma.course.update({
+        where: { id: existing.id },
+        data: { authorId },
+      });
+      console.log(`  ⏭️ Already exists (updated author): ${courseData.title}`);
       continue;
     }
 
@@ -207,6 +279,7 @@ async function main() {
         price: courseData.price,
         trailerUrl: courseData.trailerUrl,
         categoryId,
+        authorId,
       },
     });
 

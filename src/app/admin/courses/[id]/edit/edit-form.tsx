@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateCourse } from "../../actions";
-import { Category } from "@/generated/prisma/client";
+import { Category, Author } from "@/generated/prisma/client";
 
 const formSchema = z.object({
   title: z.string().min(1, "Tên khóa học không được để trống"),
@@ -31,13 +31,14 @@ const formSchema = z.object({
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
+  authorId: z.string().optional(),
   thumbnail: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function EditCourseForm({ course, categories }: { course: any, categories: Category[] }) {
+export function EditCourseForm({ course, categories, authors }: { course: any, categories: Category[], authors: Author[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -55,6 +56,7 @@ export function EditCourseForm({ course, categories }: { course: any, categories
       trailerUrl: course.trailerUrl,
       bunnyVideoId: course.bunnyVideoId || "",
       categoryId: course.categoryId || "none",
+      authorId: course.authorId || "none",
       thumbnail: course.thumbnail || "",
       whatYouWillLearn: course.whatYouWillLearn ? course.whatYouWillLearn.join("\n") : "",
     },
@@ -143,7 +145,35 @@ export function EditCourseForm({ course, categories }: { course: any, categories
             <p className="text-sm text-red-500">{errors.categoryId.message}</p>
           )}
         </div>
-
+        {/* Author */}
+        <div className="space-y-2">
+          <Label htmlFor="authorId">Giảng viên</Label>
+          <Controller
+            control={control}
+            name="authorId"
+            render={({ field }) => (
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn giảng viên" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">-- Không chọn --</SelectItem>
+                  {authors.map((author) => (
+                    <SelectItem key={author.id} value={author.id}>
+                      {author.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {errors.authorId && (
+            <p className="text-sm text-red-500">{errors.authorId.message}</p>
+          )}
+        </div>
         <div className="space-y-2">
           <Label htmlFor="description">Mô tả *</Label>
           <Controller

@@ -281,7 +281,7 @@ export function CourseClient({
 
   // Deterministic stats
   const reviewCount = (course.title.length * 3 + 12) % 150 + 15;
-  const authorInfo = getAuthorInfo(course.category?.slug || "");
+  const authorInfo = course.author || getAuthorInfo(course.category?.slug || "");
 
   // Fetch token for current lesson
   useEffect(() => {

@@ -6,5 +6,9 @@ export default async function NewCoursePage() {
     orderBy: { name: 'asc' },
   });
 
-  return <CreateCourseForm categories={categories} />;
+  const authors = await prisma.author.findMany({
+    orderBy: { name: 'asc' },
+  });
+
+  return <CreateCourseForm categories={categories} authors={authors} />;
 }

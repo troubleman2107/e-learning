@@ -89,12 +89,26 @@ model Course {
   categoryId   String?
   thumbnail    String?
   whatYouWillLearn String[]
+  authorId     String?
 
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author   Author?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
   orders  Order[]
   modules Module[]
 
   @@index([categoryId])
+  @@index([authorId])
+}
+
+model Author {
+  id      String   @id @default(cuid())
+  name    String
+  title   String
+  bio     String
+  details String
+  image   String
+  rating  String   @default("4.9")
+  courses Course[]
 }
 
 model Module {

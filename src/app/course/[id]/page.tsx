@@ -22,6 +22,7 @@ const getCourse = cache(async (id: string) => {
     where: { id },
     include: {
       category: true,
+      author: true,
       modules: {
         orderBy: { order: "asc" },
         include: {
