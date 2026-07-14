@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -671,6 +672,33 @@ export function CourseClient({
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* About Course Card */}
+          <Card className="mt-8 border border-slate-200/80 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
+            <h3 className="text-lg font-bold text-gray-900">About Course</h3>
+            <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+              {course.description}
+            </div>
+          </Card>
+
+          {/* What You'll Learn Card */}
+          {course.whatYouWillLearn && course.whatYouWillLearn.length > 0 && (
+            <Card className="mt-6 border border-slate-200/80 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
+              <h3 className="text-lg font-bold text-gray-900">What You'll Learn</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {course.whatYouWillLearn.map((item: string, index: number) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-500 p-1 mt-0.5">
+                      <Check className="h-3.5 w-3.5" />
+                    </div>
+                    <span className="text-sm text-gray-700 leading-relaxed">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Right Column (Sidebar: Accordion Content & Mini Author Card) */}
