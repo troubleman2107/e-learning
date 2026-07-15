@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BookOpenCheck, Clock3, Star, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { stripHtml } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,6 +22,7 @@ export interface SerializedCourse {
   id: string;
   title: string;
   description: string;
+  shortDescription?: string | null;
   price: number;
   categoryName: string;
   categorySlug: string;
@@ -90,7 +92,7 @@ function CourseCard({ course }: { course: SerializedCourse }) {
           {course.title}
         </CardTitle>
         <CardDescription className="line-clamp-2 text-sm leading-relaxed text-gray-500">
-          {course.description}
+          {course.shortDescription || stripHtml(course.description)}
         </CardDescription>
       </CardHeader>
 

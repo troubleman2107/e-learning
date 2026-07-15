@@ -124,12 +124,8 @@ export default async function LearnCoursePage({
             <h2 className="mb-4 text-lg font-semibold text-gray-900">
               Giới thiệu nội dung
             </h2>
-            <div className="prose prose-indigo max-w-none text-gray-600">
-              {course.description.split("\n").map((paragraph, index) => (
-                <p key={index} className="mb-4">
-                  {paragraph}
-                </p>
-              ))}
+            <div className="prose prose-indigo max-w-none text-gray-600 rich-content">
+              <div dangerouslySetInnerHTML={{ __html: course.description }} />
             </div>
           </div>
         </div>

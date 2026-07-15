@@ -32,6 +32,7 @@ const formSchema = z.object({
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   authorId: z.string().optional(),
+  shortDescription: z.string().optional(),
   thumbnail: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
 });
@@ -62,6 +63,7 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
       bunnyVideoId: "",
       categoryId: undefined,
       authorId: undefined,
+      shortDescription: "",
       thumbnail: "",
       whatYouWillLearn: "",
     },
@@ -180,6 +182,20 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
             <p className="text-sm text-red-500">{errors.authorId.message}</p>
           )}
         </div>
+        {/* Short Description */}
+        <div className="space-y-2">
+          <Label htmlFor="shortDescription">Mô tả ngắn (Hiển thị ở Thumbnail/Carousel)</Label>
+          <Textarea
+            id="shortDescription"
+            placeholder="Tóm tắt ngắn gọn nội dung khóa học..."
+            rows={3}
+            {...register("shortDescription")}
+          />
+          {errors.shortDescription && (
+            <p className="text-sm text-red-500">{errors.shortDescription.message}</p>
+          )}
+        </div>
+
         {/* Description */}
         <div className="space-y-2">
           <Label htmlFor="description">Mô tả *</Label>

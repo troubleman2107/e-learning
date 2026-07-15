@@ -11,6 +11,7 @@ export interface FeaturedCourse {
   id: string;
   title: string;
   description: string;
+  shortDescription?: string | null;
   price: number;
   categoryName: string;
   categorySlug: string;

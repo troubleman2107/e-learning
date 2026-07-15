@@ -152,6 +152,7 @@ export default async function Home() {
     id: course.id,
     title: course.title,
     description: course.description,
+    shortDescription: course.shortDescription,
     price: course.price,
     categoryName: course.category?.name || "Mọi trình độ",
     categorySlug: course.category?.slug || "uncategorized",

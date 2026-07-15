@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Settings } from "lucide-react";
+import { stripHtml } from "@/lib/utils";
 
 export default async function AdminCoursesPage() {
   const courses = await prisma.course.findMany({
@@ -75,7 +76,7 @@ export default async function AdminCoursesPage() {
                   <div>
                     <p className="font-medium text-gray-900">{course.title}</p>
                     <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">
-                      {course.description}
+                      {stripHtml(course.description)}
                     </p>
                   </div>
                 </TableCell>

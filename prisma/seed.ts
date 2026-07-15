@@ -266,9 +266,12 @@ async function main() {
     if (existing) {
       await prisma.course.update({
         where: { id: existing.id },
-        data: { authorId },
+        data: {
+          authorId,
+          shortDescription: existing.shortDescription || courseData.description,
+        },
       });
-      console.log(`  ⏭️ Already exists (updated author): ${courseData.title}`);
+      console.log(`  ⏭️ Already exists (updated author & shortDescription): ${courseData.title}`);
       continue;
     }
 
@@ -276,6 +279,7 @@ async function main() {
       data: {
         title: courseData.title,
         description: courseData.description,
+        shortDescription: courseData.description,
         price: courseData.price,
         trailerUrl: courseData.trailerUrl,
         categoryId,

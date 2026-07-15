@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { Star, StarHalf } from "lucide-react";
+import { stripHtml } from "@/lib/utils";
 
 export interface CourseCardProps {
   course: {
     id: string;
     title: string;
     description: string;
+    shortDescription?: string | null;
     price: number;
     thumbnail?: string | null;
     category?: {
@@ -68,7 +70,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
 
         {/* Short Summary */}
         <p className="line-clamp-2 min-h-[2rem] text-[11px] text-gray-500 mt-1.5 leading-relaxed">
-          {course.description}
+          {course.shortDescription || stripHtml(course.description)}
         </p>
 
         {/* Rating Block */}

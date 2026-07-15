@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FeaturedCourse } from "./featured-courses";
+import { stripHtml } from "@/lib/utils";
 
 export function HeroCoursesCarousel({
   courses,
@@ -84,7 +85,7 @@ export function HeroCoursesCarousel({
                     {course.title}
                   </h3>
                   <p className="mt-2 text-xs sm:text-sm text-gray-300 line-clamp-2 leading-relaxed">
-                    {course.description}
+                    {course.shortDescription || stripHtml(course.description)}
                   </p>
 
                   <div className="mt-auto pt-3 flex items-center justify-between border-t border-white/5">

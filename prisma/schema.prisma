@@ -83,6 +83,7 @@ model Course {
   id          String @id @default(cuid())
   title       String
   description String
+  shortDescription String?
   price       Int
   trailerUrl  String
   bunnyVideoId String?

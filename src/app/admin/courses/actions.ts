@@ -9,6 +9,7 @@ import { z } from "zod";
 const courseSchema = z.object({
   title: z.string().min(1, "Tên khóa học không được để trống"),
   description: z.string().min(1, "Mô tả không được để trống"),
+  shortDescription: z.string().optional(),
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
   trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
   bunnyVideoId: z.string().optional(),
@@ -35,6 +36,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
     data: {
       title: validated.title,
       description: validated.description,
+      shortDescription: validated.shortDescription,
       price: validated.price,
       trailerUrl: validated.trailerUrl,
       bunnyVideoId: validated.bunnyVideoId,
@@ -70,6 +72,7 @@ export async function updateCourse(
     data: {
       title: validated.title,
       description: validated.description,
+      shortDescription: validated.shortDescription,
       price: validated.price,
       trailerUrl: validated.trailerUrl,
       bunnyVideoId: validated.bunnyVideoId,
