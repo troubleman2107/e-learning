@@ -20,6 +20,10 @@ export interface FeaturedCourse {
   visualIndex: number;
   isPaid?: boolean;
   thumbnail?: string | null;
+  author?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 interface CategoryGroup {

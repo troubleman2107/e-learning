@@ -549,15 +549,34 @@ export function CourseClient({
             <TabsContent value="author" className="mt-0 outline-none">
               <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs space-y-6">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-                  <img 
-                    src={authorInfo.image} 
-                    alt={authorInfo.name} 
-                    className="h-16 w-16 rounded-full object-cover ring-4 ring-slate-50 shadow-xs"
-                  />
+                  {course.author?.id ? (
+                    <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity">
+                      <img 
+                        src={authorInfo.image} 
+                        alt={authorInfo.name} 
+                        className="h-16 w-16 rounded-full object-cover ring-4 ring-slate-50 shadow-xs"
+                      />
+                    </Link>
+                  ) : (
+                    <img 
+                      src={authorInfo.image} 
+                      alt={authorInfo.name} 
+                      className="h-16 w-16 rounded-full object-cover ring-4 ring-slate-50 shadow-xs"
+                    />
+                  )}
                   <div>
-                    <h4 className="text-base font-bold text-gray-900 flex items-center justify-center sm:justify-start gap-1.5">
-                      {authorInfo.name}
-                      <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-500 text-white text-[8px] font-bold">✓</span>
+                    <h4 className="text-base font-bold text-gray-900 flex items-center justify-center sm:justify-start gap-1.5 hover:text-indigo-600 transition-colors">
+                      {course.author?.id ? (
+                        <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline flex items-center gap-1.5">
+                          {authorInfo.name}
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-500 text-white text-[8px] font-bold">✓</span>
+                        </Link>
+                      ) : (
+                        <>
+                          {authorInfo.name}
+                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-500 text-white text-[8px] font-bold">✓</span>
+                        </>
+                      )}
                     </h4>
                     <p className="text-xs text-gray-500 font-semibold mt-0.5">{authorInfo.title}</p>
                     <div className="flex items-center justify-center sm:justify-start gap-1 mt-1 text-xs font-bold text-amber-500">
@@ -611,13 +630,31 @@ export function CourseClient({
                 <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
                 <div className="rounded-xl border border-indigo-50 bg-indigo-50/10 p-5 space-y-4">
                   <div className="flex items-center gap-3">
-                    <img 
-                      src={authorInfo.image} 
-                      alt={authorInfo.name} 
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
+                    {course.author?.id ? (
+                      <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity shrink-0">
+                        <img 
+                          src={authorInfo.image} 
+                          alt={authorInfo.name} 
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      </Link>
+                    ) : (
+                      <img 
+                        src={authorInfo.image} 
+                        alt={authorInfo.name} 
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    )}
                     <div>
-                      <h4 className="text-xs font-bold text-gray-900">{authorInfo.name}</h4>
+                      <h4 className="text-xs font-bold text-gray-900">
+                        {course.author?.id ? (
+                          <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline hover:text-indigo-600 transition-colors">
+                            {authorInfo.name}
+                          </Link>
+                        ) : (
+                          authorInfo.name
+                        )}
+                      </h4>
                       <p className="text-[10px] text-gray-400">Đăng 2 ngày trước • Thông báo chung</p>
                     </div>
                   </div>
@@ -802,15 +839,34 @@ export function CourseClient({
           <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-xs space-y-4">
             <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Author</span>
             <div className="flex items-center gap-3">
-              <img 
-                src={authorInfo.image} 
-                alt={authorInfo.name} 
-                className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-50"
-              />
+              {course.author?.id ? (
+                <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity shrink-0">
+                  <img 
+                    src={authorInfo.image} 
+                    alt={authorInfo.name} 
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-50"
+                  />
+                </Link>
+              ) : (
+                <img 
+                  src={authorInfo.image} 
+                  alt={authorInfo.name} 
+                  className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-50"
+                />
+              )}
               <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-gray-900 flex items-center gap-1">
-                  {authorInfo.name}
-                  <span className="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500 text-white text-[6px] font-bold">✓</span>
+                <h4 className="text-xs font-bold text-gray-900 flex items-center gap-1 hover:text-indigo-600 transition-colors">
+                  {course.author?.id ? (
+                    <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline flex items-center gap-1">
+                      {authorInfo.name}
+                      <span className="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500 text-white text-[6px] font-bold">✓</span>
+                    </Link>
+                  ) : (
+                    <>
+                      {authorInfo.name}
+                      <span className="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500 text-white text-[6px] font-bold">✓</span>
+                    </>
+                  )}
                 </h4>
                 <p className="text-[10px] text-gray-500 font-semibold truncate mt-0.5">{authorInfo.title}</p>
               </div>

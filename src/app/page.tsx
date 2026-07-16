@@ -123,6 +123,7 @@ export default async function Home() {
   const dbCourses = await prisma.course.findMany({
     include: {
       category: true,
+      author: true,
       _count: {
         select: {
           orders: true,
@@ -161,6 +162,10 @@ export default async function Home() {
     visualIndex: index,
     isPaid: paidCourseIds.includes(course.id),
     thumbnail: course.thumbnail,
+    author: course.author ? {
+      id: course.author.id,
+      name: course.author.name,
+    } : null,
   }));
 
   return (

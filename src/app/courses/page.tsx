@@ -28,13 +28,14 @@ const visuals = [
 export default async function CoursesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; search?: string; page?: string; maxPrice?: string }>;
+  searchParams: Promise<{ category?: string; search?: string; page?: string; maxPrice?: string; authorId?: string }>;
 }) {
   const { 
     category: activeCategory, 
     search: searchQuery, 
     page: pageParam, 
-    maxPrice: maxPriceParam 
+    maxPrice: maxPriceParam,
+    authorId: activeAuthorId,
   } = await searchParams;
 
   const limit = 12; // Divisible by 2, 3, and 4 for perfect grid rows
@@ -66,14 +67,20 @@ export default async function CoursesPage({
             },
           }
         : {},
+      activeAuthorId
+        ? {
+            authorId: activeAuthorId,
+          }
+        : {},
     ],
   };
 
-  const [dbCourses, totalCoursesCount, allCoursesCount, categories, maxPriceRecord] = await Promise.all([
+  const [dbCourses, totalCoursesCount, allCoursesCount, categories, maxPriceRecord, authors] = await Promise.all([
     prisma.course.findMany({
       where: whereClause,
       include: {
         category: true,
+        author: true,
         _count: {
           select: {
             orders: true,
@@ -111,6 +118,18 @@ export default async function CoursesPage({
         price: true,
       },
     }),
+    prisma.author.findMany({
+      include: {
+        _count: {
+          select: {
+            courses: true,
+          },
+        },
+      },
+      orderBy: {
+        name: "asc",
+      },
+    }),
   ]);
 
   const maxPriceLimit = maxPriceRecord?.price || 500000;
@@ -122,11 +141,13 @@ export default async function CoursesPage({
     search,
     maxPrice,
     page,
+    authorId,
   }: {
     category?: string | null;
     search?: string | null;
     maxPrice?: string | null;
     page?: number | null;
+    authorId?: string | null;
   }) => {
     const params = new URLSearchParams();
     
@@ -138,6 +159,9 @@ export default async function CoursesPage({
     
     const price = maxPrice === undefined ? maxPriceParam : maxPrice;
     if (price) params.set("maxPrice", price);
+    
+    const auth = authorId === undefined ? activeAuthorId : authorId;
+    if (auth) params.set("authorId", auth);
     
     const p = page === undefined ? pageParam : page;
     if (p) params.set("page", p.toString());
@@ -200,7 +224,7 @@ export default async function CoursesPage({
             {/* Category Filter Vertical List */}
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4 px-1">Lọc theo danh mục</span>
-              <div className="flex flex-col gap-1 max-h-[520px] overflow-y-auto pr-1 scrollbar-thin">
+              <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
                 <Link
                   href={createFilterLink({ category: null, page: 1 })}
                   className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-all duration-200 ${
@@ -240,6 +264,63 @@ export default async function CoursesPage({
                 })}
               </div>
             </div>
+
+            {/* Author Filter Vertical List */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-4 px-1">Lọc theo giảng viên</span>
+              <div className="flex flex-col gap-1 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
+                <Link
+                  href={createFilterLink({ authorId: null, page: 1 })}
+                  className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-all duration-200 ${
+                    !activeAuthorId
+                      ? "bg-indigo-50 text-indigo-700 font-bold border border-indigo-100/50"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
+                  }`}
+                >
+                  <span>Tất cả</span>
+                  <span className={`px-1.5 py-0.5 text-[9px] rounded font-bold ${
+                    !activeAuthorId ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-100 text-slate-500"
+                  }`}>
+                    {allCoursesCount}
+                  </span>
+                </Link>
+
+                {authors.map((auth) => {
+                  const isActive = activeAuthorId === auth.id;
+                  return (
+                    <Link
+                      key={auth.id}
+                      href={createFilterLink({ authorId: auth.id, page: 1 })}
+                      className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-all duration-200 ${
+                        isActive
+                          ? "bg-indigo-50 text-indigo-700 font-bold border border-indigo-100/50"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium border border-transparent"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        {auth.image ? (
+                          <img
+                            src={auth.image}
+                            alt={auth.name}
+                            className="size-5 rounded-full object-cover flex-shrink-0 border border-slate-100"
+                          />
+                        ) : (
+                          <div className="size-5 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-slate-500">
+                            {auth.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="line-clamp-1">{auth.name}</span>
+                      </div>
+                      <span className={`px-1.5 py-0.5 text-[9px] rounded font-bold flex-shrink-0 ${
+                        isActive ? "bg-indigo-600 text-white shadow-sm" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {auth._count.courses}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
           </aside>
 
           {/* Course Grid & Pagination Container */}
@@ -258,8 +339,8 @@ export default async function CoursesPage({
                   <BookOpenCheck className="mx-auto size-12 text-gray-300 mb-4" />
                   <h3 className="text-lg font-medium text-gray-900">Không tìm thấy khóa học</h3>
                   <p className="mt-1 text-gray-500">
-                    {activeCategory 
-                      ? "Chưa có khóa học nào thuộc danh mục này."
+                    {activeCategory || activeAuthorId || searchQuery || maxPriceParam
+                      ? "Không tìm thấy khóa học nào phù hợp với bộ lọc đã chọn."
                       : "Các khóa học đang được cập nhật, bạn hãy quay lại sau nhé."}
                   </p>
                 </div>

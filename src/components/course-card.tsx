@@ -20,6 +20,10 @@ export interface CourseCardProps {
       orders: number;
       modules: number;
     };
+    author?: {
+      id: string;
+      name: string;
+    } | null;
   };
   index?: number;
 }
@@ -65,7 +69,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
         
         {/* Author / Instructor */}
         <p className="text-[11px] text-emerald-700 mt-1 font-medium line-clamp-1">
-          VietLearn Academy
+          {course.author?.name || "VietLearn Academy"}
         </p>
 
         {/* Short Summary */}
