@@ -37,7 +37,7 @@ export function SearchInput() {
   }, [value, router, searchParams]);
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div className="relative w-full sm:max-w-xs">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
         {isPending ? (
           <Loader2 className="size-4 animate-spin text-indigo-500" />

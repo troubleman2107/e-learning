@@ -185,7 +185,7 @@ export default async function Home() {
               E-learning thực chiến cho người Việt
             </div>
 
-            <h1 className="text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
               Hệ Thống Đào Tạo{" "}
               <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                 Thực Chiến
@@ -393,7 +393,7 @@ export default async function Home() {
             Ưu đãi có hạn
           </div>
 
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+          <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl md:text-4xl lg:text-5xl">
             Sẵn sàng bắt đầu chưa?
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-indigo-100">
@@ -415,9 +415,12 @@ export default async function Home() {
             </Button>
           </div>
 
-          <p className="mt-6 text-sm text-indigo-200">
-            ✓ Không cần thẻ tín dụng &nbsp;&bull;&nbsp; ✓ Hoàn tiền 7 ngày
-            &nbsp;&bull;&nbsp; ✓ Hỗ trợ tiếng Việt
+          <p className="mt-6 text-xs sm:text-sm text-indigo-200">
+            <span className="inline-block">✓ Không cần thẻ tín dụng</span>{" "}
+            <span className="hidden sm:inline">&bull;</span>{" "}
+            <span className="inline-block">✓ Hoàn tiền 7 ngày</span>{" "}
+            <span className="hidden sm:inline">&bull;</span>{" "}
+            <span className="inline-block">✓ Hỗ trợ tiếng Việt</span>
           </p>
         </div>
       </section>

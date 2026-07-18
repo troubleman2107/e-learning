@@ -50,7 +50,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
           <div
             key={stat.label}
@@ -78,8 +78,8 @@ export default async function AdminDashboardPage() {
         <div className="border-b border-gray-100 px-6 py-4">
           <h2 className="font-semibold text-gray-900">Đơn hàng gần đây</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto -mx-4 sm:mx-0">
+          <table className="w-full min-w-[600px] text-left text-sm">
             <thead className="bg-gray-50/80 text-xs uppercase tracking-wider text-gray-500">
               <tr>
                 <th className="px-6 py-3">Mã đơn</th>

@@ -15,11 +15,11 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)]">
       <AdminSidebar />
 
       {/* Main content area */}
-      <main className="flex-1 overflow-y-auto bg-gray-50/30 p-6 md:p-8">
+      <main className="flex-1 overflow-y-auto bg-gray-50/30 p-4 md:p-8">
         {children}
       </main>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, XCircle, Copy, Check, Clock, Loader2 } from "lucide-react";
+import { X, XCircle, Copy, Check, Clock, Loader2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -33,6 +33,7 @@ export function CheckoutModal({
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
   const endTimeRef = useRef<number>(0);
 
   // Bank details
@@ -111,6 +112,36 @@ export function CheckoutModal({
       toast.error("Không thể sao chép");
     }
   }, []);
+
+  // Download QR code image
+  const handleDownloadQr = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const downloadUrl = `/api/download-qr?bank=${bankName}&acc=${bankAccount}&holder=${encodeURIComponent(accountHolder)}&amount=${amount}&des=${orderCode}`;
+      const response = await fetch(downloadUrl);
+      if (!response.ok) {
+        throw new Error("Không thể tải xuống");
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `vietlearn-qr-${orderCode}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success("Đã tải xuống mã QR!");
+    } catch (error) {
+      // Fallback
+      const downloadUrl = `/api/download-qr?bank=${bankName}&acc=${bankAccount}&holder=${encodeURIComponent(accountHolder)}&amount=${amount}&des=${orderCode}`;
+      window.open(downloadUrl, "_blank");
+      toast.success("Mở mã QR trong tab mới để lưu...");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -203,7 +234,7 @@ export function CheckoutModal({
 
       {/* Modal */}
       <div className="relative z-10 w-full max-w-[460px] mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
-        <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-hidden">
+        <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-y-auto max-h-[90vh] scrollbar-hide">
           {/* Header */}
           <div className="flex items-center justify-between px-5 pt-5 pb-3">
             <h2 className="text-white font-bold text-lg flex items-center gap-2">
@@ -247,14 +278,29 @@ export function CheckoutModal({
                 className="w-full h-full object-contain"
               />
             </div>
+            
+             {/* Download Button */}
+            <button
+              onClick={handleDownloadQr}
+              disabled={isDownloading}
+              className="flex items-center gap-1.5 rounded-lg bg-white/5 border border-gray-600/40 px-3.5 py-1.5 text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDownloading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
+              {isDownloading ? "Đang tải..." : "Tải ảnh QR"}
+            </button>
+
             <div className="flex items-center gap-1.5 text-violet-400 text-xs font-medium">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Đang chờ thanh toán...
             </div>
           </div>
 
-          {/* Bank Details - Compact 2-col grid */}
-          <div className="mx-5 mb-4 grid grid-cols-2 gap-2.5">
+          {/* Bank Details - Compact 2-col grid (1-col on mobile) */}
+          <div className="mx-5 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <BankDetailRow label="Ngân hàng" value={bankName} />
             <BankDetailRow
               label="Số tài khoản"

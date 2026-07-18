@@ -47,7 +47,7 @@ export function PriceFilter({ maxPriceLimit }: { maxPriceLimit: number }) {
   };
 
   return (
-    <div className="w-full max-w-xs space-y-3.5 p-4 rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300">
+    <div className="w-full space-y-3.5 p-4 rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300">
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">Khoảng giá</span>
         <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-full transition-all">

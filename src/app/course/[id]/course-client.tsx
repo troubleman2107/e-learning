@@ -403,7 +403,7 @@ export function CourseClient({
 
   return (
     <>
-    <section className="mx-auto w-full max-w-7xl px-5 pb-16 sm:px-6 lg:px-8">
+    <section className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-16">
       {/* Breadcrumbs */}
       <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 mb-6 flex-wrap">
         <Link href="/courses" className="hover:text-indigo-600 transition-colors font-medium">
@@ -432,17 +432,17 @@ export function CourseClient({
       </div>
 
       {/* Header Info Section */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8 border-b border-gray-100 pb-6">
-        <div className="flex items-start gap-4">
+      <div className="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8 border-b border-gray-100 pb-4 md:pb-6">
+        <div className="flex items-start gap-3 sm:gap-4">
           <Link 
             href="/courses" 
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900 shadow-xs hover:scale-105 active:scale-95"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900 shadow-xs hover:scale-105 active:scale-95"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Link>
           <div>
-            <div className="flex flex-wrap items-center gap-3 mb-2">
-              <h1 className="text-2xl font-extrabold text-gray-900 md:text-3xl tracking-tight leading-tight">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl md:text-3xl tracking-tight leading-tight">
                 {course.title}
               </h1>
               {course.category && (
@@ -470,9 +470,9 @@ export function CourseClient({
       </div>
 
       {/* Main Grid Layout */}
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
+      <div className="grid gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         {/* Left Column (Video & Content Details) */}
-        <div className="space-y-8">
+        <div className="min-w-0 w-full space-y-8">
           {/* Video Player */}
           <div className="overflow-hidden rounded-2xl border border-gray-200/60 bg-black shadow-md">
             <div className="relative aspect-video w-full">
@@ -494,14 +494,45 @@ export function CourseClient({
             </div>
           </div>
 
+          {/* Mobile Course Price Card (below video on mobile/tablet) */}
+          {!hasPurchased && (
+            <div className="lg:hidden rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center justify-between sm:justify-start gap-4">
+                <div>
+                  <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">
+                    Ưu đãi giới hạn chỉ
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-extrabold text-gray-900">
+                      {formatVnd(course.price)}
+                    </span>
+                    <span className="text-xs text-slate-400 line-through font-medium">
+                      {formatVnd(course.price * 2)}
+                    </span>
+                  </div>
+                </div>
+                <Badge className="bg-red-100 text-red-700 hover:bg-red-100 font-bold border-none text-[10px] shrink-0">
+                  Tiết kiệm 50%
+                </Badge>
+              </div>
+              <button
+                onClick={handleEnroll}
+                disabled={isCheckingOut || status === "loading"}
+                className="w-full sm:w-auto shrink-0 rounded-xl bg-rose-600 hover:bg-rose-500 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center"
+              >
+                Đăng ký ngay
+              </button>
+            </div>
+          )}
+
           {/* Details Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-8 flex w-full justify-start gap-2 md:gap-3 bg-transparent p-0 overflow-x-auto scrollbar-none border-0">
+            <TabsList className="mb-6 md:mb-8 flex w-full justify-start gap-1.5 sm:gap-2 md:gap-3 bg-transparent p-0 overflow-x-auto scrollbar-hide border-0">
               {["overview", "author", "faq", "announcements", "reviews"].map((tab) => (
                 <TabsTrigger
                   key={tab}
                   value={tab}
-                  className="relative rounded-full px-5 py-2 text-xs md:text-sm font-bold text-gray-500 transition-all duration-200 hover:text-gray-900 cursor-pointer border-0 shadow-none data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none data-[state=active]:border-0 data-[state=active]:border-transparent bg-transparent outline-none focus:outline-none"
+                  className="relative shrink-0 rounded-full px-3 sm:px-5 py-2 text-[11px] sm:text-xs md:text-sm font-bold text-gray-500 transition-all duration-200 hover:text-gray-900 cursor-pointer border-0 shadow-none data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none data-[state=active]:border-0 data-[state=active]:border-transparent bg-transparent outline-none focus:outline-none"
                 >
                   {tab === "overview" && "Overview"}
                   {tab === "author" && "Author"}
@@ -721,9 +752,9 @@ export function CourseClient({
         </div>
 
         {/* Right Column (Sidebar: Accordion Content & Mini Author Card) */}
-        <div className="space-y-6">
+        <div className="min-w-0 w-full space-y-6">
           {!hasPurchased && (
-            <div className="rounded-2xl border border-rose-100 bg-rose-50/30 p-5 shadow-xs flex flex-col gap-3">
+            <div className="hidden lg:flex rounded-2xl border border-rose-100 bg-rose-50/30 p-5 shadow-xs flex-col gap-3">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">
@@ -882,6 +913,32 @@ export function CourseClient({
         </div>
       </div>
     </section>
+
+      {/* Mobile Sticky Bottom CTA */}
+      {!hasPurchased && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-lg px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] lg:hidden">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500 font-medium">Giá khóa học</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-lg font-extrabold text-gray-900">
+                  {formatVnd(course.price)}
+                </span>
+                <span className="text-xs text-gray-400 line-through">
+                  {formatVnd(course.price * 2)}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={handleEnroll}
+              disabled={isCheckingOut || status === "loading"}
+              className="shrink-0 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              Đăng ký ngay
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Checkout Payment Modal */}
       {checkoutData && (
