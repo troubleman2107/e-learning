@@ -18,9 +18,9 @@ export async function POST(request: Request) {
       where: { id: courseId },
     });
 
-    if (!course) {
+    if (!course || !course.isPublished) {
       return NextResponse.json(
-        { error: "Course not found" },
+        { error: "Course not found or is not published" },
         { status: 404 }
       );
     }

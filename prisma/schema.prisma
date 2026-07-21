@@ -91,6 +91,7 @@ model Course {
   thumbnail    String?
   whatYouWillLearn String[]
   authorId     String?
+  isPublished  Boolean @default(false)
 
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   author   Author?   @relation(fields: [authorId], references: [id], onDelete: SetNull)

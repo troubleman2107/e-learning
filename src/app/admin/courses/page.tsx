@@ -59,6 +59,9 @@ export default async function AdminCoursesPage() {
                 Giá
               </TableHead>
               <TableHead className="font-semibold text-gray-600">
+                Trạng thái
+              </TableHead>
+              <TableHead className="font-semibold text-gray-600">
                 Đơn hàng
               </TableHead>
               <TableHead className="font-semibold text-gray-600">
@@ -96,6 +99,17 @@ export default async function AdminCoursesPage() {
                   >
                     {course.price.toLocaleString("vi-VN")}đ
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {course.isPublished ? (
+                    <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50" variant="outline">
+                      Công khai
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-50" variant="outline">
+                      Bản nháp
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-gray-600">

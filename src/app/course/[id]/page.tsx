@@ -40,8 +40,10 @@ export async function generateMetadata({
 }: CoursePageProps): Promise<Metadata> {
   const { id } = await params;
   const course = await getCourse(id);
+  const session = await auth();
+  const isAdmin = session?.user?.role === "ADMIN";
 
-  if (!course) {
+  if (!course || (!course.isPublished && !isAdmin)) {
     return {
       title: "Không tìm thấy khóa học | VietLearn",
       description: "Khóa học bạn đang tìm kiếm không tồn tại trên VietLearn.",
@@ -67,8 +69,14 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
     notFound();
   }
 
-  // Check if current user has purchased the course
   const session = await auth();
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  if (!course.isPublished && !isAdmin) {
+    notFound();
+  }
+
+  // Check if current user has purchased the course
   let hasPurchased = false;
 
   if (session?.user?.id) {

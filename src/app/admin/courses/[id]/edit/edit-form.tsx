@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { updateCourse } from "../../actions";
 import { Category, Author } from "@/generated/prisma/client";
 
@@ -35,6 +36,7 @@ const formSchema = z.object({
   shortDescription: z.string().optional(),
   thumbnail: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
+  isPublished: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -61,6 +63,7 @@ export function EditCourseForm({ course, categories, authors }: { course: any, c
       shortDescription: course.shortDescription || "",
       thumbnail: course.thumbnail || "",
       whatYouWillLearn: course.whatYouWillLearn ? course.whatYouWillLearn.join("\n") : "",
+      isPublished: course.isPublished || false,
     },
   });
 
@@ -278,6 +281,27 @@ export function EditCourseForm({ course, categories, authors }: { course: any, c
               {errors.bunnyVideoId.message}
             </p>
           )}
+        </div>
+
+        {/* Trạng thái hiển thị */}
+        <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="space-y-0.5">
+            <Label htmlFor="isPublished" className="text-sm font-semibold text-slate-700">Trạng thái hiển thị</Label>
+            <p className="text-xs text-slate-400">
+              Công khai khóa học này để học viên có thể tìm thấy và đăng ký học.
+            </p>
+          </div>
+          <Controller
+            control={control}
+            name="isPublished"
+            render={({ field }) => (
+              <Switch
+                id="isPublished"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
         </div>
 
         <div className="flex items-center justify-end gap-3 border-t border-gray-100 pt-6">

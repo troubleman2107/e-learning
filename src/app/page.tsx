@@ -116,11 +116,14 @@ export default async function Home() {
       },
       select: { courseId: true },
     });
-    paidCourseIds = paidOrders.map(o => o.courseId);
+    paidCourseIds = paidOrders.map((o) => o.courseId);
   }
 
   /* Fetch real courses from database */
   const dbCourses = await prisma.course.findMany({
+    where: {
+      isPublished: true,
+    },
     include: {
       category: true,
       author: true,
@@ -162,10 +165,12 @@ export default async function Home() {
     visualIndex: index,
     isPaid: paidCourseIds.includes(course.id),
     thumbnail: course.thumbnail,
-    author: course.author ? {
-      id: course.author.id,
-      name: course.author.name,
-    } : null,
+    author: course.author
+      ? {
+          id: course.author.id,
+          name: course.author.name,
+        }
+      : null,
   }));
 
   return (
@@ -246,18 +251,18 @@ export default async function Home() {
 
       {/* ═══════════ TRUST BADGES ═══════════ */}
       <section className="border-b border-gray-200/60 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-5 py-5 sm:px-6 lg:justify-between lg:px-8">
+        <div className="mx-auto grid grid-cols-2 sm:flex sm:flex-row sm:flex-wrap items-center justify-items-start sm:justify-between gap-y-3.5 gap-x-6 px-4 py-3 sm:py-5 sm:px-6 lg:justify-between lg:px-8 max-w-sm sm:max-w-7xl">
           {trustBadges.map((badge) => {
             const Icon = badge.icon;
             return (
               <div
                 key={badge.label}
-                className="flex items-center gap-2.5 text-sm font-medium text-gray-600"
+                className="flex items-center gap-2 text-xs sm:gap-2.5 sm:text-sm font-medium text-gray-600"
               >
-                <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-50">
-                  <Icon className="size-4.5 text-indigo-600" />
+                <div className="flex size-8 sm:size-9 flex-shrink-0 items-center justify-center rounded-lg bg-indigo-50">
+                  <Icon className="size-4 sm:size-4.5 text-indigo-600" />
                 </div>
-                {badge.label}
+                <span className="leading-tight">{badge.label}</span>
               </div>
             );
           })}
@@ -346,8 +351,8 @@ export default async function Home() {
               Học viên nói gì về VietLearn?
             </h2>
             <p className="mt-4 text-lg text-gray-500">
-              Hơn 2000 học viên đã thay đổi sự nghiệp với các khóa học của
-              chúng tôi.
+              Hơn 2000 học viên đã thay đổi sự nghiệp với các khóa học của chúng
+              tôi.
             </p>
           </div>
 

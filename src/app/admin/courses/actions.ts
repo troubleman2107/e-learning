@@ -17,6 +17,7 @@ const courseSchema = z.object({
   authorId: z.string().optional(),
   thumbnail: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
+  isPublished: z.boolean().optional(),
 });
 
 export async function createCourse(formData: z.infer<typeof courseSchema>) {
@@ -44,6 +45,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
       authorId: validated.authorId === "none" || !validated.authorId ? null : validated.authorId,
       thumbnail: validated.thumbnail,
       whatYouWillLearn: whatYouWillLearnArray,
+      isPublished: validated.isPublished ?? false,
     },
   });
 
@@ -80,6 +82,7 @@ export async function updateCourse(
       authorId: validated.authorId === "none" || !validated.authorId ? null : validated.authorId,
       thumbnail: validated.thumbnail,
       whatYouWillLearn: whatYouWillLearnArray,
+      isPublished: validated.isPublished ?? false,
     },
   });
 

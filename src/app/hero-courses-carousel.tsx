@@ -15,6 +15,13 @@ export function HeroCoursesCarousel({
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const touchEndY = useRef<number | null>(null);
+
+  const minSwipeDistance = 50;
+
   const nextSlide = useCallback(() => {
     setActiveIndex((prev) => (prev + 1) % courses.length);
   }, [courses.length]);
@@ -32,6 +39,40 @@ export function HeroCoursesCarousel({
     };
   }, [isHovered, courses.length, nextSlide]);
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+    touchStartY.current = e.targetTouches[0].clientY;
+    touchEndX.current = null;
+    touchEndY.current = null;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+    touchEndY.current = e.targetTouches[0].clientY;
+  };
+
+  const onTouchEnd = () => {
+    if (
+      touchStartX.current === null ||
+      touchStartY.current === null ||
+      touchEndX.current === null ||
+      touchEndY.current === null
+    )
+      return;
+
+    const diffX = touchStartX.current - touchEndX.current;
+    const diffY = touchStartY.current - touchEndY.current;
+
+    // Check if the horizontal swipe was more significant than any vertical swipe
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > minSwipeDistance) {
+      if (diffX > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+  };
+
   if (!courses || courses.length === 0) {
     return null;
   }
@@ -42,9 +83,12 @@ export function HeroCoursesCarousel({
 
   return (
     <div
-      className="relative w-full max-w-lg mx-auto lg:max-w-none"
+      className="relative w-full max-w-lg mx-auto lg:max-w-none select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Glow background behind the carousel */}
       <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 blur-xl transition duration-1000 group-hover:opacity-30 group-hover:duration-200" />
@@ -114,7 +158,7 @@ export function HeroCoursesCarousel({
 
         {/* Carousel controls & pagination */}
         {courses.length > 1 && (
-          <div className="mt-3 flex items-center justify-between px-1">
+          <div className="mt-3 flex items-center justify-center md:justify-between px-1">
             {/* Dots */}
             <div className="flex gap-1.5">
               {courses.map((_, idx) => (
@@ -132,7 +176,7 @@ export function HeroCoursesCarousel({
             </div>
 
             {/* Prev / Next buttons */}
-            <div className="flex gap-1.5">
+            <div className="hidden md:flex gap-1.5">
               <button
                 onClick={prevSlide}
                 className="flex size-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10"
@@ -149,6 +193,26 @@ export function HeroCoursesCarousel({
           </div>
         )}
       </div>
+
+      {/* Mobile-only control buttons below the card container */}
+      {courses.length > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-4 md:hidden">
+          <button
+            onClick={prevSlide}
+            className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-slate-900/60 text-white shadow-md backdrop-blur-md transition-all active:scale-95 hover:bg-slate-800/65"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="flex size-10 items-center justify-center rounded-full border border-white/10 bg-slate-900/60 text-white shadow-md backdrop-blur-md transition-all active:scale-95 hover:bg-slate-800/65"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="size-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
