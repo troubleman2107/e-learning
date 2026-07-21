@@ -89,3 +89,18 @@ export async function updateCourse(
   revalidatePath("/admin/courses");
   redirect("/admin/courses");
 }
+
+export async function toggleCoursePublish(id: string, isPublished: boolean) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.course.update({
+    where: { id },
+    data: { isPublished },
+  });
+
+  revalidatePath("/admin/courses");
+}

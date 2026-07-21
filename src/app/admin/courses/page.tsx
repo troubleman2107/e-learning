@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Settings } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
+import { PublishToggle } from "./publish-toggle";
 
 export default async function AdminCoursesPage() {
   const courses = await prisma.course.findMany({
@@ -101,15 +102,7 @@ export default async function AdminCoursesPage() {
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {course.isPublished ? (
-                    <Badge className="bg-green-50 text-green-700 border-green-200 hover:bg-green-50" variant="outline">
-                      Công khai
-                    </Badge>
-                  ) : (
-                    <Badge className="bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-50" variant="outline">
-                      Bản nháp
-                    </Badge>
-                  )}
+                  <PublishToggle id={course.id} initialIsPublished={course.isPublished} />
                 </TableCell>
                 <TableCell>
                   <span className="text-sm text-gray-600">
