@@ -42,8 +42,9 @@ export async function generateMetadata({
   const course = await getCourse(id);
   const session = await auth();
   const isAdmin = session?.user?.role === "ADMIN";
+  const isDev = process.env.NODE_ENV === "development";
 
-  if (!course || (!course.isPublished && !isAdmin)) {
+  if (!course || (!course.isPublished && !isAdmin && !isDev)) {
     return {
       title: "Không tìm thấy khóa học | VietLearn",
       description: "Khóa học bạn đang tìm kiếm không tồn tại trên VietLearn.",
@@ -71,8 +72,9 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
 
   const session = await auth();
   const isAdmin = session?.user?.role === "ADMIN";
+  const isDev = process.env.NODE_ENV === "development";
 
-  if (!course.isPublished && !isAdmin) {
+  if (!course.isPublished && !isAdmin && !isDev) {
     notFound();
   }
 

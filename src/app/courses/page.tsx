@@ -43,8 +43,10 @@ export default async function CoursesPage({
   const skip = (currentPage - 1) * limit;
   const currentMaxPrice = maxPriceParam ? Number(maxPriceParam) : undefined;
 
+  const isDev = process.env.NODE_ENV === "development";
+
   const whereClause = {
-    isPublished: true,
+    ...(isDev ? {} : { isPublished: true }),
     AND: [
       activeCategory
         ? {
@@ -99,14 +101,14 @@ export default async function CoursesPage({
       where: whereClause,
     }),
     prisma.course.count({
-      where: { isPublished: true },
+      where: isDev ? undefined : { isPublished: true },
     }),
     prisma.category.findMany({
       include: {
         _count: {
           select: {
             courses: {
-              where: { isPublished: true },
+              where: isDev ? undefined : { isPublished: true },
             },
           },
         },
@@ -116,7 +118,7 @@ export default async function CoursesPage({
       },
     }),
     prisma.course.findFirst({
-      where: { isPublished: true },
+      where: isDev ? undefined : { isPublished: true },
       orderBy: {
         price: "desc",
       },
@@ -129,7 +131,7 @@ export default async function CoursesPage({
         _count: {
           select: {
             courses: {
-              where: { isPublished: true },
+              where: isDev ? undefined : { isPublished: true },
             },
           },
         },

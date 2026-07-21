@@ -119,9 +119,11 @@ export default async function Home() {
     paidCourseIds = paidOrders.map((o) => o.courseId);
   }
 
+  const isDev = process.env.NODE_ENV === "development";
+
   /* Fetch real courses from database */
   const dbCourses = await prisma.course.findMany({
-    where: {
+    where: isDev ? undefined : {
       isPublished: true,
     },
     include: {

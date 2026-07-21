@@ -18,7 +18,9 @@ export async function POST(request: Request) {
       where: { id: courseId },
     });
 
-    if (!course || !course.isPublished) {
+    const isDev = process.env.NODE_ENV === "development";
+
+    if (!course || (!course.isPublished && !isDev)) {
       return NextResponse.json(
         { error: "Course not found or is not published" },
         { status: 404 }
