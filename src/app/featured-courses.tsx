@@ -274,32 +274,24 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
     <div className="relative">
       {/* khoahocre.com style Section Header Card */}
       <div
-        className={`mb-6 rounded-2xl border ${theme.cardBorder} bg-gradient-to-r ${theme.cardBg} p-4 sm:p-5 md:p-6 shadow-sm shadow-indigo-100/40`}
+        className={`mb-6 rounded-2xl border ${theme.cardBorder} bg-gradient-to-r ${theme.cardBg} p-4 sm:p-5 md:p-6 shadow-xs shadow-indigo-100/40`}
       >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          {/* Left Title & Subtitle */}
-          <div className="min-w-0">
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl md:text-[22px] leading-tight">
-              {normalPart && <span>{normalPart} </span>}
-              <span className={`font-extrabold ${theme.highlightText}`}>
-                {highlightedName}
-              </span>
-            </h2>
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm font-medium leading-relaxed">
-              {theme.subtitle}
-            </p>
-            <div
-              className={`mt-2 h-0.5 w-12 rounded-full ${theme.accentBar} opacity-70`}
-            />
-          </div>
+        {/* Top Row: Category Title (Left) + Actions/Xem thêm Button (Right) */}
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-base sm:text-xl md:text-[22px] font-black tracking-tight text-slate-900 leading-snug sm:leading-tight">
+            {normalPart && <span>{normalPart} </span>}
+            <span className={`font-extrabold ${theme.highlightText}`}>
+              {highlightedName}
+            </span>
+          </h2>
 
-          {/* Right Action: Carousel Controls + khoahocre Animated 'Xem thêm' Pill Button */}
-          <div className="flex items-center gap-3 self-end sm:self-center">
+          {/* Right Action: Carousel Controls + Xem thêm Pill Button */}
+          <div className="flex items-center gap-2.5 shrink-0">
             {/* Desktop Carousel Arrows */}
             <div className="hidden items-center gap-1.5 sm:flex">
               <button
                 onClick={() => scrollTo("left")}
-                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
+                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-xs transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Trượt sang trái"
                 disabled={currentPage === 0}
               >
@@ -307,7 +299,7 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
               </button>
               <button
                 onClick={() => scrollTo("right")}
-                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
+                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-xs transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
                 aria-label="Trượt sang phải"
                 disabled={currentPage >= totalPages - 1}
               >
@@ -315,19 +307,25 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
               </button>
             </div>
 
-            {/* khoahocre.com Animated "Xem thêm" Pill Button */}
+            {/* khoahocre.com Style "Xem thêm" Pill Button */}
             <Link
               href={`/courses?category=${group.slug}`}
-              className={`group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 ${theme.buttonBorder} ${theme.buttonBg} ${theme.buttonText} transition-all duration-300 ease-out hover:w-32 hover:px-3.5 hover:justify-between ${theme.buttonHoverBg} hover:text-white hover:shadow-lg ${theme.buttonHoverShadow} active:scale-95`}
+              className={`inline-flex items-center gap-1 rounded-full border-2 ${theme.buttonBorder} ${theme.buttonBg} ${theme.buttonText} px-3.5 py-1.5 text-xs sm:text-sm font-bold tracking-wide shadow-2xs transition-all hover:bg-[#356DF1] hover:text-white hover:border-[#356DF1] active:scale-95 shrink-0`}
               title="Xem tất cả khóa học"
             >
-              <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100">
-                Xem thêm
-              </span>
-              <ChevronRight className="size-5 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5" />
+              <span>Xem thêm</span>
+              <ChevronRight className="size-4 stroke-[2.5]" />
             </Link>
           </div>
         </div>
+
+        {/* Bottom Row: Subtitle Description */}
+        <p className="mt-2 text-xs text-slate-500 sm:text-sm font-medium leading-relaxed">
+          {theme.subtitle}
+        </p>
+        <div
+          className={`mt-2.5 h-0.5 w-12 rounded-full ${theme.accentBar} opacity-70`}
+        />
       </div>
 
       {/* Carousel */}
