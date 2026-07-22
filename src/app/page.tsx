@@ -32,6 +32,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { FeaturedCourses } from "./featured-courses";
 import { HeroCoursesCarousel } from "./hero-courses-carousel";
+import { TestimonialCarousel } from "./testimonial-carousel";
 
 /* ───────────────────────── STATIC DATA ───────────────────────── */
 
@@ -44,48 +45,92 @@ const trustBadges = [
 
 const benefits = [
   {
-    icon: Rocket,
-    title: "Lộ trình thực chiến",
+    icon: ShieldCheck,
+    title: "Uy Tín - Chất Lượng",
     description:
-      "Mỗi khóa học được thiết kế theo dự án thực tế, giúp bạn có portfolio ngay khi hoàn thành.",
+      "Được xem trước lộ trình & bài giảng demo trước khi đăng ký — đảm bảo đúng nhu cầu của bạn.",
   },
   {
-    icon: Users,
-    title: "Cộng đồng hỗ trợ 24/7",
+    icon: Zap,
+    title: "Kích Hoạt Nhanh Chóng",
     description:
-      "Tham gia nhóm Discord riêng với 2000+ học viên và mentor sẵn sàng hỗ trợ mọi lúc.",
+      "Vào học ngay sau khi thanh toán — tự động kích hoạt tài khoản & nhận quyền truy cập chỉ trong vài giây.",
   },
   {
     icon: TrendingUp,
-    title: "Cập nhật liên tục",
+    title: "Tiết Kiệm Chi Phí",
     description:
-      "Nội dung khóa học được update theo xu hướng mới nhất, đảm bảo bạn luôn đi trước thị trường.",
+      "Chi phí tối ưu nhất thị trường nhưng vẫn đảm bảo giá trị kiến thức thực chiến chuẩn 100%.",
+  },
+  {
+    icon: Rocket,
+    title: "Học Trên Mọi Thiết Bị",
+    description:
+      "Laptop, điện thoại hay tablet — giao diện mượt mà giúp bạn học mọi lúc, mọi nơi.",
+  },
+  {
+    icon: BookOpenCheck,
+    title: "Khóa Học Chuẩn Gốc",
+    description:
+      "Đầy đủ video HD/4K sắc nét, tài liệu đính kèm, source code & bài tập dự án thực tế.",
+  },
+  {
+    icon: Users,
+    title: "Hỗ Trợ 24/7",
+    description:
+      "Cộng đồng 2000+ học viên cùng đội ngũ mentor tận tâm luôn sẵn sàng giải đáp thắc mắc của bạn.",
   },
 ];
 
 const testimonials = [
   {
+    id: "1",
     name: "Nguyễn Minh Tuấn",
     role: "AI Engineer @ FPT Software",
     avatar: "MT",
+    label: "Học để đổi ngành",
     content:
       "Khóa AI Full-Stack giúp mình chuyển từ backend developer sang AI engineer trong 3 tháng. Bài tập RAG pipeline thực tế hơn bất kỳ khóa học nào mình từng học.",
     rating: 5,
   },
   {
+    id: "2",
     name: "Trần Thị Hương",
     role: "DevOps Lead @ Tiki",
     avatar: "TH",
+    label: "Thực chiến kĩ năng",
     content:
       "Docker & K8s trên AWS là khóa duy nhất dạy đúng stack mà công ty Việt Nam dùng. Mình đã apply ngay vào dự án và tiết kiệm 40% chi phí cloud.",
     rating: 5,
   },
   {
+    id: "3",
     name: "Lê Hoàng Nam",
     role: "Fitness Coach & Content Creator",
     avatar: "LN",
+    label: "Tự học tiết kiệm",
     content:
-      "Progressive Overload giúp mình hiểu sâu về periodization. Giờ mình tự tin lập trình tập cho cả bản thân và 200+ clients của mình.",
+      "Progressive Overload giúp mình hiểu sâu về periodization. Giờ mình tự tin lập trình tập cho cả bản thân và 200+ clients của mình với chi phí cực kỳ hợp lý.",
+    rating: 5,
+  },
+  {
+    id: "4",
+    name: "Phạm Đức Anh",
+    role: "Frontend Developer @ VNG",
+    avatar: "DA",
+    label: "Kỹ năng trending",
+    content:
+      "Next.js App Router & Server Actions giúp mình làm chủ full-stack web hiện đại. Nội dung khóa học ngắn gọn, tập trung thẳng vào làm dự án.",
+    rating: 5,
+  },
+  {
+    id: "5",
+    name: "Vũ Phương Thảo",
+    role: "Marketing Manager @ Shopee",
+    avatar: "PT",
+    label: "Tăng trưởng doanh số",
+    content:
+      "Chiến lược Marketing Thực Chiến cung cấp tư duy chạy ads & xây dựng phễu bán hàng cực kỳ rõ ràng. Doanh số shop của mình tăng gấp 3 lần sau 2 tháng.",
     rating: 5,
   },
 ];
@@ -271,40 +316,49 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ═══════════ BENEFITS SECTION ═══════════ */}
-      <section className="bg-white py-20">
+      {/* ═══════════ BENEFITS SECTION (khoahocre.com khr-why inspired) ═══════════ */}
+      <section className="bg-gradient-to-b from-white via-indigo-50/20 to-white py-20">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
+          <div className="mx-auto max-w-3xl text-center">
             <Badge
               variant="secondary"
-              className="mb-4 rounded-lg bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600"
+              className="mb-3 rounded-full bg-indigo-100/70 px-4 py-1 text-xs font-bold text-indigo-700 border border-indigo-200/60"
             >
               Tại sao chọn VietLearn?
             </Badge>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Học đúng cách, áp dụng ngay
+
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Tại Sao Bạn Nên Lựa Chọn{" "}
+              <span className="relative inline-block text-indigo-600">
+                VietLearn
+                <span className="absolute bottom-0 left-0 h-1 w-full rounded-full bg-indigo-500/30" />
+              </span>
+              ?
             </h2>
-            <p className="mt-4 text-lg text-gray-500">
-              Không lý thuyết suông. Mọi khóa học đều xoay quanh dự án thực tế
-              và kỹ năng có nhu cầu tuyển dụng cao nhất.
+
+            {/* Accent Line */}
+            <div className="mx-auto my-4 h-0.5 w-16 rounded-full bg-indigo-600/60" />
+
+            <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto font-medium">
+              Không lý thuyết suông — Học đúng cách, áp dụng ngay trên dự án thực tế với lộ trình bài bản & chi phí tối ưu.
             </p>
           </div>
 
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
               return (
                 <div
                   key={benefit.title}
-                  className="group relative rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-gray-50/50 p-8 shadow-sm transition-all duration-300 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-50"
+                  className="group relative rounded-2xl border border-indigo-100/90 bg-white p-6 text-center shadow-sm shadow-indigo-100/40 transition-all duration-300 hover:-translate-y-1.5 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10"
                 >
-                  <div className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-200 transition-transform duration-300 group-hover:scale-110">
-                    <Icon className="size-6 text-white" />
+                  <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-md group-hover:shadow-indigo-500/30">
+                    <Icon className="size-6 transition-transform duration-300 group-hover:rotate-6" />
                   </div>
-                  <h3 className="mb-3 text-xl font-bold text-gray-900">
+                  <h3 className="mb-2 text-base sm:text-lg font-bold text-slate-900">
                     {benefit.title}
                   </h3>
-                  <p className="leading-relaxed text-gray-500">
+                  <p className="text-xs sm:text-sm leading-relaxed text-slate-500 font-normal">
                     {benefit.description}
                   </p>
                 </div>
@@ -339,52 +393,29 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ═══════════ TESTIMONIALS ═══════════ */}
-      <section id="testimonials" className="bg-white py-20">
+      {/* ═══════════ TESTIMONIALS (khoahocre.com khrT5 inspired slider) ═══════════ */}
+      <section id="testimonials" className="bg-gradient-to-b from-slate-50/50 via-white to-slate-50/40 py-20 overflow-hidden">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <Badge
-              variant="secondary"
-              className="mb-4 rounded-lg bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600"
-            >
-              Đánh giá từ học viên
-            </Badge>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Học viên nói gì về VietLearn?
+          {/* Header */}
+          <div className="mx-auto max-w-3xl text-center mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
+              Cộng Đồng Nói Gì Về{" "}
+              <span className="relative inline-block text-indigo-600">
+                VietLearn
+                <span className="absolute bottom-0 left-0 h-1 w-full rounded-full bg-indigo-500/30" />
+              </span>
+              ?
             </h2>
-            <p className="mt-4 text-lg text-gray-500">
-              Hơn 2000 học viên đã thay đổi sự nghiệp với các khóa học của chúng
-              tôi.
+
+            <p className="mt-3 text-sm sm:text-base text-slate-500 font-medium max-w-xl mx-auto">
+              Trải nghiệm thực tế từ những người học đang sử dụng nền tảng mỗi ngày
             </p>
+
+            <div className="mx-auto mt-3.5 h-0.5 w-16 rounded-full bg-indigo-600/60" />
           </div>
 
-          <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {testimonials.map((t) => (
-              <Card
-                key={t.name}
-                className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
-              >
-                <CardContent className="pt-6">
-                  <MessageSquareQuote className="mb-4 size-8 text-indigo-200" />
-                  <p className="mb-6 leading-relaxed text-gray-600 italic">
-                    &ldquo;{t.content}&rdquo;
-                  </p>
-                  <StarRating count={t.rating} />
-                </CardContent>
-                <CardFooter className="gap-3 rounded-b-2xl border-t border-gray-100 bg-gray-50/50 px-6 py-4">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 text-sm font-bold text-white">
-                    {t.avatar}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {t.name}
-                    </p>
-                    <p className="text-xs text-gray-500">{t.role}</p>
-                  </div>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          {/* Interactive Slider Track */}
+          <TestimonialCarousel testimonials={testimonials} />
         </div>
       </section>
 
