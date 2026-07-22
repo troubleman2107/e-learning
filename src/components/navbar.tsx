@@ -123,24 +123,24 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white shadow-xs">
       {/* ══════════════════ ROW 1: BRAND LOGO + CATEGORY BUTTON + MAIN SEARCH BAR + ACTION BUTTONS ══════════════════ */}
-      <div className="mx-auto flex h-16 max-w-[1536px] w-full items-center justify-between gap-4 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
+      <div className="mx-auto flex h-16 max-w-[1536px] w-full items-center justify-between gap-3 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
         {/* 1. Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+        <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group shrink-0">
           <div className="flex size-9 sm:size-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-700 text-white shadow-md shadow-indigo-200 transition-all duration-300 group-hover:scale-105">
             <BookOpen className="size-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent leading-none">
+            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-blue-600 to-violet-600 bg-clip-text text-transparent leading-none">
               VIETLEARN
             </span>
-            <span className="text-[9px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5 hidden sm:inline">
+            <span className="text-[9px] text-slate-400 font-semibold tracking-wider uppercase mt-0.5 hidden xl:inline">
               Nơi chia sẻ khóa học tiết kiệm chuẩn gốc
             </span>
           </div>
         </Link>
 
-        {/* 2. "Danh Mục Khóa Học" Blue Button — Desktop */}
-        <div className="relative hidden md:block shrink-0" ref={dropdownRef}>
+        {/* 2. "Danh Mục Khóa Học" Blue Button — Desktop only (lg+) */}
+        <div className="relative hidden lg:block shrink-0" ref={dropdownRef}>
           <button
             onClick={() => setCategoriesOpen(!categoriesOpen)}
             className="flex items-center gap-2 rounded-xl bg-[#356DF1] hover:bg-[#285be3] px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-blue-500/20 transition-all active:scale-[0.98]"
@@ -201,25 +201,25 @@ export function Navbar() {
           )}
         </div>
 
-        {/* 3. Main Search Input Bar — Expanded Prominent Bar */}
+        {/* 3. Main Search Input Bar — Flexible across Tablets (sm+) & Desktop */}
         <form
           onSubmit={handleSearch}
-          className="hidden md:flex flex-1 max-w-3xl mx-2 items-center relative"
+          className="hidden sm:flex flex-1 max-w-2xl mx-2 lg:mx-4 items-center relative"
         >
           <div className="relative flex w-full items-center">
-            <Search className="absolute left-4 size-4.5 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-3.5 size-4.5 text-slate-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Tìm khóa học, tài khoản, combo, bài viết..."
+              placeholder="Tìm khóa học, tài khoản, combo..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-slate-200/90 bg-slate-100/90 py-2.5 pl-11 pr-10 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:border-[#356DF1] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-xl border border-slate-200/90 bg-slate-100/90 py-2 pl-9 pr-9 text-xs sm:text-sm text-slate-800 placeholder-slate-400 transition-all focus:border-[#356DF1] focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 text-slate-400 hover:text-slate-600"
               >
                 <X className="size-4" />
               </button>
@@ -228,33 +228,33 @@ export function Navbar() {
         </form>
 
         {/* 4. Action Right Section: Yêu thích, Giỏ hàng, Đăng nhập */}
-        <div className="hidden md:flex items-center gap-4 lg:gap-5 shrink-0">
-          {/* Wishlist Link */}
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-5 shrink-0">
+          {/* Wishlist Link — Desktop (lg+) */}
           <Link
             href="/courses"
-            className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group"
+            className="hidden lg:flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group"
           >
             <Heart className="size-4.5 text-slate-600 group-hover:text-[#356DF1] group-hover:scale-110 transition-transform" />
-            <span className="hidden lg:inline">Yêu thích</span>
+            <span>Yêu thích</span>
           </Link>
 
-          {/* Cart Link */}
+          {/* Cart Link — Desktop (lg+) */}
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group"
+            className="hidden lg:flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group"
           >
             <ShoppingBag className="size-4.5 text-slate-600 group-hover:text-[#356DF1] group-hover:scale-110 transition-transform" />
-            <span className="hidden lg:inline">Giỏ hàng</span>
+            <span>Giỏ hàng</span>
           </Link>
 
           {/* Auth Button */}
           {status === "unauthenticated" && (
             <button
               onClick={() => signIn("google")}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-bold text-slate-800 shadow-xs hover:border-blue-300 hover:bg-blue-50/50 hover:text-[#356DF1] transition-all"
+              className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-slate-200 bg-white px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-slate-800 shadow-2xs hover:border-blue-300 hover:bg-blue-50/50 hover:text-[#356DF1] transition-all shrink-0"
             >
               <LogIn className="size-4 stroke-[2.5]" />
-              <span>Đăng Nhập</span>
+              <span className="hidden xs:inline">Đăng Nhập</span>
             </button>
           )}
 
@@ -277,7 +277,7 @@ export function Navbar() {
                     {session.user.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                 )}
-                <span className="text-xs font-bold text-slate-800 max-w-[100px] truncate">
+                <span className="text-xs font-bold text-slate-800 max-w-[100px] truncate hidden sm:inline">
                   {session.user.name}
                 </span>
               </Link>
@@ -291,23 +291,11 @@ export function Navbar() {
               </button>
             </div>
           )}
-        </div>
 
-        {/* Mobile Header Actions */}
-        <div className="flex items-center gap-2 md:hidden">
-          {status === "unauthenticated" && (
-            <button
-              onClick={() => signIn("google")}
-              className="flex items-center gap-1.5 rounded-lg bg-[#356DF1] px-3 py-1.5 text-xs font-bold text-white shadow-xs"
-            >
-              <LogIn className="size-3.5" />
-              <span>Đăng Nhập</span>
-            </button>
-          )}
-
+          {/* Hamburger Menu Toggle — Available on Tablet & Mobile (< lg) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="flex size-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition-colors hover:bg-slate-100"
+            className="flex size-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 transition-colors hover:bg-slate-100 lg:hidden"
             aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
           >
             {mobileMenuOpen ? (
@@ -319,8 +307,8 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ══════════════════ ROW 2: CENTERED SECONDARY NAVIGATION LINKS (khoahocre.com style) ══════════════════ */}
-      <div className="hidden md:block border-t border-slate-100 bg-white">
+      {/* ══════════════════ ROW 2: CENTERED SECONDARY NAVIGATION LINKS (khoahocre.com style - lg+ only) ══════════════════ */}
+      <div className="hidden lg:block border-t border-slate-100 bg-white">
         <div className="mx-auto flex h-11 max-w-[1536px] w-full items-center justify-center px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12">
           <ul className="flex items-center gap-6 lg:gap-8 text-xs sm:text-sm font-bold text-slate-700">
             <li>
