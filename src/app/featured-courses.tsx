@@ -39,79 +39,141 @@ interface FeaturedCoursesProps {
   categories: { slug: string; name: string }[];
 }
 
-/* ───────────────── CATEGORY METADATA ───────────────────── */
+/* ───────────────── CATEGORY THEMES & METADATA ───────────────────── */
 
-const categoryMeta: Record<
-  string,
-  { subtitle: string; highlightedName: string }
-> = {
+interface CategoryTheme {
+  subtitle: string;
+  highlightedName: string;
+  normalPrefix?: string;
+  cardBg: string;
+  cardBorder: string;
+  highlightText: string;
+  accentBar: string;
+  buttonBorder: string;
+  buttonBg: string;
+  buttonText: string;
+  buttonHoverBg: string;
+  buttonHoverBorder: string;
+  buttonHoverShadow: string;
+}
+
+const categoryThemes: Record<string, CategoryTheme> = {
   "thu-nhap-thu-dong": {
-    subtitle:
-      "Các bí kíp MMO, Affiliate, Dropship... đã được kiểm chứng",
+    subtitle: "Các bí kíp MMO, Affiliate, Dropship... đã được kiểm chứng",
     highlightedName: "THU NHẬP THỤ ĐỘNG",
+    normalPrefix: "Kinh Doanh",
+    cardBg: "from-amber-50/80 via-orange-50/40 to-white",
+    cardBorder: "border-amber-200/90",
+    highlightText: "text-amber-600",
+    accentBar: "bg-amber-500",
+    buttonBorder: "border-amber-500",
+    buttonBg: "bg-white",
+    buttonText: "text-amber-600",
+    buttonHoverBg: "hover:bg-amber-500",
+    buttonHoverBorder: "hover:border-amber-500",
+    buttonHoverShadow: "hover:shadow-amber-500/25",
   },
   "kinh-doanh-marketing": {
-    subtitle:
-      "Xây dựng chiến lược bán hàng và thương hiệu bùng nổ",
+    subtitle: "Xây dựng chiến lược bán hàng và thương hiệu bùng nổ",
     highlightedName: "MARKETING THỰC CHIẾN",
+    normalPrefix: "Kinh Doanh &",
+    cardBg: "from-rose-50/80 via-pink-50/40 to-white",
+    cardBorder: "border-rose-200/90",
+    highlightText: "text-rose-600",
+    accentBar: "bg-rose-500",
+    buttonBorder: "border-rose-500",
+    buttonBg: "bg-white",
+    buttonText: "text-rose-600",
+    buttonHoverBg: "hover:bg-rose-500",
+    buttonHoverBorder: "hover:border-rose-500",
+    buttonHoverShadow: "hover:shadow-rose-500/25",
   },
   "kinh-doanh-online": {
-    subtitle:
-      "Xây dựng chiến lược bán hàng và thương hiệu bùng nổ trên nền tảng số",
+    subtitle: "Xây dựng chiến lược bán hàng và thương hiệu bùng nổ trên nền tảng số",
     highlightedName: "KINH DOANH ONLINE",
+    cardBg: "from-blue-50/80 via-indigo-50/40 to-white",
+    cardBorder: "border-blue-200/90",
+    highlightText: "text-blue-600",
+    accentBar: "bg-blue-500",
+    buttonBorder: "border-blue-600",
+    buttonBg: "bg-white",
+    buttonText: "text-blue-600",
+    buttonHoverBg: "hover:bg-blue-600",
+    buttonHoverBorder: "hover:border-blue-600",
+    buttonHoverShadow: "hover:shadow-blue-600/25",
   },
   "ung-dung-ai": {
-    subtitle:
-      "Làm chủ công nghệ AI, tự động hóa công việc và tăng năng suất gấp 10 lần",
+    subtitle: "Làm chủ công nghệ AI, tự động hóa công việc và tăng năng suất gấp 10 lần",
     highlightedName: "ỨNG DỤNG AI",
+    cardBg: "from-purple-50/80 via-violet-50/40 to-white",
+    cardBorder: "border-purple-200/90",
+    highlightText: "text-purple-600",
+    accentBar: "bg-purple-500",
+    buttonBorder: "border-purple-600",
+    buttonBg: "bg-white",
+    buttonText: "text-purple-600",
+    buttonHoverBg: "hover:bg-purple-600",
+    buttonHoverBorder: "hover:border-purple-600",
+    buttonHoverShadow: "hover:shadow-purple-600/25",
   },
   "the-hinh": {
-    subtitle:
-      "Xây dựng thể hình vượt trội với phương pháp khoa học và lộ trình bài bản",
+    subtitle: "Xây dựng thể hình vượt trội với phương pháp khoa học và lộ trình bài bản",
     highlightedName: "THỂ HÌNH",
+    cardBg: "from-emerald-50/80 via-teal-50/40 to-white",
+    cardBorder: "border-emerald-200/90",
+    highlightText: "text-emerald-600",
+    accentBar: "bg-emerald-500",
+    buttonBorder: "border-emerald-600",
+    buttonBg: "bg-white",
+    buttonText: "text-emerald-600",
+    buttonHoverBg: "hover:bg-emerald-600",
+    buttonHoverBorder: "hover:border-emerald-600",
+    buttonHoverShadow: "hover:shadow-emerald-600/25",
   },
   "ngoai-ngu": {
-    subtitle:
-      "Chinh phục ngoại ngữ nhanh chóng với phương pháp thực chiến hiệu quả",
+    subtitle: "Chinh phục ngoại ngữ nhanh chóng với phương pháp thực chiến hiệu quả",
     highlightedName: "NGOẠI NGỮ",
+    cardBg: "from-sky-50/80 via-blue-50/40 to-white",
+    cardBorder: "border-sky-200/90",
+    highlightText: "text-sky-600",
+    accentBar: "bg-sky-500",
+    buttonBorder: "border-sky-600",
+    buttonBg: "bg-white",
+    buttonText: "text-sky-600",
+    buttonHoverBg: "hover:bg-sky-600",
+    buttonHoverBorder: "hover:border-sky-600",
+    buttonHoverShadow: "hover:shadow-sky-600/25",
   },
   "lap-trinh": {
-    subtitle:
-      "Nắm vững kỹ năng lập trình từ cơ bản đến nâng cao với dự án thực tế",
-    highlightedName: "LẬP TRÌNH",
+    subtitle: "Nắm vững kỹ năng lập trình từ cơ bản đến nâng cao với dự án thực tế",
+    highlightedName: "LẬP TRÌNH & DEV",
+    cardBg: "from-indigo-50/80 via-violet-50/40 to-white",
+    cardBorder: "border-indigo-200/90",
+    highlightText: "text-indigo-600",
+    accentBar: "bg-indigo-500",
+    buttonBorder: "border-indigo-600",
+    buttonBg: "bg-white",
+    buttonText: "text-indigo-600",
+    buttonHoverBg: "hover:bg-indigo-600",
+    buttonHoverBorder: "hover:border-indigo-600",
+    buttonHoverShadow: "hover:shadow-indigo-600/25",
   },
 };
 
-const defaultMeta = {
+const defaultTheme: CategoryTheme = {
   subtitle: "Các khóa học được thiết kế bởi chuyên gia hàng đầu Việt Nam",
   highlightedName: "",
+  cardBg: "from-indigo-50/70 via-slate-50/40 to-white",
+  cardBorder: "border-indigo-100/90",
+  highlightText: "text-indigo-600",
+  accentBar: "bg-indigo-500",
+  buttonBorder: "border-indigo-600",
+  buttonBg: "bg-white",
+  buttonText: "text-indigo-600",
+  buttonHoverBg: "hover:bg-indigo-600",
+  buttonHoverBorder: "hover:border-indigo-600",
+  buttonHoverShadow: "hover:shadow-indigo-600/20",
 };
-
-/* ──────────────── VISUAL GRADIENTS ──────────────────────── */
-
-const cardGradients = [
-  "from-rose-500/85 to-pink-600/85",
-  "from-sky-500/85 to-blue-600/85",
-  "from-amber-500/85 to-orange-600/85",
-  "from-indigo-500/85 to-violet-600/85",
-  "from-teal-500/85 to-cyan-600/85",
-  "from-emerald-500/85 to-green-600/85",
-];
-
-const cardPatterns = [
-  "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.18) 0%, transparent 50%)",
-  "radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 50%)",
-  "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.14) 0%, transparent 60%)",
-  "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 50%)",
-  "radial-gradient(circle at 70% 70%, rgba(255,255,255,0.18) 0%, transparent 50%)",
-  "radial-gradient(circle at 40% 60%, rgba(255,255,255,0.14) 0%, transparent 60%)",
-];
-
-/* ──────────────── FORMAT HELPERS ──────────────────────── */
-
-function formatVnd(amount: number) {
-  return `${new Intl.NumberFormat("vi-VN").format(amount)}đ`;
-}
 
 /* ──────────────── COURSE CARD ──────────────────────── */
 
@@ -165,9 +227,7 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
       setCurrentPage(0);
       return;
     }
-    const page = Math.round(
-      (scrollLeft / maxScroll) * (totalPages - 1)
-    );
+    const page = Math.round((scrollLeft / maxScroll) * (totalPages - 1));
     setCurrentPage(Math.max(0, Math.min(page, totalPages - 1)));
   }, [totalPages]);
 
@@ -195,57 +255,78 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
     [totalPages]
   );
 
-  // Build the header text — split name into normal part + highlighted part
-  const meta = categoryMeta[group.slug] || defaultMeta;
-  const highlightedName = meta.highlightedName || group.name.toUpperCase();
+  // Retrieve category theme or fallback to default
+  const theme = categoryThemes[group.slug] || defaultTheme;
+  const highlightedName = theme.highlightedName || group.name.toUpperCase();
 
-  // Try to determine the "normal" prefix by removing the highlighted portion
-  // e.g., name="Kinh Doanh & Marketing thực chiến", highlighted="MARKETING THỰC CHIẾN"
-  //   → normalPart = "Kinh Doanh &"
-  const highlightedWords = highlightedName.split(" ");
-  const nameWordsLower = group.name.toLowerCase().split(" ");
-  const firstHighlightWord = highlightedWords[0]?.toLowerCase() || "";
-  const highlightStartIdx = nameWordsLower.indexOf(firstHighlightWord);
-  const nameWords = group.name.split(" ");
-  const normalPart =
-    highlightStartIdx > 0
-      ? nameWords.slice(0, highlightStartIdx).join(" ")
-      : "";
+  // Extract normal title prefix if any
+  let normalPart = theme.normalPrefix || "";
+  if (!normalPart && highlightedName !== group.name.toUpperCase()) {
+    const nameWordsLower = group.name.toLowerCase().split(" ");
+    const firstHighlightWord = highlightedName.split(" ")[0]?.toLowerCase() || "";
+    const highlightStartIdx = nameWordsLower.indexOf(firstHighlightWord);
+    if (highlightStartIdx > 0) {
+      normalPart = group.name.split(" ").slice(0, highlightStartIdx).join(" ");
+    }
+  }
 
   return (
     <div className="relative">
-      {/* Section Header */}
-      <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
-        <div className="min-w-0">
-          <h2 className="text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl md:text-3xl">
-            {normalPart && <span>{normalPart} </span>}
-            <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
-              {highlightedName}
-            </span>
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 sm:mt-1.5 sm:text-base">
-            {meta.subtitle}
-          </p>
-        </div>
+      {/* khoahocre.com style Section Header Card */}
+      <div
+        className={`mb-6 rounded-2xl border ${theme.cardBorder} bg-gradient-to-r ${theme.cardBg} p-4 sm:p-5 md:p-6 shadow-sm shadow-indigo-100/40`}
+      >
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Left Title & Subtitle */}
+          <div className="min-w-0">
+            <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl md:text-[22px] leading-tight">
+              {normalPart && <span>{normalPart} </span>}
+              <span className={`font-extrabold ${theme.highlightText}`}>
+                {highlightedName}
+              </span>
+            </h2>
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm font-medium leading-relaxed">
+              {theme.subtitle}
+            </p>
+            <div
+              className={`mt-2 h-0.5 w-12 rounded-full ${theme.accentBar} opacity-70`}
+            />
+          </div>
 
-        {/* Desktop nav arrows */}
-        <div className="hidden flex-shrink-0 items-center gap-2 sm:flex">
-          <button
-            onClick={() => scrollTo("left")}
-            className="flex size-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-all hover:border-indigo-200 hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Trượt sang trái"
-            disabled={currentPage === 0}
-          >
-            <ChevronLeft className="size-5" />
-          </button>
-          <button
-            onClick={() => scrollTo("right")}
-            className="flex size-10 items-center justify-center rounded-full border border-indigo-100 bg-indigo-600 text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Trượt sang phải"
-            disabled={currentPage >= totalPages - 1}
-          >
-            <ChevronRight className="size-5" />
-          </button>
+          {/* Right Action: Carousel Controls + khoahocre Animated 'Xem thêm' Pill Button */}
+          <div className="flex items-center gap-3 self-end sm:self-center">
+            {/* Desktop Carousel Arrows */}
+            <div className="hidden items-center gap-1.5 sm:flex">
+              <button
+                onClick={() => scrollTo("left")}
+                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="Trượt sang trái"
+                disabled={currentPage === 0}
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+              <button
+                onClick={() => scrollTo("right")}
+                className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-sm transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"
+                aria-label="Trượt sang phải"
+                disabled={currentPage >= totalPages - 1}
+              >
+                <ChevronRight className="size-4" />
+              </button>
+            </div>
+
+            {/* khoahocre.com Animated "Xem thêm" Pill Button */}
+            <Link
+              href={`/courses?category=${group.slug}`}
+              className={`group relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border-2 ${theme.buttonBorder} ${theme.buttonBg} ${theme.buttonText} transition-all duration-300 ease-out hover:w-32 hover:px-3.5 hover:justify-between ${theme.buttonHoverBg} hover:text-white hover:shadow-lg ${theme.buttonHoverShadow} active:scale-95`}
+              title="Xem tất cả khóa học"
+            >
+              <span className="max-w-0 opacity-0 overflow-hidden whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 group-hover:max-w-[70px] group-hover:opacity-100">
+                Xem thêm
+              </span>
+              <ChevronRight className="size-5 shrink-0 transition-transform duration-300 group-hover:translate-x-0.5" />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -286,19 +367,22 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
 
 /* ──────────────── MAIN COMPONENT ──────────────────────── */
 
-export function FeaturedCourses({ courses, categories }: FeaturedCoursesProps) {
+export function FeaturedCourses({
+  courses,
+  categories,
+}: FeaturedCoursesProps) {
   if (courses.length === 0) return null;
 
   // Group courses by category
   const groups: CategoryGroup[] = categories
     .map((cat) => {
       const catCourses = courses.filter((c) => c.categorySlug === cat.slug);
-      const meta = categoryMeta[cat.slug] || defaultMeta;
+      const theme = categoryThemes[cat.slug] || defaultTheme;
       return {
         slug: cat.slug,
         name: cat.name,
-        subtitle: meta.subtitle,
-        highlightedName: meta.highlightedName,
+        subtitle: theme.subtitle,
+        highlightedName: theme.highlightedName,
         courses: catCourses,
       };
     })
@@ -326,3 +410,4 @@ export function FeaturedCourses({ courses, categories }: FeaturedCoursesProps) {
     </div>
   );
 }
+

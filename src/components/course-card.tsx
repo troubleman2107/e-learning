@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Star, StarHalf } from "lucide-react";
+import { Star, StarHalf, Play } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 
 export interface CourseCardProps {
@@ -24,6 +24,7 @@ export interface CourseCardProps {
       id: string;
       name: string;
     } | null;
+    isPaid?: boolean;
   };
   index?: number;
 }
@@ -92,25 +93,38 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
           </span>
         </div>
 
-        {/* Pricing Block */}
-        <div className="mt-2.5 flex items-baseline gap-1.5">
-          <span className="text-sm sm:text-base font-extrabold text-gray-900">
-            {course.price === 0 ? "Miễn phí" : formatVnd(course.price)}
-          </span>
-          {course.price > 0 && (
-            <span className="text-[10px] sm:text-xs text-gray-400 line-through font-normal">
-              {formatVnd(originalPrice)}
+        {/* Pricing Block & Bestseller */}
+        <div className="mt-2.5 flex items-baseline justify-between gap-1.5">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-sm sm:text-base font-extrabold text-indigo-600">
+              {course.isPaid
+                ? "Đã sở hữu"
+                : course.price === 0
+                ? "Miễn phí"
+                : formatVnd(course.price)}
+            </span>
+            {!course.isPaid && course.price > 0 && (
+              <span className="text-[10px] sm:text-xs text-gray-400 line-through font-normal">
+                {formatVnd(originalPrice)}
+              </span>
+            )}
+          </div>
+          {studentCount > 0 && (
+            <span className="rounded bg-violet-100 text-violet-700 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
+              Bestseller
             </span>
           )}
         </div>
 
-        {/* Bestseller Badge */}
-        {studentCount > 0 && (
-          <span className="mt-2 rounded bg-violet-600 px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wide w-fit">
-            Bestseller
-          </span>
-        )}
+        {/* Call To Action Button "Vào học ngay" */}
+        <div className="mt-3 pt-2.5 border-t border-gray-100/80">
+          <div className="w-full rounded-lg bg-indigo-600 group-hover:bg-indigo-700 text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-200 transition-all duration-200 group-hover:shadow-md group-hover:shadow-indigo-300/40 active:scale-[0.98]">
+            <Play className="size-3.5 fill-white text-white transition-transform group-hover:scale-110" />
+            <span>{course.isPaid ? "Vào học ngay" : "Vào học ngay"}</span>
+          </div>
+        </div>
       </div>
     </Link>
   );
 }
+
