@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useTransition } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { FeaturedCourse } from "./featured-courses";
 import { stripHtml } from "@/lib/utils";
 
@@ -11,6 +12,9 @@ export function HeroCoursesCarousel({
 }: {
   courses: FeaturedCourse[];
 }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [loadingCourseId, setLoadingCourseId] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -145,9 +149,23 @@ export function HeroCoursesCarousel({
                     </div>
                     <Link
                       href={`/course/${course.id}`}
-                      className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-950 shadow-md transition-all hover:bg-indigo-600 hover:text-white hover:shadow-indigo-500/20 hover:-translate-y-0.5"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setLoadingCourseId(course.id);
+                        startTransition(() => {
+                          router.push(`/course/${course.id}`);
+                        });
+                      }}
+                      className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-950 shadow-md transition-all hover:bg-indigo-600 hover:text-white hover:shadow-indigo-500/20 hover:-translate-y-0.5 flex items-center gap-1.5"
                     >
-                      Chi tiết khóa học
+                      {loadingCourseId === course.id ? (
+                        <>
+                          <Loader2 className="size-3.5 animate-spin text-indigo-600" />
+                          <span>Đang tải...</span>
+                        </>
+                      ) : (
+                        "Chi tiết khóa học"
+                      )}
                     </Link>
                   </div>
                 </div>

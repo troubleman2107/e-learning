@@ -18,6 +18,7 @@ import {
   BookOpen,
   ArrowLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
@@ -283,6 +284,8 @@ export function CourseClient({
   const reviewCount = (course.title.length * 3 + 12) % 150 + 15;
   const authorInfo = course.author || getAuthorInfo(course.category?.slug || "");
 
+  const [isLessonLoading, setIsLessonLoading] = useState(false);
+
   // Fetch token for current lesson
   useEffect(() => {
     if (!currentLessonId) return;
@@ -292,10 +295,12 @@ export function CourseClient({
 
     if (!lesson.isFreePreview && !hasPurchased) {
       setIframeUrl(getYouTubeEmbedUrl(course.trailerUrl));
+      setIsLessonLoading(false);
       return;
     }
 
     const fetchToken = async () => {
+      setIsLessonLoading(true);
       try {
         const res = await fetch(`/api/lessons/${currentLessonId}/token`);
         if (res.ok) {
@@ -306,6 +311,9 @@ export function CourseClient({
         }
       } catch (err) {
         setIframeUrl(getYouTubeEmbedUrl(course.trailerUrl));
+      } finally {
+        // Small delay for smooth video player transition
+        setTimeout(() => setIsLessonLoading(false), 250);
       }
     };
 
@@ -476,6 +484,14 @@ export function CourseClient({
           {/* Video Player */}
           <div className="overflow-hidden rounded-2xl border border-gray-200/60 bg-black shadow-md">
             <div className="relative aspect-video w-full">
+              {isLessonLoading && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs text-white transition-all duration-300">
+                  <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-indigo-400 mb-2" />
+                  <p className="text-xs sm:text-sm font-semibold tracking-wide text-slate-200">
+                    Đang tải bài học...
+                  </p>
+                </div>
+              )}
               {iframeUrl ? (
                 <iframe
                   ref={iframeRef}
@@ -487,7 +503,7 @@ export function CourseClient({
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-gray-400">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+                  <Loader2 className="animate-spin h-8 w-8 text-indigo-500" />
                   <span className="ml-3 text-sm">Đang tải video...</span>
                 </div>
               )}
@@ -518,9 +534,16 @@ export function CourseClient({
               <button
                 onClick={handleEnroll}
                 disabled={isCheckingOut || status === "loading"}
-                className="w-full sm:w-auto shrink-0 rounded-xl bg-rose-600 hover:bg-rose-500 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center"
+                className="w-full sm:w-auto shrink-0 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-75 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center flex items-center justify-center gap-2"
               >
-                Đăng ký ngay
+                {isCheckingOut ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Đang xử lý...
+                  </>
+                ) : (
+                  "Đăng ký ngay"
+                )}
               </button>
             </div>
           )}
@@ -778,10 +801,19 @@ export function CourseClient({
               <button
                 onClick={handleEnroll}
                 disabled={isCheckingOut || status === "loading"}
-                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs md:text-sm transition-all shadow-sm shadow-rose-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-75 text-white font-bold text-xs md:text-sm transition-all shadow-sm shadow-rose-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
               >
-                <Lock className="h-3.5 w-3.5" />
-                Đăng ký ngay
+                {isCheckingOut ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Đang khởi tạo thanh toán...
+                  </>
+                ) : (
+                  <>
+                    <Lock className="h-3.5 w-3.5" />
+                    Đăng ký ngay
+                  </>
+                )}
               </button>
             </div>
           )}
@@ -932,9 +964,16 @@ export function CourseClient({
             <button
               onClick={handleEnroll}
               disabled={isCheckingOut || status === "loading"}
-              className="shrink-0 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all active:scale-[0.98] cursor-pointer"
+              className="shrink-0 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-75 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
             >
-              Đăng ký ngay
+              {isCheckingOut ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Đăng ký ngay"
+              )}
             </button>
           </div>
         </div>

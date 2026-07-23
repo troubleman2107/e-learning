@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import {
   X,
   ChevronDown,
   Search,
+  Loader2,
   Sparkles,
   Zap,
   Bot,
@@ -112,11 +113,15 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [isPending, startTransition] = useTransition();
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
-      setMobileMenuOpen(false);
+      startTransition(() => {
+        router.push(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
+        setMobileMenuOpen(false);
+      });
     }
   };
 
@@ -207,7 +212,11 @@ export function Navbar() {
           className="hidden sm:flex flex-1 max-w-2xl mx-2 lg:mx-4 items-center relative"
         >
           <div className="relative flex w-full items-center">
-            <Search className="absolute left-3.5 size-4.5 text-slate-400 pointer-events-none" />
+            {isPending ? (
+              <Loader2 className="absolute left-3.5 size-4.5 text-indigo-600 animate-spin pointer-events-none" />
+            ) : (
+              <Search className="absolute left-3.5 size-4.5 text-slate-400 pointer-events-none" />
+            )}
             <input
               type="text"
               placeholder="Tìm khóa học, tài khoản, combo..."

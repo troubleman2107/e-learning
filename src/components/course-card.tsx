@@ -1,5 +1,9 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Star, StarHalf, Play } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Star, StarHalf, Play, Loader2 } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 
 export interface CourseCardProps {
@@ -30,11 +34,15 @@ export interface CourseCardProps {
 }
 
 export function CourseCard({ course, index = 0 }: CourseCardProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isClicked, setIsClicked] = useState(false);
+
   const thumbnailSrc = course.thumbnail || "/course-docker.png";
   const categoryName = course.category?.name || course.categoryName || "Mọi trình độ";
   const studentCount = course._count?.orders ?? course.studentCount ?? 0;
   
-  // Simulate rating stats to match attachment design (e.g. 4.7 stars)
+  // Simulate rating stats
   const ratingValue = 4.7;
   const simulatedReviewsCount = studentCount * 3 + 12;
 
@@ -43,21 +51,41 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
   };
 
   const originalPrice = course.price * 2;
+  const isLoading = isPending || isClicked;
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setIsClicked(true);
+    startTransition(() => {
+      router.push(`/course/${course.id}`);
+    });
+  };
 
   return (
     <Link
       href={`/course/${course.id}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md h-full"
+      onClick={handleClick}
+      className={`group flex flex-col overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md h-full relative ${
+        isLoading ? "pointer-events-none ring-2 ring-indigo-500/50" : ""
+      }`}
     >
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-gray-100 bg-slate-50">
+        {isLoading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-xs text-white animate-fadeIn">
+            <Loader2 className="size-7 animate-spin text-indigo-400 mb-1" />
+            <span className="text-[10px] font-bold tracking-wide">Đang mở khóa học...</span>
+          </div>
+        )}
         <img
           src={thumbnailSrc}
           alt={course.title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+            isLoading ? "scale-105 blur-[1px]" : ""
+          }`}
         />
         {/* Category badge overlay */}
-        <span className="absolute right-2 top-2 rounded bg-slate-900/80 px-2 py-0.5 text-[9px] font-semibold text-white backdrop-blur-sm">
+        <span className="absolute right-2 top-2 z-10 rounded bg-slate-900/80 px-2 py-0.5 text-[9px] font-semibold text-white backdrop-blur-sm">
           {categoryName}
         </span>
       </div>
@@ -118,13 +146,27 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
 
         {/* Call To Action Button "Vào học ngay" */}
         <div className="mt-3 pt-2.5 border-t border-gray-100/80">
-          <div className="w-full rounded-lg bg-indigo-600 group-hover:bg-indigo-700 text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-200 transition-all duration-200 group-hover:shadow-md group-hover:shadow-indigo-300/40 active:scale-[0.98]">
-            <Play className="size-3.5 fill-white text-white transition-transform group-hover:scale-110" />
-            <span>{course.isPaid ? "Vào học ngay" : "Vào học ngay"}</span>
+          <div
+            className={`w-full rounded-lg text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-all duration-200 ${
+              isLoading
+                ? "bg-indigo-700 opacity-90 shadow-indigo-300"
+                : "bg-indigo-600 group-hover:bg-indigo-700 shadow-indigo-200 group-hover:shadow-md active:scale-[0.98]"
+            }`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-3.5 animate-spin text-white" />
+                <span>Đang tải...</span>
+              </>
+            ) : (
+              <>
+                <Play className="size-3.5 fill-white text-white transition-transform group-hover:scale-110" />
+                <span>Vào học ngay</span>
+              </>
+            )}
           </div>
         </div>
       </div>
     </Link>
   );
 }
-

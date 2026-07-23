@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
+import { TopLoader } from "@/components/top-loader";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -24,6 +26,9 @@ export default function RootLayout({
     <html lang="vi" className={`h-full scroll-smooth ${inter.className}`} suppressHydrationWarning>
       <body className="flex min-h-full flex-col antialiased">
         <Providers>
+          <Suspense fallback={null}>
+            <TopLoader />
+          </Suspense>
           <Navbar />
           {children}
         </Providers>

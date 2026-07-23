@@ -1,7 +1,9 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import Link from "next/link";
-import { BookOpenCheck, Clock3, Star, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { BookOpenCheck, Clock3, Star, Users, Loader2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { stripHtml } from "@/lib/utils";
@@ -60,13 +62,31 @@ const cardPatterns = [
 /* ──────────────────── COURSE CARD ──────────────────────── */
 
 function CourseCard({ course }: { course: SerializedCourse }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isClicked, setIsClicked] = useState(false);
+
   const gradientClass = cardGradients[course.visualIndex % cardGradients.length];
   const pattern = cardPatterns[course.visualIndex % cardPatterns.length];
+  const isLoading = isPending || isClicked;
+
+  const handleNavigate = () => {
+    setIsClicked(true);
+    startTransition(() => {
+      router.push(`/course/${course.id}`);
+    });
+  };
 
   return (
-    <Card className="group/course overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+    <Card className={`group/course overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl relative ${isLoading ? 'ring-2 ring-indigo-500/50' : ''}`}>
       {/* Thumbnail area — gradient with decorative pattern */}
       <div className="relative aspect-[16/10] w-full overflow-hidden">
+        {isLoading && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-xs text-white animate-fadeIn">
+            <Loader2 className="size-8 animate-spin text-indigo-400 mb-1" />
+            <span className="text-xs font-bold tracking-wide">Đang tải...</span>
+          </div>
+        )}
         <div
           className={`absolute inset-0 bg-gradient-to-br ${gradientClass}`}
           style={{ backgroundImage: pattern }}
@@ -118,23 +138,25 @@ function CourseCard({ course }: { course: SerializedCourse }) {
             ? "Miễn phí"
             : `${course.price.toLocaleString("vi-VN")}đ`}
         </span>
-        {course.isPaid ? (
-          <Button
-            asChild
-            size="sm"
-            className="rounded-xl bg-emerald-600 px-4 text-white shadow-md shadow-emerald-200 transition-all hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-300"
-          >
-            <Link href={`/course/${course.id}`}>Vào học ngay</Link>
-          </Button>
-        ) : (
-          <Button
-            asChild
-            size="sm"
-            className="rounded-xl bg-indigo-600 px-4 text-white shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-300"
-          >
-            <Link href={`/course/${course.id}`}>Đăng ký ngay</Link>
-          </Button>
-        )}
+        <Button
+          onClick={handleNavigate}
+          disabled={isLoading}
+          size="sm"
+          className={`rounded-xl px-4 text-white shadow-md transition-all flex items-center gap-1.5 ${
+            course.isPaid
+              ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200"
+              : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200"
+          }`}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="size-3.5 animate-spin" />
+              <span>Đang tải...</span>
+            </>
+          ) : (
+            <span>{course.isPaid ? "Vào học ngay" : "Đăng ký ngay"}</span>
+          )}
+        </Button>
       </CardFooter>
     </Card>
   );

@@ -354,12 +354,13 @@ export function CheckoutModal({
 
           {/* Auto-confirmation banner */}
           <div className="mx-5 mb-4">
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 text-center">
-              <p className="text-emerald-400 text-sm font-semibold flex items-center justify-center gap-2">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                </svg>
-                Xác nhận tự động khi chuyển khoản thành công
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 text-center flex items-center justify-center gap-2.5">
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <p className="text-emerald-400 text-xs sm:text-sm font-semibold">
+                Đang tự động kiểm tra giao dịch chuyển khoản...
               </p>
             </div>
           </div>
