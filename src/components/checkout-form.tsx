@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
@@ -117,12 +117,21 @@ export function CheckoutForm({ courseId }: { courseId: string; defaultEmail?: st
       <form onSubmit={handleCheckout}>
         <Button 
           type="submit" 
-          className="h-12 w-full rounded-xl text-base font-bold shadow-md shadow-indigo-100 bg-indigo-600 hover:bg-indigo-500 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer" 
+          className="h-12 w-full rounded-xl text-base font-bold shadow-md shadow-indigo-100 bg-indigo-600 hover:bg-indigo-500 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" 
           size="lg"
           disabled={loading}
         >
-          <CreditCard className="size-4 mr-2" />
-          {loading ? "Đang xử lý..." : "Thanh toán khóa học"}
+          {loading ? (
+            <>
+              <Loader2 className="size-4 mr-2 animate-spin" />
+              Đang tạo đơn hàng...
+            </>
+          ) : (
+            <>
+              <CreditCard className="size-4 mr-2" />
+              Thanh toán khóa học
+            </>
+          )}
         </Button>
       </form>
     </div>

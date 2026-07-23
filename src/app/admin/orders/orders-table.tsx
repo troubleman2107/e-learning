@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Search, Filter, CheckCircle2, Clock, XCircle, AlertCircle, ShoppingBag } from "lucide-react";
+import { Search, Filter, CheckCircle2, Clock, XCircle, AlertCircle, ShoppingBag, Loader2 } from "lucide-react";
 import { updateOrderStatus } from "./actions";
 import { OrderStatus } from "@/generated/prisma/client";
+import { toast } from "sonner";
 
 export type AdminOrder = {
   id: string;
@@ -51,8 +52,10 @@ export function OrdersTable({ orders }: OrdersTableProps) {
     startTransition(async () => {
       try {
         await updateOrderStatus(orderId, newStatus);
+        toast.success(`Đã cập nhật đơn hàng thành ${newStatus}!`);
       } catch (error) {
         console.error("Failed to update status:", error);
+        toast.error("Không thể cập nhật trạng thái đơn hàng.");
       } finally {
         setUpdatingId(null);
       }
@@ -208,17 +211,22 @@ export function OrdersTable({ orders }: OrdersTableProps) {
                       {getStatusBadge(order.status)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
-                      <select
-                        disabled={isCurrentlyUpdating || isPending}
-                        value={order.status}
-                        onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
-                        className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-2xs transition-colors hover:border-indigo-300 focus:border-indigo-500 focus:outline-none disabled:opacity-50"
-                      >
-                        <option value="PAID">Thành công (PAID)</option>
-                        <option value="PENDING">Chờ thanh toán (PENDING)</option>
-                        <option value="CANCELLED">Đã hủy (CANCELLED)</option>
-                        <option value="FAILED">Thất bại (FAILED)</option>
-                      </select>
+                      <div className="inline-flex items-center gap-2 justify-end">
+                        {isCurrentlyUpdating && (
+                          <Loader2 className="h-4 w-4 animate-spin text-indigo-600 shrink-0" />
+                        )}
+                        <select
+                          disabled={isCurrentlyUpdating || isPending}
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value as OrderStatus)}
+                          className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-2xs transition-colors hover:border-indigo-300 focus:border-indigo-500 focus:outline-none disabled:opacity-50"
+                        >
+                          <option value="PAID">Thành công (PAID)</option>
+                          <option value="PENDING">Chờ thanh toán (PENDING)</option>
+                          <option value="CANCELLED">Đã hủy (CANCELLED)</option>
+                          <option value="FAILED">Thất bại (FAILED)</option>
+                        </select>
+                      </div>
                     </td>
                   </tr>
                 );

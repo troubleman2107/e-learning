@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { Switch } from "@/components/ui/switch";
 import { toggleCoursePublish } from "./actions";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface PublishToggleProps {
   id: string;
@@ -31,6 +32,7 @@ export function PublishToggle({ id, initialIsPublished }: PublishToggleProps) {
 
   return (
     <div className="flex items-center gap-2">
+      {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />}
       <Switch
         checked={initialIsPublished}
         onCheckedChange={handleToggle}
