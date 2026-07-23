@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { BookOpen, Users, ShoppingCart } from "lucide-react";
+import { BookOpen, Users, ShoppingCart, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default async function AdminDashboardPage() {
   const session = await auth();
@@ -10,7 +11,7 @@ export default async function AdminDashboardPage() {
     prisma.user.count(),
     prisma.order.count(),
     prisma.order.findMany({
-      take: 5,
+      take: 6,
       orderBy: { createdAt: "desc" },
       include: { user: true, course: true },
     }),
@@ -22,18 +23,21 @@ export default async function AdminDashboardPage() {
       value: courseCount,
       icon: BookOpen,
       color: "text-indigo-600 bg-indigo-50",
+      href: "/admin/courses",
     },
     {
       label: "Người dùng",
       value: userCount,
       icon: Users,
       color: "text-emerald-600 bg-emerald-50",
+      href: "/admin/users",
     },
     {
       label: "Đơn hàng",
       value: orderCount,
       icon: ShoppingCart,
       color: "text-amber-600 bg-amber-50",
+      href: "/admin/orders",
     },
   ];
 
@@ -52,12 +56,13 @@ export default async function AdminDashboardPage() {
       {/* Stats Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {stats.map((stat) => (
-          <div
+          <Link
             key={stat.label}
-            className="rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+            href={stat.href}
+            className="group rounded-xl border border-gray-200/60 bg-white p-6 shadow-sm transition-all hover:border-indigo-200 hover:shadow-md"
           >
             <div className="flex items-center gap-4">
-              <div className={`rounded-lg p-3 ${stat.color}`}>
+              <div className={`rounded-lg p-3 ${stat.color} transition-transform group-hover:scale-105`}>
                 <stat.icon className="h-5 w-5" />
               </div>
               <div>
@@ -69,14 +74,21 @@ export default async function AdminDashboardPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
       {/* Recent Orders */}
       <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
           <h2 className="font-semibold text-gray-900">Đơn hàng gần đây</h2>
+          <Link
+            href="/admin/orders"
+            className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 hover:underline"
+          >
+            <span>Xem tất cả ({orderCount})</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
         <div className="overflow-x-auto -mx-4 sm:mx-0">
           <table className="w-full min-w-[600px] text-left text-sm">

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BookOpen, Users, Tags, GraduationCap, Menu, X } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, Tags, GraduationCap, ShoppingCart, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
@@ -11,6 +11,12 @@ const navItems = [
     label: "Tổng quan",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Quản lý Đơn hàng",
+    shortLabel: "Đơn hàng",
+    href: "/admin/orders",
+    icon: ShoppingCart,
   },
   {
     label: "Quản lý Khóa học",
