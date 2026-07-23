@@ -5,6 +5,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 import { TopLoader } from "@/components/top-loader";
+import { ScrollToTop } from "@/components/scroll-to-top";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -31,6 +32,7 @@ export default function RootLayout({
           </Suspense>
           <Navbar />
           {children}
+          <ScrollToTop />
         </Providers>
       </body>
     </html>
