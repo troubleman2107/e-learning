@@ -85,9 +85,12 @@ const infoMenuItems = [
   },
 ];
 
+import { useFavorites } from "@/components/favorites-provider";
+
 export function Navbar() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { count: favoritesCount } = useFavorites();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -240,10 +243,17 @@ export function Navbar() {
         <div className="flex items-center gap-2 sm:gap-3 lg:gap-5 shrink-0">
           {/* Wishlist Link — Desktop (lg+) */}
           <Link
-            href="/courses"
-            className="hidden lg:flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group"
+            href="/favorites"
+            className="hidden lg:flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#356DF1] transition-colors group relative"
           >
-            <Heart className="size-4.5 text-slate-600 group-hover:text-[#356DF1] group-hover:scale-110 transition-transform" />
+            <div className="relative">
+              <Heart className={`size-4.5 transition-transform group-hover:scale-110 ${favoritesCount > 0 ? "fill-rose-500 text-rose-500" : "text-slate-600 group-hover:text-[#356DF1]"}`} />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
+                  {favoritesCount}
+                </span>
+              )}
+            </div>
             <span>Yêu thích</span>
           </Link>
 
@@ -459,6 +469,22 @@ export function Navbar() {
                   })}
                 </div>
               </div>
+
+              <Link
+                href="/favorites"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold text-slate-800 hover:bg-slate-100"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart className={`size-4 ${favoritesCount > 0 ? "fill-rose-500 text-rose-500" : "text-rose-500"}`} />
+                  <span>Khóa Học Yêu Thích</span>
+                </div>
+                {favoritesCount > 0 && (
+                  <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-extrabold text-white">
+                    {favoritesCount}
+                  </span>
+                )}
+              </Link>
 
               <Link
                 href="/courses"

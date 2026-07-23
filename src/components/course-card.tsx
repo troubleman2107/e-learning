@@ -3,14 +3,15 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Star, StarHalf, Play, Loader2 } from "lucide-react";
+import { Star, StarHalf, Play, Loader2, Heart } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
+import { useFavorites } from "@/components/favorites-provider";
 
 export interface CourseCardProps {
   course: {
     id: string;
     title: string;
-    description: string;
+    description?: string;
     shortDescription?: string | null;
     price: number;
     thumbnail?: string | null;
@@ -37,7 +38,9 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isClicked, setIsClicked] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
+  const isFav = isFavorite(course.id);
   const thumbnailSrc = course.thumbnail || "/course-docker.png";
   const categoryName = course.category?.name || course.categoryName || "Mọi trình độ";
   const studentCount = course._count?.orders ?? course.studentCount ?? 0;
@@ -71,6 +74,24 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
     >
       {/* Thumbnail */}
       <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-gray-100 bg-slate-50">
+        {/* Favorite Heart Toggle Button */}
+        <button
+          type="button"
+          onClick={(e) => toggleFavorite(course, e)}
+          title={isFav ? "Bỏ yêu thích" : "Thêm vào yêu thích"}
+          className={`absolute left-2.5 top-2.5 z-30 flex size-8 items-center justify-center rounded-full backdrop-blur-md transition-all duration-200 cursor-pointer ${
+            isFav
+              ? "bg-white/95 text-rose-500 shadow-md scale-105 hover:scale-110"
+              : "bg-slate-900/40 text-white/80 hover:bg-white hover:text-rose-500 hover:scale-110"
+          }`}
+        >
+          <Heart
+            className={`size-4 transition-colors ${
+              isFav ? "fill-rose-500 text-rose-500" : "fill-transparent"
+            }`}
+          />
+        </button>
+
         {isLoading && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/60 backdrop-blur-xs text-white animate-fadeIn">
             <Loader2 className="size-7 animate-spin text-indigo-400 mb-1" />
@@ -103,7 +124,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
 
         {/* Short Summary */}
         <p className="line-clamp-2 min-h-[2rem] text-[11px] text-gray-500 mt-1.5 leading-relaxed">
-          {course.shortDescription || stripHtml(course.description)}
+          {course.shortDescription || stripHtml(course.description || "")}
         </p>
 
         {/* Rating Block */}

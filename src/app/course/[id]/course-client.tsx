@@ -19,10 +19,12 @@ import {
   ArrowLeft,
   ChevronRight,
   Loader2,
+  Heart,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useFavorites } from "@/components/favorites-provider";
 import { CheckoutModal } from "@/components/checkout-modal";
 import {
   Dialog,
@@ -211,6 +213,7 @@ export function CourseClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutData, setCheckoutData] = useState<{
     orderCode: number;
@@ -474,6 +477,25 @@ export function CourseClient({
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Favorite Header Button */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={(e) => toggleFavorite(course, e)}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-xs sm:text-sm font-bold shadow-2xs transition-all duration-200 cursor-pointer ${
+              isFavorite(course.id)
+                ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
+                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+            }`}
+          >
+            <Heart
+              className={`size-4 ${
+                isFavorite(course.id) ? "fill-rose-500 text-rose-500" : "text-gray-500"
+              }`}
+            />
+            <span>{isFavorite(course.id) ? "Đã yêu thích" : "Yêu thích"}</span>
+          </button>
         </div>
       </div>
 
