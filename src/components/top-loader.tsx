@@ -9,8 +9,10 @@ export function TopLoader() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  // Reset loading progress when pathname or searchParams change
+  // Reset loading progress & scroll window to top when pathname or searchParams change
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
     if (loading) {
       setProgress(100);
       const timer = setTimeout(() => {

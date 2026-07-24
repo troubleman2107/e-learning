@@ -271,6 +271,11 @@ export function CourseClient({
     }
   };
 
+  // Always scroll window to top when course detail page renders
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [course.id]);
+
   // Handle auto-checkout when redirected back from Google OAuth
   useEffect(() => {
     const action = searchParams.get("action");
