@@ -50,8 +50,11 @@ export default async function AdminCoursesPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
-              <TableHead className="font-semibold text-gray-600">
+              <TableHead className="font-semibold text-gray-600 min-w-[200px]">
                 Tên khóa học
+              </TableHead>
+              <TableHead className="font-semibold text-gray-600">
+                Hành động
               </TableHead>
               <TableHead className="font-semibold text-gray-600">
                 Danh mục
@@ -68,20 +71,45 @@ export default async function AdminCoursesPage() {
               <TableHead className="font-semibold text-gray-600">
                 Ngày tạo
               </TableHead>
-              <TableHead className="text-right font-semibold text-gray-600">
-                Hành động
-              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {courses.map((course) => (
               <TableRow key={course.id} className="group">
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-gray-900">{course.title}</p>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-gray-400">
+                <TableCell className="max-w-[240px]">
+                  <div className="space-y-0.5">
+                    <p className="font-semibold text-gray-900 line-clamp-1 text-sm" title={course.title}>
+                      {course.title}
+                    </p>
+                    <p className="line-clamp-1 text-xs text-gray-400">
                       {stripHtml(course.description)}
                     </p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs gap-1 text-gray-700 hover:text-indigo-600 border-gray-200"
+                    >
+                      <Link href={`/admin/courses/${course.id}`}>
+                        <Settings className="h-3.5 w-3.5 text-indigo-500" />
+                        Quản lý
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs gap-1 text-gray-600 hover:text-indigo-600"
+                    >
+                      <Link href={`/admin/courses/${course.id}/edit`}>
+                        <Pencil className="h-3.5 w-3.5" />
+                        Sửa
+                      </Link>
+                    </Button>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -105,46 +133,23 @@ export default async function AdminCoursesPage() {
                   <PublishToggle id={course.id} initialIsPublished={course.isPublished} />
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 font-medium">
                     {course._count.orders}
                   </span>
                 </TableCell>
-                <TableCell className="text-sm text-gray-500">
+                <TableCell className="text-sm text-gray-500 whitespace-nowrap">
                   {new Date(course.id).toLocaleDateString("vi-VN", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
                   }) || "—"}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                    <Button
-                      asChild
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1.5 text-gray-500 hover:text-indigo-600"
-                    >
-                      <Link href={`/admin/courses/${course.id}`}>
-                        <Settings className="h-3.5 w-3.5" />
-                        Quản lý
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-1.5 text-gray-500 hover:text-red-600"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Xóa
-                    </Button>
-                  </div>
-                </TableCell>
               </TableRow>
             ))}
             {courses.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="h-32 text-center text-gray-400"
                 >
                   Chưa có khóa học nào. Hãy thêm khóa học đầu tiên!
