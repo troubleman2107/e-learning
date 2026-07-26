@@ -100,6 +100,9 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
             <span className="text-[10px] font-bold tracking-wide">Đang mở khóa học...</span>
           </div>
         )}
+        {/* Cover tint overlay (soft initial opacity, clears back to normal on hover) */}
+        <div className="absolute inset-0 bg-slate-950/20 opacity-60 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none z-10" />
+
         <Image
           src={thumbnailSrc}
           alt={course.title}
@@ -110,8 +113,9 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
             isLoading ? "scale-105 blur-[1px]" : ""
           }`}
         />
-        {/* Category badge overlay */}
-        <span className="absolute right-2 top-2 z-10 rounded bg-slate-900/80 px-2 py-0.5 text-[9px] font-semibold text-white backdrop-blur-sm">
+
+        {/* Category badge overlay (subtle opacity by default, full normal on hover) */}
+        <span className="absolute right-2 top-2 z-20 rounded bg-slate-900/60 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md opacity-70 transition-all duration-300 group-hover:opacity-100 group-hover:bg-slate-900/90 group-hover:text-white group-hover:scale-105">
           {categoryName}
         </span>
       </div>
