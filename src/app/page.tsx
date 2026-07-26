@@ -230,9 +230,9 @@ export default async function Home() {
         <div className="pointer-events-none absolute -left-40 top-20 h-80 w-80 rounded-full bg-indigo-500/20 blur-[120px]" />
         <div className="pointer-events-none absolute -right-20 bottom-10 h-96 w-96 rounded-full bg-violet-500/15 blur-[120px]" />
 
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-20 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-28">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-20 sm:px-6 xl:grid-cols-12 xl:gap-12 lg:px-8 lg:py-28">
           {/* Left — Copy */}
-          <div className="relative z-10">
+          <div className="relative z-10 xl:col-span-5">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-500/10 px-4 py-1.5 text-sm font-medium text-indigo-300 backdrop-blur-sm">
               <Sparkles className="size-4" />
               E-learning thực chiến cho người Việt
@@ -290,8 +290,8 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Right — Hero Course Carousel */}
-          <div className="relative">
+          {/* Right — Hero Course Carousel (2 Cards) */}
+          <div className="relative xl:col-span-7">
             <HeroCoursesCarousel courses={serializedCourses} />
           </div>
         </div>
