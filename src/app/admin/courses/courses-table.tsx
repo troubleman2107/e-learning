@@ -4,14 +4,6 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Pencil, Settings } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 import { PublishToggle } from "./publish-toggle";
@@ -84,14 +76,14 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
 
   return (
     <div className="rounded-xl border border-gray-200/60 bg-white shadow-sm overflow-x-auto">
-      <Table style={{ tableLayout: "fixed" }} className="w-full">
-        <TableHeader>
-          <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
+      <table style={{ tableLayout: "fixed" }} className="w-full text-left text-sm">
+        <thead>
+          <tr className="border-b border-gray-200/60 bg-gray-50/80">
             {HEADERS.map((header, idx) => (
-              <TableHead
+              <th
                 key={header.key}
                 style={{ width: `${colWidths[idx]}px` }}
-                className="relative font-semibold text-gray-600 select-none group/head py-3 px-3 overflow-hidden text-ellipsis whitespace-nowrap"
+                className="relative font-semibold text-gray-600 select-none group/head py-3 px-3 overflow-hidden text-ellipsis whitespace-nowrap align-middle"
               >
                 <span>{header.label}</span>
                 {/* Drag handle line */}
@@ -102,15 +94,15 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
                 >
                   <div className="w-[2px] h-4 bg-gray-300 group-hover/head:bg-indigo-500 transition-colors" />
                 </div>
-              </TableHead>
+              </th>
             ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-100">
           {courses.map((course) => (
-            <TableRow key={course.id} className="group hover:bg-slate-50/60">
+            <tr key={course.id} className="group hover:bg-slate-50/60 transition-colors">
               {/* Tên khóa học */}
-              <TableCell style={{ width: `${colWidths[0]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[0]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 <div className="space-y-0.5">
                   <p className="font-semibold text-gray-900 truncate text-sm" title={course.title}>
                     {course.title}
@@ -119,10 +111,10 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
                     {stripHtml(course.description)}
                   </p>
                 </div>
-              </TableCell>
+              </td>
 
               {/* Hành động */}
-              <TableCell style={{ width: `${colWidths[1]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[1]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 <div className="flex items-center gap-1.5">
                   <Button
                     asChild
@@ -147,10 +139,10 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
                     </Link>
                   </Button>
                 </div>
-              </TableCell>
+              </td>
 
               {/* Danh mục */}
-              <TableCell style={{ width: `${colWidths[2]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[2]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 {course.category ? (
                   <Badge variant="outline" className="font-normal text-gray-600 truncate max-w-full">
                     {course.category.name}
@@ -158,52 +150,52 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
                 ) : (
                   <span className="text-sm text-gray-400 italic">Chưa phân loại</span>
                 )}
-              </TableCell>
+              </td>
 
               {/* Giá */}
-              <TableCell style={{ width: `${colWidths[3]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[3]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 <Badge
                   variant="secondary"
                   className="bg-emerald-50 font-mono text-emerald-700"
                 >
                   {course.price.toLocaleString("vi-VN")}đ
                 </Badge>
-              </TableCell>
+              </td>
 
               {/* Trạng thái */}
-              <TableCell style={{ width: `${colWidths[4]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[4]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 <PublishToggle id={course.id} initialIsPublished={course.isPublished} />
-              </TableCell>
+              </td>
 
               {/* Đơn hàng */}
-              <TableCell style={{ width: `${colWidths[5]}px` }} className="overflow-hidden">
+              <td style={{ width: `${colWidths[5]}px` }} className="py-3 px-3 overflow-hidden align-middle">
                 <span className="text-sm text-gray-600 font-medium">
                   {course._count.orders}
                 </span>
-              </TableCell>
+              </td>
 
               {/* Ngày tạo */}
-              <TableCell style={{ width: `${colWidths[6]}px` }} className="text-sm text-gray-500 whitespace-nowrap overflow-hidden">
+              <td style={{ width: `${colWidths[6]}px` }} className="py-3 px-3 text-sm text-gray-500 whitespace-nowrap overflow-hidden align-middle">
                 {new Date(course.id).toLocaleDateString("vi-VN", {
                   year: "numeric",
                   month: "short",
                   day: "numeric",
                 }) || "—"}
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           ))}
           {courses.length === 0 && (
-            <TableRow>
-              <TableCell
+            <tr>
+              <td
                 colSpan={HEADERS.length}
-                className="h-32 text-center text-gray-400"
+                className="h-32 text-center text-gray-400 align-middle"
               >
                 Chưa có khóa học nào. Hãy thêm khóa học đầu tiên!
-              </TableCell>
-            </TableRow>
+              </td>
+            </tr>
           )}
-        </TableBody>
-      </Table>
+        </tbody>
+      </table>
     </div>
   );
 }

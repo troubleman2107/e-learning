@@ -80,7 +80,7 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
       try {
         await createCourse(data);
         toast.success("Khóa học đã được tạo thành công!");
-        router.push("/admin/courses");
+        router.refresh();
       } catch (error: any) {
         console.error("createCourse error:", error);
         toast.error(error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");

@@ -75,7 +75,7 @@ export function EditCourseForm({ course, categories, authors }: { course: any, c
       try {
         await updateCourse(course.id, data);
         toast.success("Cập nhật khóa học thành công!");
-        router.push("/admin/courses");
+        router.refresh();
       } catch (error: any) {
         console.error("updateCourse error:", error);
         toast.error(error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
