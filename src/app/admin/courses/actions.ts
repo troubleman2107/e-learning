@@ -11,11 +11,12 @@ const courseSchema = z.object({
   description: z.string().min(1, "Mô tả không được để trống"),
   shortDescription: z.string().optional(),
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
+  trailerUrl: z.string().optional(),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   authorId: z.string().optional(),
   thumbnail: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
   isPublished: z.boolean().optional(),
 });
@@ -33,24 +34,25 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
     ? validated.whatYouWillLearn.split("\n").map((line) => line.trim()).filter(Boolean)
     : [];
 
+  const thumbnailVal = validated.thumbnailUrl || validated.thumbnail || null;
+
   await prisma.course.create({
     data: {
       title: validated.title,
       description: validated.description,
       shortDescription: validated.shortDescription,
       price: validated.price,
-      trailerUrl: validated.trailerUrl,
+      trailerUrl: validated.trailerUrl || "",
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId === "none" || !validated.categoryId ? null : validated.categoryId,
       authorId: validated.authorId === "none" || !validated.authorId ? null : validated.authorId,
-      thumbnail: validated.thumbnail,
+      thumbnail: thumbnailVal,
       whatYouWillLearn: whatYouWillLearnArray,
       isPublished: validated.isPublished ?? false,
     },
   });
 
   revalidatePath("/admin/courses");
-  redirect("/admin/courses");
 }
 
 export async function updateCourse(
@@ -69,6 +71,8 @@ export async function updateCourse(
     ? validated.whatYouWillLearn.split("\n").map((line) => line.trim()).filter(Boolean)
     : [];
 
+  const thumbnailVal = validated.thumbnailUrl || validated.thumbnail || null;
+
   await prisma.course.update({
     where: { id },
     data: {
@@ -76,18 +80,17 @@ export async function updateCourse(
       description: validated.description,
       shortDescription: validated.shortDescription,
       price: validated.price,
-      trailerUrl: validated.trailerUrl,
+      trailerUrl: validated.trailerUrl || "",
       bunnyVideoId: validated.bunnyVideoId,
       categoryId: validated.categoryId === "none" || !validated.categoryId ? null : validated.categoryId,
       authorId: validated.authorId === "none" || !validated.authorId ? null : validated.authorId,
-      thumbnail: validated.thumbnail,
+      thumbnail: thumbnailVal,
       whatYouWillLearn: whatYouWillLearnArray,
       isPublished: validated.isPublished ?? false,
     },
   });
 
   revalidatePath("/admin/courses");
-  redirect("/admin/courses");
 }
 
 export async function toggleCoursePublish(id: string, isPublished: boolean) {

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Star, StarHalf, Play, Loader2, Heart } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
@@ -15,6 +16,7 @@ export interface CourseCardProps {
     shortDescription?: string | null;
     price: number;
     thumbnail?: string | null;
+    thumbnailUrl?: string | null;
     category?: {
       name: string;
       slug: string;
@@ -41,7 +43,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
 
   const isFav = isFavorite(course.id);
-  const thumbnailSrc = course.thumbnail || "/course-docker.png";
+  const thumbnailSrc = course.thumbnailUrl || course.thumbnail || "/course-docker.png";
   const categoryName = course.category?.name || course.categoryName || "Mọi trình độ";
   const studentCount = course._count?.orders ?? course.studentCount ?? 0;
   
@@ -73,7 +75,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
       }`}
     >
       {/* Thumbnail */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-gray-100 bg-slate-50">
+      <div className="relative aspect-square w-full overflow-hidden border-b border-gray-100 bg-slate-950 rounded-t-xl">
         {/* Favorite Heart Toggle Button */}
         <button
           type="button"
@@ -98,10 +100,13 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
             <span className="text-[10px] font-bold tracking-wide">Đang mở khóa học...</span>
           </div>
         )}
-        <img
+        <Image
           src={thumbnailSrc}
           alt={course.title}
-          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
+          width={800}
+          height={800}
+          quality={95}
+          className={`aspect-square h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
             isLoading ? "scale-105 blur-[1px]" : ""
           }`}
         />
@@ -166,12 +171,12 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
         </div>
 
         {/* Call To Action Button "Vào học ngay" */}
-        <div className="mt-3 pt-2.5 border-t border-gray-100/80">
+        <div className="mt-3 pt-1">
           <div
-            className={`w-full rounded-lg text-white font-bold text-xs py-2 px-3 flex items-center justify-center gap-1.5 shadow-sm transition-all duration-200 ${
+            className={`w-full rounded-xl text-white font-extrabold text-xs py-2.5 px-3 flex items-center justify-center gap-1.5 transition-all duration-300 ${
               isLoading
-                ? "bg-indigo-700 opacity-90 shadow-indigo-300"
-                : "bg-indigo-600 group-hover:bg-indigo-700 shadow-indigo-200 group-hover:shadow-md active:scale-[0.98]"
+                ? "bg-indigo-700 opacity-90 shadow-md shadow-indigo-500/20"
+                : "bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 group-hover:from-indigo-500 group-hover:to-violet-500 shadow-md shadow-indigo-500/30 group-hover:shadow-lg group-hover:shadow-indigo-500/40 group-hover:scale-[1.01] active:scale-[0.98]"
             }`}
           >
             {isLoading ? (

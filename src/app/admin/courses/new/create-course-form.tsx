@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import ThumbnailUpload from "@/components/admin/ThumbnailUpload";
 import { createCourse } from "../actions";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -29,12 +30,13 @@ const formSchema = z.object({
   title: z.string().min(1, "Tên khóa học không được để trống"),
   description: z.string().min(1, "Mô tả không được để trống"),
   price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  trailerUrl: z.string().url("URL giới thiệu không hợp lệ"),
+  trailerUrl: z.string().optional(),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   authorId: z.string().optional(),
   shortDescription: z.string().optional(),
   thumbnail: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
   whatYouWillLearn: z.string().optional(),
   isPublished: z.boolean().optional(),
 });
@@ -67,6 +69,7 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
       authorId: undefined,
       shortDescription: "",
       thumbnail: "",
+      thumbnailUrl: "",
       whatYouWillLearn: "",
       isPublished: false,
     },
@@ -77,8 +80,10 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
       try {
         await createCourse(data);
         toast.success("Khóa học đã được tạo thành công!");
-      } catch {
-        toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
+        router.push("/admin/courses");
+      } catch (error: any) {
+        console.error("createCourse error:", error);
+        toast.error(error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
       }
     });
   };
@@ -265,18 +270,22 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
           )}
         </div>
 
-        {/* Thumbnail URL */}
+        {/* Thumbnail Upload */}
         <div className="space-y-2">
-          <Label htmlFor="thumbnail">URL ảnh thu nhỏ (Thumbnail)</Label>
-          <Input
-            id="thumbnail"
-            type="text"
-            placeholder="Ví dụ: /course-docker.png hoặc https://..."
-            {...register("thumbnail")}
+          <Label>Ảnh thu nhỏ (Thumbnail)</Label>
+          <Controller
+            control={control}
+            name="thumbnailUrl"
+            render={({ field }) => (
+              <ThumbnailUpload
+                value={field.value || ""}
+                onChange={field.onChange}
+              />
+            )}
           />
-          {errors.thumbnail && (
+          {errors.thumbnailUrl && (
             <p className="text-sm text-red-500">
-              {errors.thumbnail.message}
+              {errors.thumbnailUrl.message}
             </p>
           )}
         </div>

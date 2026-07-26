@@ -20,6 +20,7 @@ export interface FeaturedCourse {
   visualIndex: number;
   isPaid?: boolean;
   thumbnail?: string | null;
+  thumbnailUrl?: string | null;
   author?: {
     id: string;
     name: string;

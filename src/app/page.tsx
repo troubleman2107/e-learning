@@ -212,6 +212,7 @@ export default async function Home() {
     visualIndex: index,
     isPaid: paidCourseIds.includes(course.id),
     thumbnail: course.thumbnail,
+    thumbnailUrl: course.thumbnail,
     author: course.author
       ? {
           id: course.author.id,

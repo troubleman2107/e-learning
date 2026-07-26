@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Accordion,
   AccordionContent,
@@ -103,7 +104,10 @@ const getYouTubeVideoId = (url: string) => {
 };
 
 const getCourseThumbnail = (course: any) => {
-  if (course.thumbnail && course.thumbnail.trim() !== "") {
+  if (course.thumbnailUrl && typeof course.thumbnailUrl === "string" && course.thumbnailUrl.trim() !== "") {
+    return course.thumbnailUrl;
+  }
+  if (course.thumbnail && typeof course.thumbnail === "string" && course.thumbnail.trim() !== "") {
     return course.thumbnail;
   }
 
@@ -939,17 +943,21 @@ export function CourseClient({
             <div className="sticky top-24 space-y-0 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
               
               {/* Video Preview / Player */}
-              <div className="relative aspect-video w-full bg-slate-900 overflow-hidden">
+              <div className="relative aspect-square w-full bg-slate-950 overflow-hidden">
                 {!isPlaying ? (
                   <div
                     onClick={() => setIsPlaying(true)}
                     className="relative h-full w-full cursor-pointer group flex items-center justify-center"
                   >
                     {thumbnailUrl ? (
-                      <img
+                      <Image
                         src={thumbnailUrl}
                         alt={course.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        width={800}
+                        height={800}
+                        quality={95}
+                        priority
+                        className="aspect-square h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 text-center font-bold text-sm">

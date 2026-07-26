@@ -1,20 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { CourseCard } from "@/components/course-card";
 import { FeaturedCourse } from "./featured-courses";
-import { stripHtml } from "@/lib/utils";
 
 export function HeroCoursesCarousel({
   courses,
 }: {
   courses: FeaturedCourse[];
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [loadingCourseId, setLoadingCourseId] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,7 +31,7 @@ export function HeroCoursesCarousel({
 
   useEffect(() => {
     if (!isHovered && courses.length > 1) {
-      timerRef.current = setInterval(nextSlide, 3000);
+      timerRef.current = setInterval(nextSlide, 3500);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -67,7 +62,6 @@ export function HeroCoursesCarousel({
     const diffX = touchStartX.current - touchEndX.current;
     const diffY = touchStartY.current - touchEndY.current;
 
-    // Check if the horizontal swipe was more significant than any vertical swipe
     if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > minSwipeDistance) {
       if (diffX > 0) {
         nextSlide();
@@ -81,13 +75,9 @@ export function HeroCoursesCarousel({
     return null;
   }
 
-  const formatVnd = (amount: number) => {
-    return `${new Intl.NumberFormat("vi-VN").format(amount)}đ`;
-  };
-
   return (
     <div
-      className="relative w-full max-w-lg mx-auto lg:max-w-none select-none"
+      className="relative w-full max-w-[380px] mx-auto select-none"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={onTouchStart}
@@ -95,12 +85,12 @@ export function HeroCoursesCarousel({
       onTouchEnd={onTouchEnd}
     >
       {/* Glow background behind the carousel */}
-      <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-20 blur-xl transition duration-1000 group-hover:opacity-30 group-hover:duration-200" />
+      <div className="absolute -inset-1 rounded-[32px] bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-25 blur-2xl transition duration-1000 group-hover:opacity-40" />
 
       {/* Wrapper with 3D-like perspectives / depth */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-4 shadow-2xl backdrop-blur-md">
+      <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-950/60 p-3 shadow-2xl backdrop-blur-xl">
         {/* Slides container */}
-        <div className="relative h-[370px] w-full">
+        <div className="relative h-[510px] w-full">
           {courses.map((course, idx) => {
             const isActive = idx === activeIndex;
             return (
@@ -108,66 +98,27 @@ export function HeroCoursesCarousel({
                 key={course.id}
                 className={`absolute inset-0 flex flex-col transition-all duration-700 ease-in-out ${
                   isActive
-                    ? "opacity-100 scale-100 pointer-events-auto"
-                    : "opacity-0 scale-95 pointer-events-none"
+                    ? "opacity-100 scale-100 pointer-events-auto z-10"
+                    : "opacity-0 scale-95 pointer-events-none z-0"
                 }`}
               >
-                {/* Thumbnail Image */}
-                <div className="relative h-44 w-full overflow-hidden rounded-xl bg-slate-950">
-                  <img
-                    src={course.thumbnail || "/course-docker.png"}
-                    alt={course.title}
-                    className="h-full w-full object-cover transition-transform duration-[8000ms] ease-out"
-                    style={{
-                      transform: isActive ? "scale(1.05)" : "scale(1.0)",
+                <div className="h-full overflow-hidden rounded-xl border border-indigo-500/30 bg-slate-900/90 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 transition-all hover:border-indigo-400/50 [&_a]:border-none [&_a]:bg-transparent [&_h3]:text-white [&_h3]:group-hover:text-indigo-300 [&_p]:text-slate-300/90 [&_.border-gray-200\/70]:border-transparent [&_.border-gray-100\/80]:border-slate-800/60 [&_.border-b]:border-slate-800/80 [&_.text-gray-900]:text-white [&_.text-gray-500]:text-slate-300/90 [&_.bg-white]:bg-transparent">
+                  <CourseCard
+                    course={{
+                      id: course.id,
+                      title: course.title,
+                      description: course.description,
+                      shortDescription: course.shortDescription,
+                      price: course.price,
+                      thumbnail: course.thumbnail,
+                      thumbnailUrl: course.thumbnailUrl,
+                      categoryName: course.categoryName,
+                      studentCount: course.studentCount,
+                      author: course.author,
+                      isPaid: course.isPaid,
                     }}
+                    index={idx}
                   />
-                  <span className="absolute left-2.5 top-2.5 rounded-md bg-indigo-650 px-2.5 py-1 text-[10px] font-bold text-white uppercase tracking-wider shadow-sm">
-                    {course.categoryName}
-                  </span>
-                </div>
-
-                {/* Details Section */}
-                <div className="flex flex-col flex-1 pt-4 pb-1">
-                  <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1 transition-colors hover:text-indigo-400">
-                    {course.title}
-                  </h3>
-                  <p className="mt-2 text-xs sm:text-sm text-gray-300 line-clamp-2 leading-relaxed">
-                    {course.shortDescription || stripHtml(course.description)}
-                  </p>
-
-                  <div className="mt-auto pt-3 flex items-center justify-between border-t border-white/5">
-                    <div>
-                      <p className="text-[9px] text-gray-400 uppercase tracking-wider font-semibold">
-                        Giá khóa học
-                      </p>
-                      <span className="text-sm sm:text-base font-extrabold text-indigo-400">
-                        {course.price === 0
-                          ? "Miễn phí"
-                          : formatVnd(course.price)}
-                      </span>
-                    </div>
-                    <Link
-                      href={`/course/${course.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setLoadingCourseId(course.id);
-                        startTransition(() => {
-                          router.push(`/course/${course.id}`);
-                        });
-                      }}
-                      className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-950 shadow-md transition-all hover:bg-indigo-600 hover:text-white hover:shadow-indigo-500/20 hover:-translate-y-0.5 flex items-center gap-1.5"
-                    >
-                      {loadingCourseId === course.id ? (
-                        <>
-                          <Loader2 className="size-3.5 animate-spin text-indigo-600" />
-                          <span>Đang tải...</span>
-                        </>
-                      ) : (
-                        "Chi tiết khóa học"
-                      )}
-                    </Link>
-                  </div>
                 </div>
               </div>
             );
