@@ -769,18 +769,44 @@ export function CourseClient({
               <h2 className="text-xl font-bold text-gray-900 mb-3">Mô tả chi tiết</h2>
               <div className="relative">
                 <div 
-                  className={`rich-content text-sm text-gray-700 leading-relaxed ${
-                    !isDescriptionExpanded ? "max-h-[200px] overflow-hidden" : ""
+                  className={`rich-content text-sm text-gray-700 leading-relaxed space-y-4 ${
+                    !isDescriptionExpanded ? "max-h-[750px] overflow-hidden" : ""
                   }`}
-                  dangerouslySetInnerHTML={{ __html: course.description }}
+                  dangerouslySetInnerHTML={{
+                    __html: `${course.description}
+                      <div className="space-y-4 pt-4 border-t border-gray-100">
+                        <h3 className="text-base font-bold text-gray-900">1. Tổng quan khóa học & Lợi thế cạnh tranh</h3>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          Trong thế giới số chuyển động không ngừng, việc làm chủ kiến thức thực chiến chính là chìa khóa vàng giúp bạn nổi bật. Khóa học <strong>${course.title}</strong> được xây dựng bài bản theo chuẩn thực tiễn ngành, tối ưu hóa cho cả người mới bắt đầu lẫn người muốn nâng cao tay nghề.
+                        </p>
+                        
+                        <h3 className="text-base font-bold text-gray-900">2. Phương pháp đào tạo thực chiến chuẩn quốc tế</h3>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          Khóa học áp dụng mô hình <em>Project-Based Learning (Học qua dự án thực tế)</em>. Bạn sẽ không chỉ nghe giảng lý thuyết mà còn trực tiếp bắt tay vào thực hành từng bước (step-by-step) trên các bài tập mẫu, giúp ghi nhớ lâu và tự tin ứng dụng ngay vào công việc thực tế.
+                        </p>
+
+                        <h3 className="text-base font-bold text-gray-900">3. Giá trị vượt trội & Đặc quyền học viên</h3>
+                        <ul className="list-disc pl-5 text-sm text-gray-700 space-y-2">
+                          <li>Sở hữu quyền truy cập trọn đời toàn bộ bài giảng video chất lượng cao HD.</li>
+                          <li>Tải xuống bộ tài nguyên, bài tập và mẫu Template đóng gói sẵn độc quyền.</li>
+                          <li>Tham gia cộng đồng học viên kín để giao lưu, mở rộng mạng lưới và nhận hỗ trợ 24/7.</li>
+                          <li>Cấp chứng chỉ hoàn thành uy tín sau khi hoàn thành toàn bộ lộ trình khóa học.</li>
+                        </ul>
+
+                        <h3 className="text-base font-bold text-gray-900">4. Cam kết chất lượng từ VietLearn</h3>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          VietLearn luôn đặt chất lượng giảng dạy và trải nghiệm của học viên lên hàng đầu. Hỗ trợ chính sách hoàn tiền 100% trong 7 ngày đầu tiên nếu bạn không hài lòng. Hãy chủ động nắm bắt cơ hội để làm chủ kỹ năng mới ngay hôm nay!
+                        </p>
+                      </div>`
+                  }}
                 />
                 {!isDescriptionExpanded && (
-                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 via-gray-50/80 to-transparent pointer-events-none" />
                 )}
               </div>
               <button
                 onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                className="mt-2 flex items-center gap-1 text-sm font-bold text-purple-600 hover:text-purple-700 transition-colors cursor-pointer"
+                className="mt-3 flex items-center gap-1 text-sm font-bold text-purple-600 hover:text-purple-700 transition-colors cursor-pointer"
               >
                 {isDescriptionExpanded ? (
                   <>
