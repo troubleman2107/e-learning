@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Accordion,
   AccordionContent,
@@ -16,10 +15,18 @@ import {
   Star,
   Clock,
   BookOpen,
-  ArrowLeft,
   ChevronRight,
   Loader2,
   Heart,
+  Users,
+  MonitorPlay,
+  FileText,
+  Download,
+  Award,
+  Share2,
+  Globe,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession, signIn } from "next-auth/react";
@@ -34,8 +41,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 
 // Helper to format VND
 const formatVnd = (amount: number) => {
@@ -69,6 +74,92 @@ const getYouTubeEmbedUrl = (url: string) => {
   } catch {
     return url;
   }
+};
+
+const getYouTubeVideoId = (url: string) => {
+  if (!url) return "";
+  try {
+    const parsedUrl = new URL(url);
+    const host = parsedUrl.hostname.replace("www.", "");
+    const pathParts = parsedUrl.pathname.split("/").filter(Boolean);
+
+    if (host === "youtu.be") {
+      return pathParts[0] ?? "";
+    }
+
+    if (host.endsWith("youtube.com")) {
+      if (parsedUrl.pathname === "/watch") {
+        return parsedUrl.searchParams.get("v") ?? "";
+      }
+
+      if (pathParts[0] === "embed" || pathParts[0] === "shorts") {
+        return pathParts[1] ?? "";
+      }
+    }
+    return "";
+  } catch {
+    return "";
+  }
+};
+
+const getCourseThumbnail = (course: any) => {
+  if (course.thumbnail && course.thumbnail.trim() !== "") {
+    return course.thumbnail;
+  }
+
+  const title = (course.title || "").toLowerCase();
+  const categorySlug = (course.category?.slug || "").toLowerCase();
+
+  if (
+    categorySlug === "the-hinh" ||
+    title.includes("calisthenics") ||
+    title.includes("bodyweight") ||
+    title.includes("gym") ||
+    title.includes("tập") ||
+    title.includes("thể hình") ||
+    title.includes("dinh dưỡng")
+  ) {
+    return "/course-fitness.png";
+  }
+
+  if (
+    categorySlug === "ung-dung-ai" ||
+    title.includes("ai") ||
+    title.includes("chatgpt") ||
+    title.includes("sora") ||
+    title.includes("claude")
+  ) {
+    if (title.includes("prompt")) return "/course-prompt.png";
+    if (title.includes("midjourney") || title.includes("thiết kế")) return "/course-diffusion.png";
+    return "/course-ai.png";
+  }
+
+  if (
+    categorySlug === "kinh-doanh-marketing" ||
+    title.includes("marketing") ||
+    title.includes("facebook") ||
+    title.includes("google") ||
+    title.includes("tiktok")
+  ) {
+    return "/course-aws.png";
+  }
+
+  if (
+    categorySlug === "thu-nhap-thu-dong" ||
+    title.includes("affiliate") ||
+    title.includes("solopreneur") ||
+    title.includes("dropshipping")
+  ) {
+    return "/course-docker.png";
+  }
+
+  // Fallback to youtube thumbnail if valid custom video and not dummy rickroll
+  const youtubeVideoId = getYouTubeVideoId(course.trailerUrl);
+  if (youtubeVideoId && youtubeVideoId !== "dQw4w9WgXcQ") {
+    return `https://img.youtube.com/vi/${youtubeVideoId}/hqdefault.jpg`;
+  }
+
+  return "/course-docker.png";
 };
 
 const getLessonDuration = (lessonId: string) => {
@@ -209,6 +300,10 @@ export function CourseClient({
     getYouTubeEmbedUrl(course.trailerUrl)
   );
   const [completedLessons, setCompletedLessons] = useState<string[]>(initialCompletedLessons);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const thumbnailUrl = getCourseThumbnail(course);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -240,7 +335,6 @@ export function CourseClient({
         throw new Error(data.error || "Có lỗi xảy ra");
       }
 
-      // Open the checkout modal with order details
       setCheckoutData({
         orderCode: data.orderCode,
         amount: data.amount,
@@ -256,13 +350,11 @@ export function CourseClient({
 
   const handleEnroll = async () => {
     if (status === "unauthenticated" || !session?.user) {
-      // Not logged in -> Sign in with Google and redirect back to this page with action=checkout
       const callbackUrl = `${window.location.origin}/course/${course.id}?action=checkout`;
       await signIn("google", { callbackUrl });
       return;
     }
 
-    // Logged in -> initiate checkout
     const email = session?.user?.email || userEmail;
     if (email) {
       await initiateCheckout(email);
@@ -271,30 +363,25 @@ export function CourseClient({
     }
   };
 
-  // Always scroll window to top when course detail page renders
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [course.id]);
 
-  // Handle auto-checkout when redirected back from Google OAuth
   useEffect(() => {
     const action = searchParams.get("action");
     if (action === "checkout" && status === "authenticated" && session?.user?.email) {
-      // Clean up the URL parameter first to prevent repeated triggers on reload
       const newUrl = window.location.pathname;
       window.history.replaceState({}, "", newUrl);
-      
       initiateCheckout(session.user.email);
     }
   }, [status, session, searchParams]);
 
-  // Deterministic stats
   const reviewCount = (course.title.length * 3 + 12) % 150 + 15;
+  const studentCount = (course.title.length * 47 + 831) % 9000 + 1200;
   const authorInfo = course.author || getAuthorInfo(course.category?.slug || "");
 
   const [isLessonLoading, setIsLessonLoading] = useState(false);
 
-  // Fetch token for current lesson
   useEffect(() => {
     if (!currentLessonId) return;
 
@@ -320,7 +407,6 @@ export function CourseClient({
       } catch (err) {
         setIframeUrl(getYouTubeEmbedUrl(course.trailerUrl));
       } finally {
-        // Small delay for smooth video player transition
         setTimeout(() => setIsLessonLoading(false), 250);
       }
     };
@@ -330,18 +416,15 @@ export function CourseClient({
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Listen for Bunny video completion using Player.js standard
   useEffect(() => {
     const handleMessage = async (event: MessageEvent) => {
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         
-        // Ensure this is a player.js message
         if (data.context === "player.js") {
           console.log("[Player.js Event]:", data);
           
           if (data.event === "ready") {
-            // Handshake: tell the iframe we want to listen to 'ended' events
             if (iframeRef.current && iframeRef.current.contentWindow) {
               iframeRef.current.contentWindow.postMessage(
                 JSON.stringify({
@@ -359,7 +442,6 @@ export function CourseClient({
           if (data.event === "ended") {
             if (!currentLessonId) return;
 
-            // Call progress API
             const res = await fetch("/api/progress", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -374,7 +456,6 @@ export function CourseClient({
                 return prev;
               });
               
-              // Move to next lesson automatically
               const currentIndex = allLessons.findIndex((l: any) => l.id === currentLessonId);
               if (currentIndex !== -1 && currentIndex < allLessons.length - 1) {
                 const nextLesson = allLessons[currentIndex + 1];
@@ -393,7 +474,7 @@ export function CourseClient({
           }
         }
       } catch (err) {
-        // Ignore parse errors (e.g. from react devtools or other extensions)
+        // Ignore parse errors
       }
     };
 
@@ -408,6 +489,7 @@ export function CourseClient({
       return;
     }
     setCurrentLessonId(lesson.id);
+    setIsPlaying(true);
   };
 
   const handleShare = () => {
@@ -417,561 +499,586 @@ export function CourseClient({
     }
   };
 
+  const learningPoints = course.whatYouWillLearn && course.whatYouWillLearn.length > 0
+    ? course.whatYouWillLearn
+    : getLearningPoints(course.category?.slug || "", course.title);
+
   return (
     <>
-    <section className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6 lg:px-8 lg:pb-16">
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500 mb-6 flex-wrap">
-        <Link href="/courses" className="hover:text-indigo-600 transition-colors font-medium">
-          Courses
-        </Link>
-        <ChevronRight className="h-3 w-3 text-gray-400" />
-        {course.category ? (
-          <>
-            <Link 
-              href={`/courses?category=${course.category.slug}`} 
-              className="hover:text-indigo-600 transition-colors font-medium"
-            >
-              {course.category.name}
-            </Link>
-            <ChevronRight className="h-3 w-3 text-gray-400" />
-          </>
-        ) : (
-          <>
-            <span className="text-gray-400">Tất cả</span>
-            <ChevronRight className="h-3 w-3 text-gray-400" />
-          </>
-        )}
-        <span className="text-gray-900 font-semibold truncate max-w-[200px] sm:max-w-none">
-          {course.title}
-        </span>
-      </div>
-
-      {/* Header Info Section */}
-      <div className="flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between mb-6 md:mb-8 border-b border-gray-100 pb-4 md:pb-6">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <Link 
-            href="/courses" 
-            className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all hover:bg-gray-50 hover:text-gray-900 shadow-xs hover:scale-105 active:scale-95"
-          >
-            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Link>
-          <div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-              <h1 className="text-xl font-extrabold text-gray-900 sm:text-2xl md:text-3xl tracking-tight leading-tight">
+      {/* ===== DARK HERO SECTION ===== */}
+      <section className="bg-[#1c1d1f] text-white">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+          <div className="lg:max-w-[60%]">
+            {/* Breadcrumbs */}
+            <nav className="flex items-center gap-2 text-xs text-purple-300/80 mb-4 flex-wrap">
+              <Link href="/courses" className="hover:text-white transition-colors font-medium">
+                Courses
+              </Link>
+              <ChevronRight className="h-3 w-3 text-gray-500" />
+              {course.category ? (
+                <>
+                  <Link 
+                    href={`/courses?category=${course.category.slug}`} 
+                    className="hover:text-white transition-colors font-medium"
+                  >
+                    {course.category.name}
+                  </Link>
+                  <ChevronRight className="h-3 w-3 text-gray-500" />
+                </>
+              ) : (
+                <>
+                  <span className="text-gray-400">Tất cả</span>
+                  <ChevronRight className="h-3 w-3 text-gray-500" />
+                </>
+              )}
+              <span className="text-gray-400 truncate max-w-[200px] sm:max-w-none">
                 {course.title}
-              </h1>
+              </span>
+            </nav>
+
+            {/* Course Title */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white leading-tight tracking-tight mb-3">
+              {course.title}
+            </h1>
+
+            {/* Course Subtitle */}
+            <p className="text-sm sm:text-base text-gray-300 leading-relaxed mb-4 line-clamp-2">
+              {course.description?.replace(/<[^>]*>/g, '').substring(0, 200) || "Khóa học chất lượng cao từ VietLearn"}
+            </p>
+
+            {/* Badges Row */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               {course.category && (
-                <span className="rounded-full border border-gray-200 bg-gray-50/80 px-2.5 py-0.5 text-xs font-semibold text-gray-600">
-                  {course.category.name}
+                <span className="rounded-sm bg-amber-200 text-amber-900 px-2 py-0.5 text-[11px] font-bold">
+                  Bestseller
                 </span>
               )}
+              <span className="rounded-sm bg-amber-100 text-amber-800 px-2 py-0.5 text-[11px] font-bold">
+                Highest Rated
+              </span>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs md:text-sm text-gray-500 font-medium">
+
+            {/* Rating & Stats */}
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm mb-3">
+              <span className="text-amber-400 font-bold">4.8</span>
+              <div className="flex items-center gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className={`h-3.5 w-3.5 ${i < 5 ? "fill-amber-400 text-amber-400" : "text-gray-500"}`} />
+                ))}
+              </div>
+              <Link href="#reviews" className="text-purple-300 hover:text-purple-200 underline underline-offset-2 text-xs">
+                ({reviewCount.toLocaleString()} đánh giá)
+              </Link>
+              <span className="text-gray-400 text-xs">
+                {studentCount.toLocaleString()} học viên
+              </span>
+            </div>
+
+            {/* Instructor */}
+            <div className="flex items-center gap-2 text-sm mb-3">
+              <span className="text-gray-400">Created by</span>
+              {course.author?.id ? (
+                <Link href={`/courses?authorId=${course.author.id}`} className="text-purple-300 hover:text-purple-200 underline underline-offset-2 font-medium">
+                  {authorInfo.name}
+                </Link>
+              ) : (
+                <span className="text-purple-300 font-medium">{authorInfo.name}</span>
+              )}
+            </div>
+
+            {/* Meta Info Row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-400">
               <span className="flex items-center gap-1.5">
-                <BookOpen className="h-4 w-4 text-gray-400" />
+                <Clock className="h-3.5 w-3.5" />
+                {getCourseDurationStr(course.modules)} tổng thời lượng
+              </span>
+              <span className="flex items-center gap-1.5">
+                <BookOpen className="h-3.5 w-3.5" />
                 {allLessons.length} bài học
               </span>
               <span className="flex items-center gap-1.5">
-                <Clock className="h-4 w-4 text-gray-400" />
-                {getCourseDurationStr(course.modules)}
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                4.8 ({reviewCount} đánh giá)
+                <Globe className="h-3.5 w-3.5" />
+                Tiếng Việt
               </span>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Favorite Header Button */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={(e) => toggleFavorite(course, e)}
-            className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-xs sm:text-sm font-bold shadow-2xs transition-all duration-200 cursor-pointer ${
-              isFavorite(course.id)
-                ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
-                : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-            }`}
-          >
-            <Heart
-              className={`size-4 ${
-                isFavorite(course.id) ? "fill-rose-500 text-rose-500" : "text-gray-500"
-              }`}
-            />
-            <span>{isFavorite(course.id) ? "Đã yêu thích" : "Yêu thích"}</span>
-          </button>
-        </div>
-      </div>
+      {/* ===== MAIN CONTENT: Two-Column Layout ===== */}
+      <section className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* ===== LEFT COLUMN ===== */}
+          <div className="flex-1 min-w-0 space-y-8 order-2 lg:order-1">
 
-      {/* Main Grid Layout */}
-      <div className="grid gap-6 md:gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
-        {/* Left Column (Video & Content Details) */}
-        <div className="min-w-0 w-full space-y-8">
-          {/* Video Player */}
-          <div className="overflow-hidden rounded-2xl border border-gray-200/60 bg-black shadow-md">
-            <div className="relative aspect-video w-full">
-              {isLessonLoading && (
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs text-white transition-all duration-300">
-                  <Loader2 className="h-8 w-8 sm:h-10 sm:w-10 animate-spin text-indigo-400 mb-2" />
-                  <p className="text-xs sm:text-sm font-semibold tracking-wide text-slate-200">
-                    Đang tải bài học...
-                  </p>
-                </div>
-              )}
-              {iframeUrl ? (
-                <iframe
-                  ref={iframeRef}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute inset-0 h-full w-full border-none"
-                  src={iframeUrl}
-                  title={`Video khóa học`}
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-gray-400">
-                  <Loader2 className="animate-spin h-8 w-8 text-indigo-500" />
-                  <span className="ml-3 text-sm">Đang tải video...</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Course Price Card (below video on mobile/tablet) */}
-          {!hasPurchased && (
-            <div className="lg:hidden rounded-2xl border border-rose-100 bg-rose-50/40 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center justify-between sm:justify-start gap-4">
-                <div>
-                  <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">
-                    Ưu đãi giới hạn chỉ
-                  </p>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-extrabold text-gray-900">
-                      {formatVnd(course.price)}
-                    </span>
-                    <span className="text-xs text-slate-400 line-through font-medium">
-                      {formatVnd(course.price * 2)}
+            {/* ===== 1. What You'll Learn ===== */}
+            <div className="rounded-xl border border-gray-200 bg-white p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-5">What you&apos;ll learn</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+                {learningPoints.map((item: string, index: number) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <Check className="h-4 w-4 shrink-0 text-gray-700 mt-0.5" strokeWidth={2.5} />
+                    <span className="text-sm text-gray-700 leading-relaxed">
+                      {item}
                     </span>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ===== 2. This Course Includes ===== */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">This course includes:</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <MonitorPlay className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>{getCourseDurationStr(course.modules)} on-demand video</span>
                 </div>
-                <Badge className="bg-red-100 text-red-700 hover:bg-red-100 font-bold border-none text-[10px] shrink-0">
-                  Tiết kiệm 50%
-                </Badge>
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <FileText className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>{allLessons.length} bài học</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <Download className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>Tài nguyên có thể tải xuống</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <Globe className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>Truy cập trọn đời</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <MonitorPlay className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>Xem trên mobile và TV</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <Award className="h-4 w-4 shrink-0 text-gray-500" />
+                  <span>Chứng chỉ hoàn thành</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ===== 3. Course Content Accordion ===== */}
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h2 className="text-xl font-bold text-gray-900">Course content</h2>
+                <span className="text-xs text-gray-500 font-medium">
+                  {course.modules.length} phần • {allLessons.length} bài học • {getCourseDurationStr(course.modules)} tổng thời lượng
+                </span>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 overflow-hidden">
+                <Accordion
+                  type="multiple"
+                  defaultValue={course.modules.map((m: any) => m.id)}
+                  className="w-full"
+                >
+                  {course.modules.map((module: any, idx: number) => {
+                    return (
+                      <AccordionItem
+                        key={module.id}
+                        value={module.id}
+                        className="border-b border-gray-200 last:border-b-0"
+                      >
+                        <AccordionTrigger className="hover:no-underline py-3.5 px-4 bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
+                          <div className="flex items-center justify-between w-full pr-2 text-left">
+                            <span className="font-bold text-sm text-gray-800">
+                              {module.title}
+                            </span>
+                            <span className="text-xs text-gray-500 font-medium shrink-0 ml-3">
+                              {module.lessons.length} bài • {getModuleDurationStr(module.lessons)}
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-0 pt-0">
+                          <div className="divide-y divide-gray-100">
+                            {module.lessons.map((lesson: any) => {
+                              const isLocked = !lesson.isFreePreview && !hasPurchased;
+                              const isActive = currentLessonId === lesson.id;
+                              const duration = getLessonDuration(lesson.id);
+
+                              return (
+                                <button
+                                  key={lesson.id}
+                                  onClick={() => handleLessonClick(lesson)}
+                                  className={`group flex items-center justify-between w-full px-4 py-3 text-left text-sm transition-all duration-150 cursor-pointer ${
+                                    isActive
+                                      ? "bg-indigo-50/70 text-indigo-700"
+                                      : "text-gray-700 hover:bg-gray-50"
+                                  } ${
+                                    isLocked ? "opacity-75" : ""
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-3 min-w-0 pr-3">
+                                    {isLocked ? (
+                                      <Lock className="h-4 w-4 shrink-0 text-gray-400" />
+                                    ) : completedLessons.includes(lesson.id) ? (
+                                      <div className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 shrink-0">
+                                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                                      </div>
+                                    ) : (
+                                      <Play className={`h-4 w-4 shrink-0 ${isActive ? "text-indigo-600" : "text-gray-400"}`} />
+                                    )}
+                                    <span className={`truncate ${isActive ? "font-semibold" : ""}`}>{lesson.title}</span>
+                                  </div>
+                                  <div className="flex items-center gap-3 shrink-0">
+                                    {lesson.isFreePreview && !hasPurchased && (
+                                      <span className="text-xs text-purple-600 font-semibold underline underline-offset-2">Preview</span>
+                                    )}
+                                    <span className="text-xs text-gray-400 font-medium tabular-nums">
+                                      {duration}:{String(Math.abs((duration * 7) % 60)).padStart(2, '0')}
+                                    </span>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </div>
+            </div>
+
+            {/* ===== 4. Requirements ===== */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Requirements</h2>
+              <ul className="space-y-2">
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gray-900 shrink-0" />
+                  Không yêu cầu kinh nghiệm trước đó
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gray-900 shrink-0" />
+                  Không cần phần mềm trả phí
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gray-900 shrink-0" />
+                  Chỉ cần máy tính có kết nối Internet
+                </li>
+              </ul>
+            </div>
+
+            {/* ===== 5. Description ===== */}
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
+              <div className="relative">
+                <div 
+                  className={`rich-content text-sm text-gray-700 leading-relaxed ${
+                    !isDescriptionExpanded ? "max-h-[200px] overflow-hidden" : ""
+                  }`}
+                  dangerouslySetInnerHTML={{ __html: course.description }}
+                />
+                {!isDescriptionExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent pointer-events-none" />
+                )}
               </div>
               <button
-                onClick={handleEnroll}
-                disabled={isCheckingOut || status === "loading"}
-                className="w-full sm:w-auto shrink-0 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-75 px-6 py-2.5 text-xs font-bold text-white shadow-sm transition-all active:scale-[0.98] cursor-pointer text-center flex items-center justify-center gap-2"
+                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                className="mt-2 flex items-center gap-1 text-sm font-bold text-purple-600 hover:text-purple-700 transition-colors cursor-pointer"
               >
-                {isCheckingOut ? (
+                {isDescriptionExpanded ? (
                   <>
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Đang xử lý...
+                    Show less <ChevronUp className="h-4 w-4" />
                   </>
                 ) : (
-                  "Đăng ký ngay"
+                  <>
+                    Show more <ChevronDown className="h-4 w-4" />
+                  </>
                 )}
               </button>
             </div>
-          )}
 
-          {/* Details Tabs */}
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="mb-6 md:mb-8 flex w-full justify-start gap-1.5 sm:gap-2 md:gap-3 bg-transparent p-0 overflow-x-auto scrollbar-hide border-0">
-              {["overview", "author", "faq", "announcements", "reviews"].map((tab) => (
-                <TabsTrigger
-                  key={tab}
-                  value={tab}
-                  className="relative shrink-0 rounded-full px-3 sm:px-5 py-2 text-[11px] sm:text-xs md:text-sm font-bold text-gray-500 transition-all duration-200 hover:text-gray-900 cursor-pointer border-0 shadow-none data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 data-[state=active]:shadow-none data-[state=active]:border-0 data-[state=active]:border-transparent bg-transparent outline-none focus:outline-none"
-                >
-                  {tab === "overview" && "Overview"}
-                  {tab === "author" && "Author"}
-                  {tab === "faq" && "FAQ"}
-                  {tab === "announcements" && "Announcements"}
-                  {tab === "reviews" && "Reviews"}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            {/* ===== 6. Instructor ===== */}
+            <div id="instructor">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Instructor</h2>
+              {course.author?.id ? (
+                <Link href={`/courses?authorId=${course.author.id}`} className="text-purple-600 hover:text-purple-700 text-base font-bold underline underline-offset-2 mb-4 inline-block">
+                  {authorInfo.name}
+                </Link>
+              ) : (
+                <p className="text-purple-600 text-base font-bold mb-4">{authorInfo.name}</p>
+              )}
+              <p className="text-xs text-gray-500 font-medium mb-4">{authorInfo.title}</p>
 
-            {/* Overview Tab */}
-            <TabsContent value="overview" className="mt-0 space-y-6 outline-none">
-              {/* About Course Card */}
-              <Card className="border border-slate-100 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
-                <h3 className="text-lg font-bold text-gray-900">About Course</h3>
-                <div 
-                  className="rich-content text-sm text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: course.description }}
-                />
-              </Card>
-
-              {/* What You'll Learn Card */}
-              <Card className="border border-slate-100 rounded-2xl bg-white shadow-none p-6 flex flex-col gap-4">
-                <h3 className="text-lg font-bold text-gray-900">What You'll Learn</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(course.whatYouWillLearn && course.whatYouWillLearn.length > 0
-                    ? course.whatYouWillLearn
-                    : getLearningPoints(course.category?.slug || "", course.title)
-                  ).map((item: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div className="flex shrink-0 items-center justify-center rounded-full bg-indigo-50 p-1 text-indigo-500">
-                        <Check className="size-4" />
-                      </div>
-                      <span className="text-sm text-gray-700 leading-relaxed">
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </TabsContent>
-
-
-            {/* Author Tab */}
-            <TabsContent value="author" className="mt-0 outline-none">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs space-y-6">
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-                  {course.author?.id ? (
-                    <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity">
-                      <img 
-                        src={authorInfo.image} 
-                        alt={authorInfo.name} 
-                        className="h-16 w-16 rounded-full object-cover ring-4 ring-slate-50 shadow-xs"
-                      />
-                    </Link>
-                  ) : (
+              <div className="flex items-center gap-4 mb-4">
+                {course.author?.id ? (
+                  <Link href={`/courses?authorId=${course.author.id}`} className="shrink-0 hover:opacity-90 transition-opacity">
                     <img 
                       src={authorInfo.image} 
                       alt={authorInfo.name} 
-                      className="h-16 w-16 rounded-full object-cover ring-4 ring-slate-50 shadow-xs"
+                      className="h-24 w-24 rounded-full object-cover"
                     />
-                  )}
-                  <div>
-                    <h4 className="text-base font-bold text-gray-900 flex items-center justify-center sm:justify-start gap-1.5 hover:text-indigo-600 transition-colors">
-                      {course.author?.id ? (
-                        <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline flex items-center gap-1.5">
-                          {authorInfo.name}
-                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-500 text-white text-[8px] font-bold">✓</span>
-                        </Link>
-                      ) : (
-                        <>
-                          {authorInfo.name}
-                          <span className="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-500 text-white text-[8px] font-bold">✓</span>
-                        </>
-                      )}
-                    </h4>
-                    <p className="text-xs text-gray-500 font-semibold mt-0.5">{authorInfo.title}</p>
-                    <div className="flex items-center justify-center sm:justify-start gap-1 mt-1 text-xs font-bold text-amber-500">
-                      <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                      <span>{authorInfo.rating} Rating</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="border-t border-gray-100 pt-5 space-y-3">
-                  <p className="text-gray-600 leading-relaxed text-xs md:text-sm">{authorInfo.bio}</p>
-                  <p className="text-gray-600 leading-relaxed text-xs md:text-sm">{authorInfo.details}</p>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* FAQ Tab */}
-            <TabsContent value="faq" className="mt-0 outline-none">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs">
-                <h3 className="text-lg font-bold text-gray-900 mb-5">Frequently Asked Questions</h3>
-                <Accordion type="single" collapsible className="w-full space-y-3">
-                  {[
-                    {
-                      q: "Khóa học này có thời hạn bao lâu?",
-                      a: "Bạn sẽ có quyền truy cập trọn đời vào toàn bộ video bài giảng và tài nguyên cập nhật mới nhất của khóa học này."
-                    },
-                    {
-                      q: "Làm thế nào để nhận hỗ trợ khi gặp khó khăn?",
-                      a: "Bạn sẽ được tham gia nhóm Discord/Zalo kín dành riêng cho học viên. Giảng viên và đội ngũ hỗ trợ sẽ giải đáp thắc mắc của bạn trong vòng 24 giờ."
-                    },
-                    {
-                      q: "Tôi có được hoàn tiền không nếu thấy không phù hợp?",
-                      a: "VietLearn cam kết hoàn tiền 100% trong vòng 7 ngày đầu tiên nếu bạn học chưa quá 20% thời lượng và cảm thấy khóa học không mang lại giá trị như mong muốn."
-                    }
-                  ].map((item, index) => (
-                    <AccordionItem key={index} value={`faq-${index}`} className="rounded-xl border border-gray-100 px-4 bg-gray-50/20">
-                      <AccordionTrigger className="text-xs md:text-sm font-bold text-gray-900 hover:no-underline py-4">
-                        {item.q}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-gray-600 text-xs md:text-sm leading-relaxed pb-4 pt-1">
-                        {item.a}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            </TabsContent>
-
-            {/* Announcements Tab */}
-            <TabsContent value="announcements" className="mt-0 outline-none">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs space-y-6">
-                <h3 className="text-lg font-bold text-gray-900">Announcements</h3>
-                <div className="rounded-xl border border-indigo-50 bg-indigo-50/10 p-5 space-y-4">
-                  <div className="flex items-center gap-3">
-                    {course.author?.id ? (
-                      <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity shrink-0">
-                        <img 
-                          src={authorInfo.image} 
-                          alt={authorInfo.name} 
-                          className="h-10 w-10 rounded-full object-cover"
-                        />
-                      </Link>
-                    ) : (
-                      <img 
-                        src={authorInfo.image} 
-                        alt={authorInfo.name} 
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    )}
-                    <div>
-                      <h4 className="text-xs font-bold text-gray-900">
-                        {course.author?.id ? (
-                          <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline hover:text-indigo-600 transition-colors">
-                            {authorInfo.name}
-                          </Link>
-                        ) : (
-                          authorInfo.name
-                        )}
-                      </h4>
-                      <p className="text-[10px] text-gray-400">Đăng 2 ngày trước • Thông báo chung</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 text-xs md:text-sm leading-relaxed">
-                    Chào mừng bạn đến với khóa học! Khóa học đã chính thức được cập nhật phiên bản 2026 với các bài giảng mới nhất về ứng dụng thực tiễn. Hãy tham gia Discord học viên ở tab Tài nguyên để cùng trao đổi và nhận hỗ trợ từ Mentor nhé!
-                  </p>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* Reviews Tab */}
-            <TabsContent value="reviews" className="mt-0 outline-none">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 md:p-8 shadow-xs space-y-6">
-                <h3 className="text-lg font-bold text-gray-900">Student Reviews</h3>
-                
-                <div className="divide-y divide-gray-100">
-                  {[
-                    {
-                      name: "Nguyễn Tuấn Anh",
-                      avatar: "TA",
-                      date: "1 tuần trước",
-                      rating: 5,
-                      content: "Khóa học cực kỳ chất lượng! Giảng viên dạy rất dễ hiểu, đi thẳng vào thực tế chứ không lý thuyết suông. Mình đã áp dụng ngay vào dự án của công ty."
-                    },
-                    {
-                      name: "Lê Thị Mai",
-                      avatar: "LM",
-                      date: "2 tuần trước",
-                      rating: 5,
-                      content: "Rất đáng tiền. Tài nguyên đi kèm cực kỳ phong phú và chi tiết. Group hỗ trợ học viên hoạt động rất tích cực, hỏi gì cũng được giải đáp nhiệt tình."
-                    },
-                    {
-                      name: "Trần Quốc Bảo",
-                      avatar: "QB",
-                      date: "1 tháng trước",
-                      rating: 5,
-                      content: "Lộ trình bài bản, chia nhỏ từng phần nên học không bị ngợp. Phù hợp cho cả những người bận rộn muốn học thêm kỹ năng mới."
-                    }
-                  ].map((review, index) => (
-                    <div key={index} className="py-5 first:pt-0 last:pb-0 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-50 text-xs font-bold text-indigo-600">
-                            {review.avatar}
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-bold text-gray-900">{review.name}</h4>
-                            <p className="text-[10px] text-gray-400">{review.date}</p>
-                          </div>
-                        </div>
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: review.rating }).map((_, i) => (
-                            <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-gray-600 text-xs md:text-sm leading-relaxed">{review.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Right Column (Sidebar: Accordion Content & Mini Author Card) */}
-        <div className="min-w-0 w-full space-y-6">
-          {!hasPurchased && (
-            <div className="hidden lg:flex rounded-2xl border border-rose-100 bg-rose-50/30 p-5 shadow-xs flex-col gap-3">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-bold text-rose-500 uppercase tracking-wider mb-0.5">
-                    Ưu đãi giới hạn chỉ
-                  </p>
-                  <p className="text-2xl font-extrabold text-gray-900 leading-none">
-                    {formatVnd(course.price)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs text-slate-400 line-through font-medium block">
-                    {formatVnd(course.price * 2)}
-                  </span>
-                  <Badge className="bg-red-100 text-red-700 hover:bg-red-100 font-bold border-none text-[10px] mt-1 shrink-0">
-                    Tiết kiệm 50%
-                  </Badge>
-                </div>
-              </div>
-
-              {/* Urgency Message / Micro-CTA */}
-              <button
-                onClick={handleEnroll}
-                disabled={isCheckingOut || status === "loading"}
-                className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-75 text-white font-bold text-xs md:text-sm transition-all shadow-sm shadow-rose-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
-              >
-                {isCheckingOut ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Đang khởi tạo thanh toán...
-                  </>
+                  </Link>
                 ) : (
-                  <>
-                    <Lock className="h-3.5 w-3.5" />
-                    Đăng ký ngay
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* Course Content Accordion Card */}
-          <div className="rounded-2xl border border-gray-200/80 bg-white shadow-xs overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-gray-900 text-base">Course content</h3>
-              <span className="text-[10px] text-gray-500 font-bold bg-white px-2 py-0.5 rounded-md border border-gray-200 shadow-2xs">
-                {getCourseDurationStr(course.modules)}
-              </span>
-            </div>
-            
-            <Accordion
-              type="multiple"
-              defaultValue={course.modules.map((m: any) => m.id)}
-              className="w-full divide-y divide-gray-100"
-            >
-              {course.modules.map((module: any, idx: number) => {
-                const orderStr = idx + 1 < 10 ? `0${idx + 1}` : `${idx + 1}`;
-                return (
-                  <AccordionItem
-                    key={module.id}
-                    value={module.id}
-                    className="border-none px-4"
-                  >
-                    <AccordionTrigger className="hover:no-underline py-4 cursor-pointer">
-                      <div className="flex items-center justify-between w-full pr-2 text-left">
-                        <span className="font-bold text-xs md:text-sm text-gray-800 leading-tight">
-                          {orderStr}: {module.title}
-                        </span>
-                        <span className="text-[10px] text-gray-400 font-semibold shrink-0 ml-3">
-                          {getModuleDurationStr(module.lessons)}
-                        </span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="pb-3 pt-1">
-                      <div className="flex flex-col gap-1">
-                        {module.lessons.map((lesson: any) => {
-                          const isLocked = !lesson.isFreePreview && !hasPurchased;
-                          const isActive = currentLessonId === lesson.id;
-                          const duration = getLessonDuration(lesson.id);
-
-                          return (
-                            <button
-                              key={lesson.id}
-                              onClick={() => handleLessonClick(lesson)}
-                              className={`group flex items-center justify-between rounded-lg px-2.5 py-2 text-left text-xs transition-all duration-200 cursor-pointer ${
-                                isActive
-                                  ? "bg-indigo-50 text-indigo-700 font-bold"
-                                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 font-medium"
-                              } ${
-                                isLocked ? "opacity-80" : ""
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                                {isLocked ? (
-                                  <Lock className="h-3.5 w-3.5 shrink-0 text-gray-300 group-hover:text-gray-400" />
-                                ) : (
-                                  <Play className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 fill-indigo-600/10" : "text-gray-400 group-hover:text-gray-600"}`} />
-                                )}
-                                <span className="truncate">{lesson.title}</span>
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {completedLessons.includes(lesson.id) && (
-                                  <div className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                                    <Check className="h-2.5 w-2.5 stroke-[3]" />
-                                  </div>
-                                )}
-                                <span className="text-[9px] text-gray-400 font-semibold tabular-nums">
-                                  {duration} min
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                );
-              })}
-            </Accordion>
-          </div>
-
-          {/* Mini Author Card */}
-          <div className="rounded-2xl border border-gray-200/80 bg-white p-5 shadow-xs space-y-4">
-            <span className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider">Author</span>
-            <div className="flex items-center gap-3">
-              {course.author?.id ? (
-                <Link href={`/courses?authorId=${course.author.id}`} className="hover:opacity-90 transition-opacity shrink-0">
                   <img 
                     src={authorInfo.image} 
                     alt={authorInfo.name} 
-                    className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-50"
+                    className="h-24 w-24 rounded-full object-cover"
                   />
-                </Link>
-              ) : (
-                <img 
-                  src={authorInfo.image} 
-                  alt={authorInfo.name} 
-                  className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-50"
-                />
-              )}
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-gray-900 flex items-center gap-1 hover:text-indigo-600 transition-colors">
-                  {course.author?.id ? (
-                    <Link href={`/courses?authorId=${course.author.id}`} className="hover:underline flex items-center gap-1">
-                      {authorInfo.name}
-                      <span className="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500 text-white text-[6px] font-bold">✓</span>
-                    </Link>
-                  ) : (
-                    <>
-                      {authorInfo.name}
-                      <span className="inline-flex items-center justify-center h-3 w-3 rounded-full bg-blue-500 text-white text-[6px] font-bold">✓</span>
-                    </>
-                  )}
-                </h4>
-                <p className="text-[10px] text-gray-500 font-semibold truncate mt-0.5">{authorInfo.title}</p>
+                )}
+                <div className="space-y-1.5 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-gray-500" />
+                    <span>{authorInfo.rating} Instructor Rating</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-gray-500" />
+                    <span>{studentCount.toLocaleString()} học viên</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Play className="h-4 w-4 text-gray-500" />
+                    <span>{course.modules.length} khóa học</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-0.5 text-xs font-bold text-amber-500 shrink-0">
-                <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                <span>{authorInfo.rating}</span>
+
+              <div className="space-y-3 text-sm text-gray-600 leading-relaxed">
+                <p>{authorInfo.bio}</p>
+                <p>{authorInfo.details}</p>
               </div>
             </div>
-            <p className="text-[11px] text-gray-500 leading-relaxed line-clamp-3">
-              {authorInfo.bio}
-            </p>
+
+            {/* ===== 7. Reviews ===== */}
+            <div id="reviews">
+              <h2 className="text-xl font-bold text-gray-900 mb-5">Student Reviews</h2>
+              
+              {/* Rating Summary */}
+              <div className="flex items-center gap-6 mb-6 pb-6 border-b border-gray-100">
+                <div className="text-center">
+                  <p className="text-5xl font-bold text-amber-700">4.8</p>
+                  <div className="flex items-center gap-0.5 mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Course Rating</p>
+                </div>
+                {/* Rating bars */}
+                <div className="flex-1 space-y-1.5">
+                  {[
+                    { stars: 5, pct: 78 },
+                    { stars: 4, pct: 15 },
+                    { stars: 3, pct: 5 },
+                    { stars: 2, pct: 1 },
+                    { stars: 1, pct: 1 },
+                  ].map((row) => (
+                    <div key={row.stars} className="flex items-center gap-2">
+                      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gray-700 rounded-full transition-all duration-500" 
+                          style={{ width: `${row.pct}%` }} 
+                        />
+                      </div>
+                      <div className="flex items-center gap-0.5 shrink-0 w-16 justify-end">
+                        {[...Array(row.stars)].map((_, i) => (
+                          <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                      <span className="text-xs text-gray-500 w-8 text-right">{row.pct}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Individual Reviews */}
+              <div className="divide-y divide-gray-100">
+                {[
+                  {
+                    name: "Nguyễn Tuấn Anh",
+                    avatar: "TA",
+                    date: "1 tuần trước",
+                    rating: 5,
+                    content: "Khóa học cực kỳ chất lượng! Giảng viên dạy rất dễ hiểu, đi thẳng vào thực tế chứ không lý thuyết suông. Mình đã áp dụng ngay vào dự án của công ty."
+                  },
+                  {
+                    name: "Lê Thị Mai",
+                    avatar: "LM",
+                    date: "2 tuần trước",
+                    rating: 5,
+                    content: "Rất đáng tiền. Tài nguyên đi kèm cực kỳ phong phú và chi tiết. Group hỗ trợ học viên hoạt động rất tích cực, hỏi gì cũng được giải đáp nhiệt tình."
+                  },
+                  {
+                    name: "Trần Quốc Bảo",
+                    avatar: "QB",
+                    date: "1 tháng trước",
+                    rating: 5,
+                    content: "Lộ trình bài bản, chia nhỏ từng phần nên học không bị ngợp. Phù hợp cho cả những người bận rộn muốn học thêm kỹ năng mới."
+                  }
+                ].map((review, index) => (
+                  <div key={index} className="py-5 first:pt-0 last:pb-0 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-800 text-xs font-bold text-white">
+                          {review.avatar}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-900">{review.name}</h4>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <div className="flex gap-0.5">
+                              {Array.from({ length: review.rating }).map((_, i) => (
+                                <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-400">{review.date}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed">{review.content}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
+
+          {/* ===== RIGHT COLUMN — STICKY SIDEBAR ===== */}
+          <div className="w-full lg:w-[380px] shrink-0 order-1 lg:order-2">
+            <div className="sticky top-24 space-y-0 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+              
+              {/* Video Preview / Player */}
+              <div className="relative aspect-video w-full bg-slate-900 overflow-hidden">
+                {!isPlaying ? (
+                  <div
+                    onClick={() => setIsPlaying(true)}
+                    className="relative h-full w-full cursor-pointer group flex items-center justify-center"
+                  >
+                    {thumbnailUrl ? (
+                      <img
+                        src={thumbnailUrl}
+                        alt={course.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 text-center font-bold text-sm">
+                        {course.title}
+                      </div>
+                    )}
+
+                    {/* Dark tint overlay */}
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex flex-col items-center justify-center gap-2.5">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-900 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white">
+                        <Play className="h-6 w-6 fill-current ml-0.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white tracking-wide drop-shadow-md">
+                        Xem trước khóa học
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {isLessonLoading && (
+                      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs text-white transition-all duration-300">
+                        <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-2" />
+                        <p className="text-xs font-semibold tracking-wide text-slate-200">
+                          Đang tải bài học...
+                        </p>
+                      </div>
+                    )}
+                    {iframeUrl ? (
+                      <iframe
+                        ref={iframeRef}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className="absolute inset-0 h-full w-full border-none"
+                        src={iframeUrl.includes("?") ? `${iframeUrl}&autoplay=1` : `${iframeUrl}?autoplay=1`}
+                        title={`Video khóa học`}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-400">
+                        <Loader2 className="animate-spin h-8 w-8 text-purple-500" />
+                        <span className="ml-3 text-sm">Đang tải video...</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Sidebar Content */}
+              <div className="p-5 space-y-4">
+                {!hasPurchased ? (
+                  <>
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2.5">
+                      <span className="text-3xl font-extrabold text-gray-900">
+                        {formatVnd(course.price)}
+                      </span>
+                      <span className="text-base text-gray-400 line-through">
+                        {formatVnd(course.price * 2)}
+                      </span>
+                      <span className="text-sm font-bold text-gray-500">-50%</span>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      onClick={handleEnroll}
+                      disabled={isCheckingOut || status === "loading"}
+                      className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-75 text-white font-bold text-sm transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      {isCheckingOut ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Đang khởi tạo thanh toán...
+                        </>
+                      ) : (
+                        "Đăng ký ngay"
+                      )}
+                    </button>
+
+                    {/* Guarantee */}
+                    <p className="text-xs text-gray-500 text-center">
+                      Hoàn tiền 100% trong 7 ngày
+                    </p>
+                    <p className="text-xs text-gray-500 text-center font-medium">
+                      Truy cập trọn đời
+                    </p>
+                  </>
+                ) : (
+                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-center">
+                    <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm mb-1">
+                      <Check className="h-4 w-4" />
+                      Đã đăng ký
+                    </div>
+                    <p className="text-xs text-emerald-600">Bạn có quyền truy cập đầy đủ khóa học này</p>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 pt-3 space-y-3">
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={handleShare}
+                      className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      Share
+                    </button>
+                    <button
+                      onClick={(e) => toggleFavorite(course, e)}
+                      className={`flex items-center gap-1.5 text-xs font-bold transition-colors cursor-pointer ${
+                        isFavorite(course.id)
+                          ? "text-rose-600"
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      <Heart
+                        className={`h-4 w-4 ${
+                          isFavorite(course.id) ? "fill-rose-500 text-rose-500" : ""
+                        }`}
+                      />
+                      {isFavorite(course.id) ? "Đã yêu thích" : "Yêu thích"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Mobile Sticky Bottom CTA */}
       {!hasPurchased && (
@@ -991,7 +1098,7 @@ export function CourseClient({
             <button
               onClick={handleEnroll}
               disabled={isCheckingOut || status === "loading"}
-              className="shrink-0 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-75 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-indigo-200 transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
+              className="shrink-0 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-75 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] cursor-pointer flex items-center gap-2"
             >
               {isCheckingOut ? (
                 <>
@@ -1023,7 +1130,6 @@ export function CourseClient({
       <Dialog open={isUpgradeModalOpen} onOpenChange={setIsUpgradeModalOpen}>
         <DialogContent className="sm:max-w-[420px] rounded-2xl bg-white border border-gray-100 shadow-xl p-6 text-center">
           <div className="flex flex-col items-center">
-            {/* Lock Icon */}
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-500">
               <Lock className="h-7 w-7" />
             </div>
@@ -1037,13 +1143,12 @@ export function CourseClient({
               </DialogDescription>
             </DialogHeader>
 
-            {/* CTA Button */}
             <Button
               onClick={() => {
                 setIsUpgradeModalOpen(false);
                 handleEnroll();
               }}
-              className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all shadow-md shadow-indigo-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+              className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition-all shadow-md shadow-purple-100 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
             >
               Đăng ký ngay với {formatVnd(course.price)}
             </Button>

@@ -1,9 +1,6 @@
 import { cache } from "react";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { CourseClient } from "./course-client";
@@ -110,16 +107,7 @@ export default async function CourseDetailPage({ params }: CoursePageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50/50 pb-12 pt-6">
-      <div className="mx-auto w-full max-w-7xl px-5 pb-4 sm:px-6 lg:px-8">
-        <Button asChild variant="ghost" className="gap-2 text-gray-500">
-          <Link href="/">
-            <ArrowLeft className="size-4" />
-            Về trang chủ
-          </Link>
-        </Button>
-      </div>
-
+    <main className="min-h-screen bg-gray-50/50">
       <CourseClient
         course={course}
         hasPurchased={hasPurchased}
