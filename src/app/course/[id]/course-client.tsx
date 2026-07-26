@@ -516,7 +516,7 @@ export function CourseClient({
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-2 text-xs text-purple-300/80 mb-4 flex-wrap">
               <Link href="/courses" className="hover:text-white transition-colors font-medium">
-                Courses
+                Khóa học
               </Link>
               <ChevronRight className="h-3 w-3 text-gray-500" />
               {course.category ? (
@@ -558,7 +558,7 @@ export function CourseClient({
                 </span>
               )}
               <span className="rounded-sm bg-amber-100 text-amber-800 px-2 py-0.5 text-[11px] font-bold">
-                Highest Rated
+                Đánh giá cao nhất
               </span>
             </div>
 
@@ -580,7 +580,7 @@ export function CourseClient({
 
             {/* Instructor */}
             <div className="flex items-center gap-2 text-sm mb-3">
-              <span className="text-gray-400">Created by</span>
+              <span className="text-gray-400">Được giảng dạy bởi</span>
               {course.author?.id ? (
                 <Link href={`/courses?authorId=${course.author.id}`} className="text-purple-300 hover:text-purple-200 underline underline-offset-2 font-medium">
                   {authorInfo.name}
@@ -618,7 +618,7 @@ export function CourseClient({
 
             {/* ===== 1. What You'll Learn ===== */}
             <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-5">What you&apos;ll learn</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">Bạn sẽ học được gì</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
                 {learningPoints.map((item: string, index: number) => (
                   <div key={index} className="flex items-start gap-3">
@@ -633,11 +633,11 @@ export function CourseClient({
 
             {/* ===== 2. This Course Includes ===== */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">This course includes:</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Khóa học này bao gồm:</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex items-center gap-3 text-sm text-gray-700">
                   <MonitorPlay className="h-4 w-4 shrink-0 text-gray-500" />
-                  <span>{getCourseDurationStr(course.modules)} on-demand video</span>
+                  <span>{getCourseDurationStr(course.modules)} video theo yêu cầu</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-700">
                   <FileText className="h-4 w-4 shrink-0 text-gray-500" />
@@ -665,7 +665,7 @@ export function CourseClient({
             {/* ===== 3. Course Content Accordion ===== */}
             <div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-                <h2 className="text-xl font-bold text-gray-900">Course content</h2>
+                <h2 className="text-xl font-bold text-gray-900">Nội dung khóa học</h2>
                 <span className="text-xs text-gray-500 font-medium">
                   {course.modules.length} phần • {allLessons.length} bài học • {getCourseDurationStr(course.modules)} tổng thời lượng
                 </span>
@@ -727,7 +727,7 @@ export function CourseClient({
                                   </div>
                                   <div className="flex items-center gap-3 shrink-0">
                                     {lesson.isFreePreview && !hasPurchased && (
-                                      <span className="text-xs text-purple-600 font-semibold underline underline-offset-2">Preview</span>
+                                      <span className="text-xs text-purple-600 font-semibold underline underline-offset-2">Học thử</span>
                                     )}
                                     <span className="text-xs text-gray-400 font-medium tabular-nums">
                                       {duration}:{String(Math.abs((duration * 7) % 60)).padStart(2, '0')}
@@ -747,7 +747,7 @@ export function CourseClient({
 
             {/* ===== 4. Requirements ===== */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Requirements</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Yêu cầu khóa học</h2>
               <ul className="space-y-2">
                 <li className="flex items-start gap-2 text-sm text-gray-700">
                   <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-gray-900 shrink-0" />
@@ -766,7 +766,7 @@ export function CourseClient({
 
             {/* ===== 5. Description ===== */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Description</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Mô tả chi tiết</h2>
               <div className="relative">
                 <div 
                   className={`rich-content text-sm text-gray-700 leading-relaxed ${
@@ -784,11 +784,11 @@ export function CourseClient({
               >
                 {isDescriptionExpanded ? (
                   <>
-                    Show less <ChevronUp className="h-4 w-4" />
+                    Thu gọn <ChevronUp className="h-4 w-4" />
                   </>
                 ) : (
                   <>
-                    Show more <ChevronDown className="h-4 w-4" />
+                    Xem thêm <ChevronDown className="h-4 w-4" />
                   </>
                 )}
               </button>
@@ -796,7 +796,7 @@ export function CourseClient({
 
             {/* ===== 6. Instructor ===== */}
             <div id="instructor">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">Instructor</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Thông tin giảng viên</h2>
               {course.author?.id ? (
                 <Link href={`/courses?authorId=${course.author.id}`} className="text-purple-600 hover:text-purple-700 text-base font-bold underline underline-offset-2 mb-4 inline-block">
                   {authorInfo.name}
@@ -825,7 +825,7 @@ export function CourseClient({
                 <div className="space-y-1.5 text-sm text-gray-600">
                   <div className="flex items-center gap-2">
                     <Star className="h-4 w-4 text-gray-500" />
-                    <span>{authorInfo.rating} Instructor Rating</span>
+                    <span>{authorInfo.rating} Đánh giá giảng viên</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-gray-500" />
@@ -846,7 +846,7 @@ export function CourseClient({
 
             {/* ===== 7. Reviews ===== */}
             <div id="reviews">
-              <h2 className="text-xl font-bold text-gray-900 mb-5">Student Reviews</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-5">Đánh giá từ học viên</h2>
               
               {/* Rating Summary */}
               <div className="flex items-center gap-6 mb-6 pb-6 border-b border-gray-100">
@@ -857,7 +857,7 @@ export function CourseClient({
                       <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Course Rating</p>
+                  <p className="text-xs text-gray-500 mt-1">Đánh giá khóa học</p>
                 </div>
                 {/* Rating bars */}
                 <div className="flex-1 space-y-1.5">
@@ -1062,7 +1062,7 @@ export function CourseClient({
                       className="flex items-center gap-1.5 text-xs font-bold text-gray-600 hover:text-gray-900 transition-colors cursor-pointer"
                     >
                       <Share2 className="h-4 w-4" />
-                      Share
+                      Chia sẻ
                     </button>
                     <button
                       onClick={(e) => toggleFavorite(course, e)}
