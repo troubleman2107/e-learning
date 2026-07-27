@@ -90,7 +90,7 @@ export function CheckoutModal({
             clearInterval(interval);
             toast.success("Thanh toán thành công! Chào mừng bạn.");
             onClose();
-            router.push(`/course/${courseId}`);
+            router.push(`/learn/${courseId}`);
           }
         }
       } catch (error) {

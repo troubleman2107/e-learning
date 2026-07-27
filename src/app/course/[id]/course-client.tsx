@@ -623,6 +623,18 @@ export function CourseClient({
                 Tiếng Việt
               </span>
             </div>
+
+            {hasPurchased && (
+              <div className="mt-5">
+                <Link
+                  href={`/learn/${course.id}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/30 transition-all hover:scale-[1.02] cursor-pointer"
+                >
+                  <Play className="h-4 w-4 fill-white" />
+                  Vào học ngay
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -1063,12 +1075,19 @@ export function CourseClient({
                     </p>
                   </>
                 ) : (
-                  <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-4 text-center">
-                    <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm mb-1">
-                      <Check className="h-4 w-4" />
-                      Đã đăng ký
+                  <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-center space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-emerald-700 font-bold text-sm">
+                      <Check className="h-4 w-4 stroke-[3]" />
+                      Đã sở hữu khóa học
                     </div>
-                    <p className="text-xs text-emerald-600">Bạn có quyền truy cập đầy đủ khóa học này</p>
+                    <p className="text-xs text-emerald-600">Bạn có quyền truy cập trọn đời đầy đủ bài giảng khóa học này.</p>
+                    <Link
+                      href={`/learn/${course.id}`}
+                      className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm transition-all active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2 shadow-md shadow-purple-600/20"
+                    >
+                      <Play className="h-4 w-4 fill-white" />
+                      Vào học ngay
+                    </Link>
                   </div>
                 )}
 
