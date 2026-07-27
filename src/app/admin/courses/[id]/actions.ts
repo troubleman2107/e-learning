@@ -30,6 +30,57 @@ export async function createModule(courseId: string, title: string) {
   revalidatePath(`/admin/courses/${courseId}`);
 }
 
+export async function createLessons({
+  moduleId,
+  courseId,
+  lessons,
+}: {
+  moduleId: string;
+  courseId: string;
+  lessons: Array<{
+    title: string;
+    bunnyVideoId: string;
+    isFreePreview: boolean;
+  }>;
+}) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  const validLessons = lessons.filter(
+    (l) => l.title.trim() !== "" && l.bunnyVideoId.trim() !== ""
+  );
+
+  if (validLessons.length === 0) {
+    throw new Error("Vui lòng nhập ít nhất 1 bài học có đầy đủ Tiêu đề và Video ID.");
+  }
+
+  const lastLesson = await prisma.lesson.findFirst({
+    where: { moduleId },
+    orderBy: { order: "desc" },
+  });
+
+  const startOrder = lastLesson ? lastLesson.order + 1 : 1;
+
+  await prisma.$transaction(
+    validLessons.map((l, index) =>
+      prisma.lesson.create({
+        data: {
+          title: l.title.trim(),
+          bunnyVideoId: l.bunnyVideoId.trim(),
+          isFreePreview: Boolean(l.isFreePreview),
+          moduleId,
+          order: startOrder + index,
+        },
+      })
+    )
+  );
+
+  revalidatePath(`/admin/courses/${courseId}`);
+}
+
 export async function createLesson({
   moduleId,
   courseId,
@@ -43,30 +94,11 @@ export async function createLesson({
   bunnyVideoId: string;
   isFreePreview: boolean;
 }) {
-  const session = await auth();
-
-  if (!session?.user || session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized");
-  }
-
-  const lastLesson = await prisma.lesson.findFirst({
-    where: { moduleId },
-    orderBy: { order: "desc" },
+  return createLessons({
+    moduleId,
+    courseId,
+    lessons: [{ title, bunnyVideoId, isFreePreview }],
   });
-
-  const nextOrder = lastLesson ? lastLesson.order + 1 : 1;
-
-  await prisma.lesson.create({
-    data: {
-      title,
-      bunnyVideoId,
-      isFreePreview,
-      moduleId,
-      order: nextOrder,
-    },
-  });
-
-  revalidatePath(`/admin/courses/${courseId}`);
 }
 
 export async function updateLesson({
