@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTransition } from "react";
@@ -13,15 +13,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import ThumbnailUpload from "@/components/admin/ThumbnailUpload";
 import { createAuthor } from "../actions";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Tên giảng viên không được để trống"),
-  title: z.string().min(1, "Chức danh không được để trống"),
-  bio: z.string().min(1, "Tiểu sử không được để trống"),
-  details: z.string().min(1, "Chi tiết không được để trống"),
-  image: z.string().url("URL hình ảnh không hợp lệ"),
-  rating: z.string().min(1, "Đánh giá không được để trống"),
+  name: z.string().optional().default(""),
+  title: z.string().optional().default(""),
+  bio: z.string().optional().default(""),
+  details: z.string().optional().default(""),
+  image: z.string().optional().default(""),
+  rating: z.string().optional().default("4.9"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -33,6 +34,7 @@ export function CreateAuthorForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema) as any,
@@ -114,13 +116,18 @@ export function CreateAuthorForm() {
           )}
         </div>
 
-        {/* Image */}
+        {/* Image / Avatar Cloudinary Upload */}
         <div className="space-y-2">
-          <Label htmlFor="image">URL Hình ảnh (Avatar) *</Label>
-          <Input
-            id="image"
-            placeholder="Ví dụ: https://images.unsplash.com/photo-..."
-            {...register("image")}
+          <Label>Ảnh đại diện (Avatar Cloudinary) *</Label>
+          <Controller
+            control={control}
+            name="image"
+            render={({ field }) => (
+              <ThumbnailUpload
+                value={field.value || ""}
+                onChange={field.onChange}
+              />
+            )}
           />
           {errors.image && (
             <p className="text-sm text-red-500">{errors.image.message}</p>

@@ -7,11 +7,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const courseSchema = z.object({
-  title: z.string().min(1, "Tên khóa học không được để trống"),
-  description: z.string().min(1, "Mô tả không được để trống"),
-  shortDescription: z.string().optional(),
-  price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  trailerUrl: z.string().optional(),
+  title: z.string().optional().default("Khóa học mới"),
+  description: z.string().optional().default(""),
+  shortDescription: z.string().optional().default(""),
+  price: z.coerce.number().optional().default(0),
+  trailerUrl: z.string().optional().default(""),
   bunnyVideoId: z.string().optional(),
   categoryId: z.string().optional(),
   authorId: z.string().optional(),

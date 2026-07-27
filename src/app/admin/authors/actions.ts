@@ -7,12 +7,12 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const authorSchema = z.object({
-  name: z.string().min(1, "Tên giảng viên không được để trống"),
-  title: z.string().min(1, "Chức danh không được để trống"),
-  bio: z.string().min(1, "Tiểu sử không được để trống"),
-  details: z.string().min(1, "Chi tiết không được để trống"),
-  image: z.string().url("URL hình ảnh không hợp lệ"),
-  rating: z.string().min(1, "Đánh giá không được để trống"),
+  name: z.string().optional().default("Giảng viên"),
+  title: z.string().optional().default("Chuyên gia"),
+  bio: z.string().optional().default(""),
+  details: z.string().optional().default(""),
+  image: z.string().optional().default("/course-ai.png"),
+  rating: z.string().optional().default("4.9"),
 });
 
 export async function createAuthor(formData: z.infer<typeof authorSchema>) {

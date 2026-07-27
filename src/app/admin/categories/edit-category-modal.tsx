@@ -20,8 +20,8 @@ import { toast } from "sonner";
 import { Category } from "@/generated/prisma/client";
 
 const schema = z.object({
-  name: z.string().min(1, "Vui lòng nhập tên danh mục"),
-  slug: z.string().min(1, "Vui lòng nhập slug").regex(/^[a-z0-9-]+$/, "Slug không hợp lệ"),
+  name: z.string().optional().default(""),
+  slug: z.string().optional().default(""),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -34,7 +34,7 @@ export function EditCategoryModal({ category }: { category: Category }) {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       name: category.name,
       slug: category.slug,

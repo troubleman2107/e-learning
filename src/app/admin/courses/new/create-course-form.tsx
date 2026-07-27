@@ -27,18 +27,18 @@ import Link from "next/link";
 import { Category, Author } from "@/generated/prisma/client";
 
 const formSchema = z.object({
-  title: z.string().min(1, "Tên khóa học không được để trống"),
-  description: z.string().min(1, "Mô tả không được để trống"),
-  price: z.coerce.number().int().min(0, "Giá phải lớn hơn hoặc bằng 0"),
-  trailerUrl: z.string().optional(),
-  bunnyVideoId: z.string().optional(),
-  categoryId: z.string().optional(),
-  authorId: z.string().optional(),
-  shortDescription: z.string().optional(),
-  thumbnail: z.string().optional(),
-  thumbnailUrl: z.string().optional(),
-  whatYouWillLearn: z.string().optional(),
-  isPublished: z.boolean().optional(),
+  title: z.string().optional().default(""),
+  description: z.string().optional().default(""),
+  price: z.coerce.number().optional().default(0),
+  trailerUrl: z.string().optional().default(""),
+  bunnyVideoId: z.string().optional().default(""),
+  categoryId: z.string().optional().default(""),
+  authorId: z.string().optional().default(""),
+  shortDescription: z.string().optional().default(""),
+  thumbnail: z.string().optional().default(""),
+  thumbnailUrl: z.string().optional().default(""),
+  whatYouWillLearn: z.string().optional().default(""),
+  isPublished: z.boolean().optional().default(false),
 });
 
 type FormValues = z.infer<typeof formSchema>;

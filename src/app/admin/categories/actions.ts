@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const categorySchema = z.object({
-  name: z.string().min(1, "Tên danh mục không được để trống"),
-  slug: z.string().min(1, "Slug không được để trống").regex(/^[a-z0-9-]+$/, "Slug chỉ được chứa chữ cái viết thường, số và dấu gạch ngang"),
+  name: z.string().optional().default("Danh mục mới"),
+  slug: z.string().optional().default(""),
 });
 
 export async function createCategory(data: z.infer<typeof categorySchema>) {

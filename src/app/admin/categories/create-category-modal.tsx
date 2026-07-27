@@ -18,12 +18,12 @@ import { Loader2, Plus } from "lucide-react";
 import { createCategory } from "./actions";
 import { toast } from "sonner";
 
-const schema = z.object({
-  name: z.string().min(1, "Vui lòng nhập tên danh mục"),
-  slug: z.string().min(1, "Vui lòng nhập slug").regex(/^[a-z0-9-]+$/, "Slug không hợp lệ"),
+const formSchema = z.object({
+  name: z.string().optional().default(""),
+  slug: z.string().optional().default(""),
 });
 
-type FormData = z.infer<typeof schema>;
+type FormData = z.infer<typeof formSchema>;
 
 export function CreateCategoryModal() {
   const [open, setOpen] = useState(false);
@@ -33,7 +33,7 @@ export function CreateCategoryModal() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(formSchema) as any,
   });
 
   const onSubmit = async (data: FormData) => {
