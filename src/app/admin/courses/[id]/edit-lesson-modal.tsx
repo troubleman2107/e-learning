@@ -14,23 +14,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Pencil, Loader2 } from "lucide-react";
 import { updateLesson } from "./actions";
+import { LessonVideoUpload } from "@/components/admin/LessonVideoUpload";
 import { toast } from "sonner";
 
 export function EditLessonModal({
   lesson,
   courseId,
+  courseTitle = "Khóa học",
 }: {
   lesson: {
     id: string;
     title: string;
-    bunnyVideoId: string;
+    bunnyVideoId: string | null;
     isFreePreview: boolean;
   };
   courseId: string;
+  courseTitle?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState(lesson.title);
-  const [bunnyVideoId, setBunnyVideoId] = useState(lesson.bunnyVideoId);
+  const [bunnyVideoId, setBunnyVideoId] = useState(lesson.bunnyVideoId || "");
   const [isFreePreview, setIsFreePreview] = useState(lesson.isFreePreview);
   const [isPending, setIsPending] = useState(false);
 
@@ -83,13 +86,22 @@ export function EditLessonModal({
           </div>
 
           <div className="space-y-2">
-            <Label>Bunny Video ID *</Label>
-            <Input
+            <Label>Video Bài học (Bunny Stream) *</Label>
+            <LessonVideoUpload
+              courseId={courseId}
+              courseTitle={courseTitle}
               value={bunnyVideoId}
-              onChange={(e) => setBunnyVideoId(e.target.value)}
-              placeholder="VD: 12345678-abcd-..."
-              required
+              onChange={setBunnyVideoId}
             />
+            <div className="pt-1">
+              <span className="text-xs text-gray-500">Hoặc nhập Bunny Video ID thủ công:</span>
+              <Input
+                value={bunnyVideoId}
+                onChange={(e) => setBunnyVideoId(e.target.value)}
+                placeholder="VD: 12345678-abcd-..."
+                className="font-mono text-xs mt-1"
+              />
+            </div>
           </div>
 
           <div className="flex items-center justify-between rounded-lg border p-4">

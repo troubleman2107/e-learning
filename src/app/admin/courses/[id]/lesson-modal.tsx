@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Trash2, Layers, ListPlus, FileText } from "lucide-react";
 import { createLessons } from "./actions";
+import { LessonVideoUpload } from "@/components/admin/LessonVideoUpload";
 import { toast } from "sonner";
 
 interface LessonRow {
@@ -38,9 +39,11 @@ function createEmptyRow(): LessonRow {
 export function CreateLessonModal({
   moduleId,
   courseId,
+  courseTitle = "Khóa học",
 }: {
   moduleId: string;
   courseId: string;
+  courseTitle?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("list");
@@ -221,7 +224,7 @@ export function CreateLessonModal({
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     <div className="space-y-1">
                       <Label className="text-xs font-medium text-gray-700">Tiêu đề bài học *</Label>
                       <Input
@@ -233,15 +236,23 @@ export function CreateLessonModal({
                       />
                     </div>
 
-                    <div className="space-y-1">
-                      <Label className="text-xs font-medium text-gray-700">Bunny Video ID *</Label>
-                      <Input
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-700">Video Bài học (Bunny Stream) *</Label>
+                      <LessonVideoUpload
+                        courseId={courseId}
+                        courseTitle={courseTitle}
                         value={lesson.bunnyVideoId}
-                        onChange={(e) => handleUpdateRow(lesson.id, "bunnyVideoId", e.target.value)}
-                        placeholder="VD: 12345678-abcd-..."
-                        required
-                        className="bg-white font-mono text-xs"
+                        onChange={(videoId) => handleUpdateRow(lesson.id, "bunnyVideoId", videoId)}
                       />
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <span className="text-[11px] text-gray-500">Nhập thủ công Video ID:</span>
+                        <Input
+                          value={lesson.bunnyVideoId}
+                          onChange={(e) => handleUpdateRow(lesson.id, "bunnyVideoId", e.target.value)}
+                          placeholder="VD: 12345678-abcd-..."
+                          className="h-7 text-xs font-mono max-w-xs bg-white"
+                        />
+                      </div>
                     </div>
                   </div>
 

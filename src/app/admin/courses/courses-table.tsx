@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Settings } from "lucide-react";
 import { stripHtml } from "@/lib/utils";
 import { PublishToggle } from "./publish-toggle";
+import { DeleteCourseButton } from "./delete-course-button";
 
 interface CourseWithDetails {
   id: string;
@@ -20,7 +21,7 @@ interface CourseWithDetails {
 
 const HEADERS = [
   { key: "title", label: "Tên khóa học", defaultWidth: 240 },
-  { key: "actions", label: "Hành động", defaultWidth: 160 },
+  { key: "actions", label: "Hành động", defaultWidth: 210 },
   { key: "category", label: "Danh mục", defaultWidth: 140 },
   { key: "price", label: "Giá", defaultWidth: 120 },
   { key: "status", label: "Trạng thái", defaultWidth: 130 },
@@ -138,6 +139,7 @@ export function CoursesTable({ courses }: { courses: CourseWithDetails[] }) {
                       Sửa
                     </Link>
                   </Button>
+                  <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
                 </div>
               </td>
 

@@ -87,6 +87,7 @@ model Course {
   price       Int
   trailerUrl  String
   bunnyVideoId String?
+  bunnyCollectionId String?
   categoryId   String?
   thumbnail    String?
   whatYouWillLearn String[]
@@ -128,7 +129,7 @@ model Module {
 model Lesson {
   id            String  @id @default(cuid())
   title         String
-  bunnyVideoId  String
+  bunnyVideoId  String?
   isFreePreview Boolean @default(false)
   order         Int
   moduleId      String

@@ -156,7 +156,11 @@ export default async function CourseManagementPage({
                               </div>
                             </div>
                             <div className="flex items-center gap-1 self-end sm:self-auto">
-                              <EditLessonModal lesson={lesson} courseId={course.id} />
+                              <EditLessonModal
+                                lesson={lesson}
+                                courseId={course.id}
+                                courseTitle={course.title}
+                              />
                               <DeleteLessonButton lessonId={lesson.id} courseId={course.id} />
                             </div>
                           </li>
@@ -164,7 +168,11 @@ export default async function CourseManagementPage({
                       </ul>
                     )}
                     <div className="mt-3">
-                      <CreateLessonModal moduleId={module.id} courseId={course.id} />
+                      <CreateLessonModal
+                        moduleId={module.id}
+                        courseId={course.id}
+                        courseTitle={course.title}
+                      />
                     </div>
                   </div>
                 </AccordionContent>

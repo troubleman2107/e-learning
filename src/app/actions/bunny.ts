@@ -1,0 +1,119 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+
+export async function getBunnyStreamConfig() {
+  const libraryId =
+    process.env.BUNNY_STREAM_LIBRARY_ID || process.env.BUNNY_LIBRARY_ID;
+  const apiKey =
+    process.env.BUNNY_STREAM_API_KEY ||
+    process.env.BUNNY_SECURITY_KEY ||
+    process.env.BUNNY_API_KEY;
+
+  if (!libraryId || !apiKey) {
+    throw new Error(
+      "BUNNY_STREAM_LIBRARY_ID and BUNNY_STREAM_API_KEY (or BUNNY_SECURITY_KEY) environment variables are required."
+    );
+  }
+
+  return { libraryId, apiKey };
+}
+
+/**
+ * Checks if the course in DB already has a bunnyCollectionId.
+ * If yes, returns it. If not, creates a collection in Bunny Stream API,
+ * saves the collection guid into the Course record in Neon DB, and returns it.
+ */
+export async function getOrCreateBunnyCollection(
+  courseId: string,
+  courseTitle: string
+): Promise<string> {
+  const { libraryId, apiKey } = await getBunnyStreamConfig();
+
+  if (courseId) {
+    const course = await prisma.course.findUnique({
+      where: { id: courseId },
+      select: { bunnyCollectionId: true },
+    });
+
+    if (course?.bunnyCollectionId) {
+      return course.bunnyCollectionId;
+    }
+  }
+
+  const res = await fetch(
+    `https://video.bunnycdn.com/library/${libraryId}/collections`,
+    {
+      method: "POST",
+      headers: {
+        AccessKey: apiKey,
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ name: courseTitle }),
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(
+      `Failed to create Bunny collection: ${res.status} ${errorText}`
+    );
+  }
+
+  const data = await res.json();
+  const collectionId = data.guid;
+
+  if (!collectionId) {
+    throw new Error("Bunny API did not return a valid collection guid.");
+  }
+
+  if (courseId) {
+    await prisma.course.update({
+      where: { id: courseId },
+      data: { bunnyCollectionId: collectionId },
+    });
+  }
+
+  return collectionId;
+}
+
+/**
+ * Creates a video entry in Bunny Stream Library under the given collectionId.
+ * Returns the newly created video's guid (videoId).
+ */
+export async function createBunnyVideoEntry(
+  title: string,
+  collectionId: string
+): Promise<string> {
+  const { libraryId, apiKey } = await getBunnyStreamConfig();
+
+  const res = await fetch(
+    `https://video.bunnycdn.com/library/${libraryId}/videos`,
+    {
+      method: "POST",
+      headers: {
+        AccessKey: apiKey,
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ title, collectionId }),
+    }
+  );
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(
+      `Failed to create Bunny video entry: ${res.status} ${errorText}`
+    );
+  }
+
+  const data = await res.json();
+  const videoId = data.guid;
+
+  if (!videoId) {
+    throw new Error("Bunny API did not return a valid video guid.");
+  }
+
+  return videoId;
+}

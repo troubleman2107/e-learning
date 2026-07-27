@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { getOrCreateBunnyCollection } from "@/app/actions/bunny";
+
 const courseSchema = z.object({
   title: z.string().optional().default("Khóa học mới"),
   description: z.string().optional().default(""),
@@ -36,7 +38,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
 
   const thumbnailVal = validated.thumbnailUrl || validated.thumbnail || null;
 
-  await prisma.course.create({
+  const newCourse = await prisma.course.create({
     data: {
       title: validated.title,
       description: validated.description,
@@ -51,6 +53,13 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
       isPublished: validated.isPublished ?? false,
     },
   });
+
+  // Automatically create Bunny Stream Collection for the new course
+  try {
+    await getOrCreateBunnyCollection(newCourse.id, newCourse.title);
+  } catch (error) {
+    console.error("Failed to auto-create Bunny Stream Collection on course creation:", error);
+  }
 
   revalidatePath("/admin/courses");
 }
@@ -90,6 +99,13 @@ export async function updateCourse(
     },
   });
 
+  // Ensure Bunny Stream Collection exists or is created
+  try {
+    await getOrCreateBunnyCollection(id, validated.title);
+  } catch (error) {
+    console.error("Failed to ensure Bunny Stream Collection on course update:", error);
+  }
+
   revalidatePath("/admin/courses");
 }
 
@@ -103,6 +119,20 @@ export async function toggleCoursePublish(id: string, isPublished: boolean) {
   await prisma.course.update({
     where: { id },
     data: { isPublished },
+  });
+
+  revalidatePath("/admin/courses");
+}
+
+export async function deleteCourse(id: string) {
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    throw new Error("Unauthorized");
+  }
+
+  await prisma.course.delete({
+    where: { id },
   });
 
   revalidatePath("/admin/courses");

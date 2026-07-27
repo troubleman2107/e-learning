@@ -55,6 +55,10 @@ export async function GET(
       }
     }
 
+    if (!lesson.bunnyVideoId) {
+      return NextResponse.json({ error: "Video not found for this lesson" }, { status: 404 });
+    }
+
     // 3. Generate token
     const url = generateBunnyToken(lesson.bunnyVideoId);
 
