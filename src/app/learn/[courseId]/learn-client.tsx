@@ -336,7 +336,7 @@ export function LearnClient({
 
             {/* Lesson Title & Action Bar */}
             <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200/60">
@@ -401,18 +401,6 @@ export function LearnClient({
                     </Button>
                   )}
                 </div>
-              </div>
-
-              {/* Course Description */}
-              <div className="space-y-2">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-purple-600" />
-                  Mô tả khóa học
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {course.description.replace(/<[^>]*>/g, "") ||
-                    "Chào mừng bạn đến với khóa học. Chọn các bài học bên danh sách giáo trình để học tiếp."}
-                </p>
               </div>
             </div>
           </div>
