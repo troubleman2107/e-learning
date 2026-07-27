@@ -6,6 +6,7 @@ import { BookOpen, GraduationCap, Receipt, ArrowRight, Play } from "lucide-react
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { CourseCard } from "@/components/course-card";
 
 export default async function StudentDashboardPage() {
   const session = await auth();
@@ -172,73 +173,22 @@ export default async function StudentDashboardPage() {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {enrolledCourses.slice(0, 3).map((course, index) => {
-              // Calculate lessons count
-              let lessonCount = 0;
-              course.modules.forEach((m) => (lessonCount += m.lessons.length));
-
-              const visuals = [
-                "border-teal-100 bg-gradient-to-br from-teal-500/10 to-teal-600/10 text-teal-700",
-                "border-sky-100 bg-gradient-to-br from-sky-500/10 to-sky-600/10 text-sky-700",
-                "border-amber-100 bg-gradient-to-br from-amber-500/10 to-amber-600/10 text-amber-700",
-                "border-rose-100 bg-gradient-to-br from-rose-500/10 to-rose-600/10 text-rose-700"
-              ];
-              const visualClass = visuals[index % visuals.length];
+              const progress = courseProgressMap.get(course.id);
+              const percent = progress && progress.total > 0
+                ? Math.round((progress.completed / progress.total) * 100)
+                : 0;
 
               return (
-                <Card key={course.id} className="group overflow-hidden flex flex-col justify-between border border-slate-200/50 bg-white shadow-sm transition-all hover:shadow-md">
-                  {/* Course Thumbnail */}
-                  <div className="relative flex h-32 w-full overflow-hidden border-b border-slate-100 bg-slate-50">
-                    <img
-                      src={course.thumbnail || "/course-docker.png"}
-                      alt={course.title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <span className="absolute top-3 right-3 rounded-full bg-emerald-500/90 text-white px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase shadow-sm">
-                      Đã sở hữu
-                    </span>
-                  </div>
-
-                  <CardHeader className="pb-3 pt-4">
-                    {course.category && (
-                      <span className="w-fit rounded-full bg-slate-100 px-2.5 py-0.5 text-[9px] font-medium text-slate-600">
-                        {course.category.name}
-                      </span>
-                    )}
-                    <CardTitle className="line-clamp-2 text-sm font-semibold text-slate-800 mt-1 min-h-[40px] group-hover:text-violet-700 transition-colors">
-                      {course.title}
-                    </CardTitle>
-                  </CardHeader>
-
-                  <CardContent className="pb-3 pt-0 space-y-3">
-                    {/* Progress Bar */}
-                    {(() => {
-                      const progress = courseProgressMap.get(course.id);
-                      const percent = progress && progress.total > 0
-                        ? Math.round((progress.completed / progress.total) * 100)
-                        : 0;
-                      return (
-                        <div className="space-y-1">
-                          <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
-                            <span>Tiến độ học tập</span>
-                            <span>{percent}%</span>
-                          </div>
-                          <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300" style={{ width: `${percent}%` }} />
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </CardContent>
-
-                  <CardContent className="pb-4 pt-0">
-                    <Button asChild className="w-full gap-2 bg-slate-900 text-white hover:bg-violet-600 transition-all font-medium text-xs py-1.5 h-8 shadow-sm">
-                      <Link href={`/learn/${course.id}`}>
-                        <Play className="h-3 w-3 fill-current" />
-                        Vào học ngay
-                      </Link>
-                    </Button>
-                  </CardContent>
-                </Card>
+                <CourseCard
+                  key={course.id}
+                  course={{
+                    ...course,
+                    isPaid: true,
+                  }}
+                  index={index}
+                  progressPercent={percent}
+                  targetHref={`/learn/${course.id}`}
+                />
               );
             })}
           </div>

@@ -34,9 +34,11 @@ export interface CourseCardProps {
     isPaid?: boolean;
   };
   index?: number;
+  progressPercent?: number;
+  targetHref?: string;
 }
 
-export function CourseCard({ course, index = 0 }: CourseCardProps) {
+export function CourseCard({ course, index = 0, progressPercent, targetHref }: CourseCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isClicked, setIsClicked] = useState(false);
@@ -57,18 +59,19 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
 
   const originalPrice = course.price * 2;
   const isLoading = isPending || isClicked;
+  const destination = targetHref || (course.isPaid ? `/learn/${course.id}` : `/course/${course.id}`);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     setIsClicked(true);
     startTransition(() => {
-      router.push(`/course/${course.id}`);
+      router.push(destination);
     });
   };
 
   return (
     <Link
-      href={`/course/${course.id}`}
+      href={destination}
       onClick={handleClick}
       className={`group flex flex-col overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md h-full relative ${
         isLoading ? "pointer-events-none ring-2 ring-indigo-500/50" : ""
@@ -100,7 +103,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
             <span className="text-[10px] font-bold tracking-wide">Đang mở khóa học...</span>
           </div>
         )}
-        {/* Cover tint overlay (soft initial opacity, clears back to normal on hover) */}
+        {/* Cover tint overlay */}
         <div className="absolute inset-0 bg-slate-950/20 opacity-60 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none z-10" />
 
         <Image
@@ -114,7 +117,7 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
           }`}
         />
 
-        {/* Category badge overlay (subtle opacity by default, full normal on hover) */}
+        {/* Category badge overlay */}
         <span className="absolute right-2 top-2 z-20 rounded bg-slate-900/60 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md opacity-70 transition-all duration-300 group-hover:opacity-100 group-hover:bg-slate-900/90 group-hover:text-white group-hover:scale-105">
           {categoryName}
         </span>
@@ -174,8 +177,24 @@ export function CourseCard({ course, index = 0 }: CourseCardProps) {
           )}
         </div>
 
+        {/* Optional Progress Bar for Enrolled Courses */}
+        {progressPercent !== undefined && (
+          <div className="mt-2.5 space-y-1">
+            <div className="flex items-center justify-between text-[10px] text-slate-500 font-semibold">
+              <span>Tiến độ học tập</span>
+              <span className="text-indigo-600 font-bold">{progressPercent}%</span>
+            </div>
+            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Call To Action Button "Vào học ngay" */}
-        <div className="mt-3 pt-1">
+        <div className="mt-auto pt-3">
           <div
             className={`w-full rounded-xl text-white font-extrabold text-xs py-2.5 px-3 flex items-center justify-center gap-1.5 transition-all duration-300 ${
               isLoading
