@@ -321,7 +321,22 @@ export function CourseClient({
   } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedLockedLesson, setSelectedLockedLesson] = useState<any>(null);
+
+  const handleOpenPreviewModal = (lessonId?: string) => {
+    if (lessonId) {
+      setCurrentLessonId(lessonId);
+    } else if (!currentLessonId) {
+      const freeLesson = allLessons.find((l: any) => l.isFreePreview);
+      if (freeLesson) {
+        setCurrentLessonId(freeLesson.id);
+      } else if (firstLesson) {
+        setCurrentLessonId(firstLesson.id);
+      }
+    }
+    setIsPreviewModalOpen(true);
+  };
 
   const initiateCheckout = async (email: string) => {
     setIsCheckingOut(true);
@@ -487,13 +502,16 @@ export function CourseClient({
   }, [currentLessonId, allLessons, hasPurchased]);
 
   const handleLessonClick = (lesson: any) => {
-    if (!lesson.isFreePreview && !hasPurchased) {
+    if (hasPurchased) {
+      router.push(`/learn/${course.id}`);
+      return;
+    }
+    if (!lesson.isFreePreview) {
       setSelectedLockedLesson(lesson);
       setIsUpgradeModalOpen(true);
       return;
     }
-    setCurrentLessonId(lesson.id);
-    setIsPlaying(true);
+    handleOpenPreviewModal(lesson.id);
   };
 
   const handleShare = () => {
@@ -727,7 +745,10 @@ export function CourseClient({
                                   </div>
                                   <div className="flex items-center gap-3 shrink-0">
                                     {lesson.isFreePreview && !hasPurchased && (
-                                      <span className="text-xs text-purple-600 font-semibold underline underline-offset-2">Học thử</span>
+                                      <span className="inline-flex items-center gap-1 text-xs text-purple-700 bg-purple-50 group-hover:bg-purple-100 font-semibold px-2.5 py-1 rounded-full border border-purple-200 transition-all shadow-2xs">
+                                        <Play className="h-2.5 w-2.5 fill-purple-600 text-purple-600" />
+                                        Xem thử
+                                      </span>
                                     )}
                                     <span className="text-xs text-gray-400 font-medium tabular-nums">
                                       {duration}:{String(Math.abs((duration * 7) % 60)).padStart(2, '0')}
@@ -970,64 +991,36 @@ export function CourseClient({
               
               {/* Video Preview / Player */}
               <div className="relative aspect-square w-full bg-slate-950 overflow-hidden">
-                {!isPlaying ? (
-                  <div
-                    onClick={() => setIsPlaying(true)}
-                    className="relative h-full w-full cursor-pointer group flex items-center justify-center"
-                  >
-                    {thumbnailUrl ? (
-                      <Image
-                        src={thumbnailUrl}
-                        alt={course.title}
-                        width={800}
-                        height={800}
-                        quality={95}
-                        priority
-                        className="aspect-square h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 text-center font-bold text-sm">
-                        {course.title}
-                      </div>
-                    )}
-
-                    {/* Dark tint overlay */}
-                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex flex-col items-center justify-center gap-2.5">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-900 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white">
-                        <Play className="h-6 w-6 fill-current ml-0.5" />
-                      </div>
-                      <span className="text-xs font-bold text-white tracking-wide drop-shadow-md">
-                        Xem trước khóa học
-                      </span>
+                <div
+                  onClick={() => handleOpenPreviewModal()}
+                  className="relative h-full w-full cursor-pointer group flex items-center justify-center"
+                >
+                  {thumbnailUrl ? (
+                    <Image
+                      src={thumbnailUrl}
+                      alt={course.title}
+                      width={800}
+                      height={800}
+                      quality={95}
+                      priority
+                      className="aspect-square h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 text-white p-4 text-center font-bold text-sm">
+                      {course.title}
                     </div>
+                  )}
+
+                  {/* Dark tint overlay */}
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors flex flex-col items-center justify-center gap-2.5">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-900 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white">
+                      <Play className="h-6 w-6 fill-current ml-0.5" />
+                    </div>
+                    <span className="text-xs font-bold text-white tracking-wide drop-shadow-md">
+                      Xem trước khóa học
+                    </span>
                   </div>
-                ) : (
-                  <>
-                    {isLessonLoading && (
-                      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs text-white transition-all duration-300">
-                        <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-2" />
-                        <p className="text-xs font-semibold tracking-wide text-slate-200">
-                          Đang tải bài học...
-                        </p>
-                      </div>
-                    )}
-                    {iframeUrl ? (
-                      <iframe
-                        ref={iframeRef}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        className="absolute inset-0 h-full w-full border-none"
-                        src={iframeUrl.includes("?") ? `${iframeUrl}&autoplay=1` : `${iframeUrl}?autoplay=1`}
-                        title={`Video khóa học`}
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-gray-400">
-                        <Loader2 className="animate-spin h-8 w-8 text-purple-500" />
-                        <span className="ml-3 text-sm">Đang tải video...</span>
-                      </div>
-                    )}
-                  </>
-                )}
+                </div>
               </div>
 
               {/* Sidebar Content */}
@@ -1187,6 +1180,148 @@ export function CourseClient({
               Đăng ký ngay với {formatVnd(course.price)}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Video Modal */}
+      <Dialog open={isPreviewModalOpen} onOpenChange={setIsPreviewModalOpen}>
+        <DialogContent className="max-w-4xl w-[95vw] sm:max-w-4xl p-0 overflow-hidden bg-slate-950 border-slate-800 text-white shadow-2xl rounded-2xl flex flex-col max-h-[88vh]">
+          {/* Header */}
+          <div className="bg-slate-900 border-b border-slate-800 px-5 py-3.5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0 pr-4">
+              <span className="bg-purple-500/20 text-purple-300 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-purple-500/30 shrink-0">
+                Xem trước
+              </span>
+              <h3 className="font-bold text-sm sm:text-base text-white truncate">
+                {allLessons.find((l: any) => l.id === currentLessonId)?.title || course.title}
+              </h3>
+            </div>
+          </div>
+
+          {/* Modal Content Area (Scrollable body) */}
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            {/* Top: Widescreen 16:9 Video Container */}
+            <div className="relative w-full aspect-video bg-black flex items-center justify-center shrink-0">
+              {isLessonLoading && (
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/80 backdrop-blur-xs text-white">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-400 mb-2" />
+                  <p className="text-xs font-semibold tracking-wide text-slate-200">
+                    Đang tải bài học xem thử...
+                  </p>
+                </div>
+              )}
+              {iframeUrl ? (
+                <iframe
+                  ref={iframeRef}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full border-none"
+                  src={iframeUrl.includes("?") ? `${iframeUrl}&autoplay=1` : `${iframeUrl}?autoplay=1`}
+                  title={allLessons.find((l: any) => l.id === currentLessonId)?.title || course.title}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-slate-400 gap-2">
+                  <Loader2 className="animate-spin h-8 w-8 text-purple-500" />
+                  <span className="text-xs font-medium">Đang tải video...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Below Video: Course Lessons Section */}
+            <div className="bg-slate-900 p-4 sm:p-5 space-y-3">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-purple-400" />
+                  Nội dung bài giảng ({allLessons.length} bài)
+                </h4>
+                <span className="text-xs text-purple-300 font-semibold bg-purple-950/60 px-2.5 py-1 rounded-full border border-purple-800/50">
+                  {allLessons.filter((l: any) => l.isFreePreview).length} bài học thử
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {course.modules.map((module: any) => (
+                  <div key={module.id} className="rounded-xl border border-slate-800/80 bg-slate-950/40 p-3 space-y-2">
+                    <div className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                      <span>{module.title}</span>
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        {module.lessons.length} bài
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1">
+                      {module.lessons.map((lesson: any) => {
+                        const isSelected = lesson.id === currentLessonId;
+                        const isFree = lesson.isFreePreview;
+
+                        return (
+                          <button
+                            key={lesson.id}
+                            onClick={() => {
+                              if (isFree || hasPurchased) {
+                                setCurrentLessonId(lesson.id);
+                              } else {
+                                setSelectedLockedLesson(lesson);
+                                setIsUpgradeModalOpen(true);
+                              }
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs transition-all text-left cursor-pointer border ${
+                              isSelected
+                                ? "bg-purple-600/20 text-purple-200 border-purple-500/50 font-semibold"
+                                : isFree || hasPurchased
+                                ? "bg-slate-900/60 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white"
+                                : "bg-slate-900/30 text-slate-500 border-slate-800/40 hover:bg-slate-900/60"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                              {isFree || hasPurchased ? (
+                                <Play className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-purple-400 fill-purple-400" : "text-slate-400"}`} />
+                              ) : (
+                                <Lock className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                              )}
+                              <span className="truncate">{lesson.title}</span>
+                            </div>
+                            {isFree && !hasPurchased && (
+                              <span className="text-[10px] text-purple-300 font-semibold shrink-0 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-800/80">
+                                Xem thử
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Modal Footer CTA */}
+          {!hasPurchased && (
+            <div className="p-4 border-t border-slate-800 bg-slate-900/95 backdrop-blur-md flex items-center justify-between gap-4 shrink-0">
+              <div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-extrabold text-white">
+                    {formatVnd(course.price)}
+                  </span>
+                  <span className="text-xs text-slate-400 line-through">
+                    {formatVnd(course.price * 2)}
+                  </span>
+                </div>
+                <p className="text-[11px] text-emerald-400 font-medium">Truy cập trọn đời • Hoàn tiền 100% 7 ngày</p>
+              </div>
+
+              <Button
+                onClick={() => {
+                  setIsPreviewModalOpen(false);
+                  handleEnroll();
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs sm:text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-purple-900/40 cursor-pointer"
+              >
+                Đăng ký ngay
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
