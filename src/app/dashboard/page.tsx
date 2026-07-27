@@ -232,7 +232,7 @@ export default async function StudentDashboardPage() {
 
                   <CardContent className="pb-4 pt-0">
                     <Button asChild className="w-full gap-2 bg-slate-900 text-white hover:bg-violet-600 transition-all font-medium text-xs py-1.5 h-8 shadow-sm">
-                      <Link href={`/course/${course.id}`}>
+                      <Link href={`/learn/${course.id}`}>
                         <Play className="h-3 w-3 fill-current" />
                         Vào học ngay
                       </Link>
