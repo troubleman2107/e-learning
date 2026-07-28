@@ -77,6 +77,7 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
   }
 
   revalidatePath("/admin/courses");
+  return newCourse;
 }
 
 export async function updateCourse(

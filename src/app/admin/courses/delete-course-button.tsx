@@ -43,7 +43,7 @@ export function DeleteCourseButton({
         variant="ghost"
         size="sm"
         onClick={() => setOpen(true)}
-        className="h-7 px-2 text-xs gap-1 text-gray-400 hover:text-red-600 hover:bg-red-50 shrink-0"
+        className="h-7 px-2.5 text-xs gap-1.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 font-medium shrink-0 rounded-lg transition-colors"
         title="Xóa khóa học"
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -53,7 +53,7 @@ export function DeleteCourseButton({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-red-600 flex items-center gap-2">
+            <DialogTitle className="text-rose-600 flex items-center gap-2">
               <Trash2 className="h-5 w-5" />
               Xác nhận xóa khóa học
             </DialogTitle>
@@ -78,7 +78,7 @@ export function DeleteCourseButton({
               variant="destructive"
               onClick={handleDelete}
               disabled={isPending}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-sm"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Xóa khóa học

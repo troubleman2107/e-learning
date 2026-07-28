@@ -78,9 +78,13 @@ export function CreateCourseForm({ categories, authors }: CreateCourseFormProps)
   const onSubmit = (data: FormValues) => {
     startTransition(async () => {
       try {
-        await createCourse(data);
+        const newCourse = await createCourse(data);
         toast.success("Khóa học đã được tạo thành công!");
-        router.refresh();
+        if (newCourse?.id) {
+          router.push(`/admin/courses/${newCourse.id}`);
+        } else {
+          router.push("/admin/courses");
+        }
       } catch (error: any) {
         console.error("createCourse error:", error);
         toast.error(error?.message || "Có lỗi xảy ra. Vui lòng thử lại.");
