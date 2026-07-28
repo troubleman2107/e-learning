@@ -11,6 +11,11 @@ import {
   deleteBunnyVideoEntry,
   deleteBunnyCollection,
 } from "@/app/actions/bunny";
+import {
+  deleteCloudinaryImage,
+  createCloudinaryFolder,
+  deleteCloudinaryFolder,
+} from "@/app/actions/cloudinary";
 
 const courseSchema = z.object({
   title: z.string().optional().default("Khóa học mới"),
@@ -58,11 +63,17 @@ export async function createCourse(formData: z.infer<typeof courseSchema>) {
     },
   });
 
-  // Automatically create Bunny Stream Collection for the new course
+  // Automatically create Bunny Stream Collection & Cloudinary Folder for the new course
   try {
     await getOrCreateBunnyCollection(newCourse.id, newCourse.title);
   } catch (error) {
     console.error("Failed to auto-create Bunny Stream Collection on course creation:", error);
+  }
+
+  try {
+    await createCloudinaryFolder(`courses/${newCourse.id}`);
+  } catch (error) {
+    console.error("Failed to auto-create Cloudinary Folder on course creation:", error);
   }
 
   revalidatePath("/admin/courses");
@@ -85,6 +96,20 @@ export async function updateCourse(
     : [];
 
   const thumbnailVal = validated.thumbnailUrl || validated.thumbnail || null;
+
+  // Delete old Cloudinary thumbnail if replaced with a new one
+  const existingCourse = await prisma.course.findUnique({
+    where: { id },
+    select: { thumbnail: true },
+  });
+
+  if (
+    existingCourse?.thumbnail &&
+    thumbnailVal &&
+    existingCourse.thumbnail !== thumbnailVal
+  ) {
+    await deleteCloudinaryImage(existingCourse.thumbnail);
+  }
 
   await prisma.course.update({
     where: { id },
@@ -135,10 +160,11 @@ export async function deleteCourse(id: string) {
     throw new Error("Unauthorized");
   }
 
-  // Fetch course collection and lesson videos to delete from Bunny Stream
+  // Fetch course collection, lesson videos, and thumbnail to delete from Bunny & Cloudinary
   const course = await prisma.course.findUnique({
     where: { id },
     select: {
+      thumbnail: true,
       bunnyCollectionId: true,
       modules: {
         select: {
@@ -151,6 +177,9 @@ export async function deleteCourse(id: string) {
   });
 
   if (course) {
+    if (course.thumbnail) {
+      await deleteCloudinaryImage(course.thumbnail);
+    }
     for (const moduleItem of course.modules) {
       for (const lesson of moduleItem.lessons) {
         if (lesson.bunnyVideoId) {
@@ -160,6 +189,12 @@ export async function deleteCourse(id: string) {
     }
     if (course.bunnyCollectionId) {
       await deleteBunnyCollection(course.bunnyCollectionId);
+    }
+    // Delete course folder on Cloudinary
+    try {
+      await deleteCloudinaryFolder(`courses/${id}`);
+    } catch (error) {
+      console.error("Failed to delete Cloudinary folder on course deletion:", error);
     }
   }
 

@@ -9,11 +9,13 @@ import { ImagePlus, Trash2, Upload } from "lucide-react";
 interface ThumbnailUploadProps {
   value: string;
   onChange: (url: string) => void;
+  folder?: string;
 }
 
 export default function ThumbnailUpload({
   value,
   onChange,
+  folder,
 }: ThumbnailUploadProps) {
   const restoreScroll = useCallback(() => {
     if (typeof document !== "undefined") {
@@ -91,6 +93,7 @@ export default function ThumbnailUpload({
       options={{
         maxFiles: 1,
         resourceType: "image",
+        folder: folder || "vietlearn_thumbnails",
         cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "swmsqt0m",
       }}
     >

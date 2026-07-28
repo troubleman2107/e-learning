@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { deleteCloudinaryImage } from "@/app/actions/cloudinary";
 
 const authorSchema = z.object({
   name: z.string().optional().default("Giảng viên"),
@@ -51,6 +52,20 @@ export async function updateAuthor(
 
   const validated = authorSchema.parse(formData);
 
+  // Delete old Cloudinary image if replaced
+  const existingAuthor = await prisma.author.findUnique({
+    where: { id },
+    select: { image: true },
+  });
+
+  if (
+    existingAuthor?.image &&
+    validated.image &&
+    existingAuthor.image !== validated.image
+  ) {
+    await deleteCloudinaryImage(existingAuthor.image);
+  }
+
   await prisma.author.update({
     where: { id },
     data: {
@@ -72,6 +87,15 @@ export async function deleteAuthor(id: string) {
 
   if (!session?.user || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
+  }
+
+  const author = await prisma.author.findUnique({
+    where: { id },
+    select: { image: true },
+  });
+
+  if (author?.image) {
+    await deleteCloudinaryImage(author.image);
   }
 
   await prisma.author.delete({
