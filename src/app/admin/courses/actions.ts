@@ -6,7 +6,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
-import { getOrCreateBunnyCollection } from "@/app/actions/bunny";
+import {
+  getOrCreateBunnyCollection,
+  deleteBunnyVideoEntry,
+  deleteBunnyCollection,
+} from "@/app/actions/bunny";
 
 const courseSchema = z.object({
   title: z.string().optional().default("Khóa học mới"),
@@ -129,6 +133,34 @@ export async function deleteCourse(id: string) {
 
   if (!session?.user || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
+  }
+
+  // Fetch course collection and lesson videos to delete from Bunny Stream
+  const course = await prisma.course.findUnique({
+    where: { id },
+    select: {
+      bunnyCollectionId: true,
+      modules: {
+        select: {
+          lessons: {
+            select: { bunnyVideoId: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (course) {
+    for (const moduleItem of course.modules) {
+      for (const lesson of moduleItem.lessons) {
+        if (lesson.bunnyVideoId) {
+          await deleteBunnyVideoEntry(lesson.bunnyVideoId);
+        }
+      }
+    }
+    if (course.bunnyCollectionId) {
+      await deleteBunnyCollection(course.bunnyCollectionId);
+    }
   }
 
   await prisma.course.delete({

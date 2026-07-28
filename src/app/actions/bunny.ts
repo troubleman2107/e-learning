@@ -117,3 +117,69 @@ export async function createBunnyVideoEntry(
 
   return videoId;
 }
+
+/**
+ * Deletes a video entry from Bunny Stream Library by videoId.
+ */
+export async function deleteBunnyVideoEntry(videoId: string): Promise<boolean> {
+  if (!videoId) return false;
+
+  try {
+    const { libraryId, apiKey } = await getBunnyStreamConfig();
+    const res = await fetch(
+      `https://video.bunnycdn.com/library/${libraryId}/videos/${videoId}`,
+      {
+        method: "DELETE",
+        headers: {
+          AccessKey: apiKey,
+          accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.warn(`[Bunny] Failed to delete video ${videoId}: ${res.status} ${text}`);
+      return false;
+    }
+
+    console.log(`[Bunny] Successfully deleted video ${videoId}`);
+    return true;
+  } catch (error) {
+    console.error(`[Bunny] Error deleting video ${videoId}:`, error);
+    return false;
+  }
+}
+
+/**
+ * Deletes a collection from Bunny Stream Library by collectionId.
+ */
+export async function deleteBunnyCollection(collectionId: string): Promise<boolean> {
+  if (!collectionId) return false;
+
+  try {
+    const { libraryId, apiKey } = await getBunnyStreamConfig();
+    const res = await fetch(
+      `https://video.bunnycdn.com/library/${libraryId}/collections/${collectionId}`,
+      {
+        method: "DELETE",
+        headers: {
+          AccessKey: apiKey,
+          accept: "application/json",
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.warn(`[Bunny] Failed to delete collection ${collectionId}: ${res.status} ${text}`);
+      return false;
+    }
+
+    console.log(`[Bunny] Successfully deleted collection ${collectionId}`);
+    return true;
+  } catch (error) {
+    console.error(`[Bunny] Error deleting collection ${collectionId}:`, error);
+    return false;
+  }
+}

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { deleteBunnyVideoEntry } from "@/app/actions/bunny";
 
 export async function createModule(courseId: string, title: string) {
   const session = await auth();
@@ -120,6 +121,20 @@ export async function updateLesson({
     throw new Error("Unauthorized");
   }
 
+  // Delete old Bunny video if replaced with a new video
+  const existingLesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { bunnyVideoId: true },
+  });
+
+  if (
+    existingLesson?.bunnyVideoId &&
+    bunnyVideoId &&
+    existingLesson.bunnyVideoId !== bunnyVideoId
+  ) {
+    await deleteBunnyVideoEntry(existingLesson.bunnyVideoId);
+  }
+
   await prisma.lesson.update({
     where: { id: lessonId },
     data: {
@@ -137,6 +152,15 @@ export async function deleteLesson(lessonId: string, courseId: string) {
 
   if (!session?.user || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
+  }
+
+  const lesson = await prisma.lesson.findUnique({
+    where: { id: lessonId },
+    select: { bunnyVideoId: true },
+  });
+
+  if (lesson?.bunnyVideoId) {
+    await deleteBunnyVideoEntry(lesson.bunnyVideoId);
   }
 
   await prisma.lesson.delete({
@@ -174,6 +198,18 @@ export async function deleteModule(moduleId: string, courseId: string) {
 
   if (!session?.user || session.user.role !== "ADMIN") {
     throw new Error("Unauthorized");
+  }
+
+  // Delete all Bunny video entries for lessons in this module
+  const lessons = await prisma.lesson.findMany({
+    where: { moduleId },
+    select: { bunnyVideoId: true },
+  });
+
+  for (const lesson of lessons) {
+    if (lesson.bunnyVideoId) {
+      await deleteBunnyVideoEntry(lesson.bunnyVideoId);
+    }
   }
 
   await prisma.module.delete({
