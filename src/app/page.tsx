@@ -234,41 +234,37 @@ export default async function Home() {
           {/* Left — Copy */}
           <div className="relative z-10 xl:col-span-5">
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-500/10 px-4 py-1.5 text-sm font-medium text-indigo-300 backdrop-blur-sm">
-              <Sparkles className="size-4" />
-              E-learning thực chiến cho người Việt
+              ✨ Nền tảng học tập đa lĩnh vực với chi phí tiết kiệm nhất
             </div>
 
             <h1 className="text-3xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
-              Hệ Thống Đào Tạo{" "}
-              <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                Thực Chiến
+              Học Mọi Kỹ Năng{" "}
+              <span className="block sm:inline bg-gradient-to-r from-indigo-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                Giá Siêu Tiết Kiệm
               </span>
             </h1>
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-gray-300/90">
-              Nắm vững AI, Cloud và kỹ năng trending với khóa học thiết kế riêng
-              cho thị trường Việt Nam. Học từ chuyên gia, thực hành ngay trên dự
-              án thật.
+              Khám phá hàng trăm khóa học thực chiến từ Lập trình, AI, Marketing đến Thiết kế và Business. Mở khóa tri thức chất lượng cao với chi phí tiết kiệm đến 80%.
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Button
                 asChild
                 size="lg"
-                className="h-12 rounded-xl bg-indigo-600 px-8 text-base font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:bg-indigo-500 hover:shadow-xl hover:shadow-indigo-500/40"
+                className="h-12 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 px-8 text-base font-bold text-white shadow-lg shadow-indigo-500/30 transition-all hover:from-indigo-500 hover:to-violet-500 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <a href="#courses">
-                  Khám phá khóa học
-                  <ArrowRight className="ml-2 size-5" />
+                  Săn khóa học ưu đãi ➔
                 </a>
               </Button>
               <Button
                 asChild
-                variant="outline"
+                variant="ghost"
                 size="lg"
-                className="h-12 rounded-xl border-gray-600 bg-transparent px-8 text-base font-semibold text-gray-200 transition-all hover:border-gray-500 hover:bg-white/5"
+                className="h-12 rounded-xl border border-indigo-400/30 bg-indigo-500/10 px-8 text-base font-semibold text-indigo-200 backdrop-blur-md transition-all hover:bg-indigo-500/20 hover:border-indigo-400/60 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]"
               >
-                <a href="#testimonials">Xem đánh giá</a>
+                <a href="#courses">Khám phá danh mục</a>
               </Button>
             </div>
 
