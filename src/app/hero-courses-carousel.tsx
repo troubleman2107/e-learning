@@ -104,16 +104,16 @@ export function HeroCoursesCarousel({
       {/* Wrapper with 3D-like perspectives / depth */}
       <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-950/60 p-3.5 shadow-2xl backdrop-blur-xl">
         {/* Slides container */}
-        <div className="relative min-h-[440px] sm:min-h-[445px] w-full">
+        <div className="relative w-full">
           {coursePairs.map((pair, idx) => {
             const isActive = idx === activeIndex;
             return (
               <div
                 key={idx}
-                className={`absolute inset-0 grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 transition-all duration-700 ease-in-out ${
+                className={`grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 transition-all duration-700 ease-in-out ${
                   isActive
-                    ? "opacity-100 scale-100 pointer-events-auto z-10"
-                    : "opacity-0 scale-95 pointer-events-none z-0"
+                    ? "relative opacity-100 scale-100 pointer-events-auto z-10"
+                    : "absolute inset-0 opacity-0 scale-95 pointer-events-none z-0"
                 }`}
               >
                 {pair.map((course, courseIdx) => (
@@ -147,7 +147,7 @@ export function HeroCoursesCarousel({
 
         {/* Carousel controls & pagination */}
         {coursePairs.length > 1 && (
-          <div className="relative z-20 mt-3.5 flex items-center justify-between px-2">
+          <div className="relative z-20 mt-4 flex items-center justify-between px-2">
             {/* Dots */}
             <div className="flex items-center gap-1.5">
               {coursePairs.map((_, idx) => (

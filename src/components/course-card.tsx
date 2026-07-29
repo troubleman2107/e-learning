@@ -84,10 +84,6 @@ export function CourseCard({
     ? "aspect-video"
     : aspectRatio === "16/10"
     ? "aspect-[16/10]"
-    : aspectRatio === "square"
-    ? "aspect-square"
-    : isDark
-    ? "aspect-[16/10]"
     : "aspect-square";
 
   return (
