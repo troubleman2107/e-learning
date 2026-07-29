@@ -36,9 +36,18 @@ export interface CourseCardProps {
   index?: number;
   progressPercent?: number;
   targetHref?: string;
+  variant?: "default" | "dark";
+  aspectRatio?: "square" | "video" | "16/10";
 }
 
-export function CourseCard({ course, index = 0, progressPercent, targetHref }: CourseCardProps) {
+export function CourseCard({
+  course,
+  index = 0,
+  progressPercent,
+  targetHref,
+  variant = "default",
+  aspectRatio,
+}: CourseCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isClicked, setIsClicked] = useState(false);
@@ -69,16 +78,48 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
     });
   };
 
+  const isDark = variant === "dark";
+
+  const aspectClass = aspectRatio === "video"
+    ? "aspect-video"
+    : aspectRatio === "16/10"
+    ? "aspect-[16/10]"
+    : aspectRatio === "square"
+    ? "aspect-square"
+    : isDark
+    ? "aspect-[16/10]"
+    : "aspect-square";
+
   return (
     <Link
       href={destination}
       onClick={handleClick}
-      className={`group flex flex-col overflow-hidden rounded-xl border border-gray-200/70 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md h-full relative ${
+      className={`group flex flex-col overflow-hidden rounded-xl transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.01] h-full relative ${
+        isDark
+          ? "border border-indigo-500/30 bg-slate-900/90 backdrop-blur-xl shadow-2xl hover:bg-slate-800/95 hover:border-indigo-400/60 hover:shadow-[0_12px_32px_0_rgba(99,102,241,0.3)]"
+          : "border border-slate-200/80 bg-white/90 backdrop-blur-xs shadow-sm hover:bg-white/75 hover:backdrop-blur-md hover:border-indigo-400/50 hover:shadow-[0_12px_32px_0_rgba(99,102,241,0.18)]"
+      } ${
         isLoading ? "pointer-events-none ring-2 ring-indigo-500/50" : ""
       }`}
     >
+      {/* Glass sheen highlight & reflection animation on hover */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-xl">
+        <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+          isDark
+            ? "bg-gradient-to-tr from-indigo-500/20 via-transparent to-purple-500/20"
+            : "bg-gradient-to-tr from-white/30 via-transparent to-indigo-500/10"
+        }`} />
+        <div className={`absolute -left-full top-0 block h-full w-1/2 -skew-x-12 opacity-0 transition-all duration-1000 ease-out group-hover:left-[150%] group-hover:opacity-100 ${
+          isDark
+            ? "bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            : "bg-gradient-to-r from-transparent via-white/40 to-transparent"
+        }`} />
+      </div>
+
       {/* Thumbnail */}
-      <div className="relative aspect-square w-full overflow-hidden border-b border-gray-100 bg-slate-950 rounded-t-xl">
+      <div className={`relative ${aspectClass} w-full overflow-hidden rounded-t-xl bg-slate-950 ${
+        isDark ? "border-b border-slate-800/80" : "border-b border-gray-100"
+      }`}>
         {/* Favorite Heart Toggle Button */}
         <button
           type="button"
@@ -125,23 +166,33 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
 
       {/* Content */}
       <div className="flex flex-col flex-1 p-3.5">
-        <h3 className="line-clamp-2 min-h-[2.5rem] text-[13px] sm:text-sm font-bold leading-snug text-gray-900 transition-colors group-hover:text-indigo-600">
+        <h3 className={`line-clamp-2 min-h-[2.5rem] text-[13px] sm:text-sm font-bold leading-snug transition-colors ${
+          isDark
+            ? "text-white group-hover:text-indigo-300"
+            : "text-gray-900 group-hover:text-indigo-600"
+        }`}>
           {course.title}
         </h3>
         
         {/* Author / Instructor */}
-        <p className="text-[11px] text-emerald-700 mt-1 font-medium line-clamp-1">
+        <p className={`text-[11px] mt-1 font-medium line-clamp-1 ${
+          isDark ? "text-emerald-400" : "text-emerald-700"
+        }`}>
           {course.author?.name || "VietLearn Academy"}
         </p>
 
         {/* Short Summary */}
-        <p className="line-clamp-2 min-h-[2rem] text-[11px] text-gray-500 mt-1.5 leading-relaxed">
+        <p className={`line-clamp-2 min-h-[2rem] text-[11px] mt-1.5 leading-relaxed ${
+          isDark ? "text-slate-300/90" : "text-gray-500"
+        }`}>
           {course.shortDescription || stripHtml(course.description || "")}
         </p>
 
         {/* Rating Block */}
         <div className="flex items-center gap-1 mt-2.5">
-          <span className="text-[11px] font-bold text-amber-800">{ratingValue}</span>
+          <span className={`text-[11px] font-bold ${isDark ? "text-amber-400" : "text-amber-800"}`}>
+            {ratingValue}
+          </span>
           <div className="flex text-amber-500">
             <Star className="size-3 fill-amber-500" />
             <Star className="size-3 fill-amber-500" />
@@ -149,7 +200,7 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
             <Star className="size-3 fill-amber-500" />
             <StarHalf className="size-3 fill-amber-500" />
           </div>
-          <span className="text-[10px] text-gray-400">
+          <span className={`text-[10px] ${isDark ? "text-slate-400" : "text-gray-400"}`}>
             ({simulatedReviewsCount.toLocaleString()})
           </span>
         </div>
@@ -157,7 +208,9 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
         {/* Pricing Block & Bestseller */}
         <div className="mt-2.5 flex items-baseline justify-between gap-1.5">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-sm sm:text-base font-extrabold text-indigo-600">
+            <span className={`text-sm sm:text-base font-extrabold ${
+              isDark ? "text-indigo-400" : "text-indigo-600"
+            }`}>
               {course.isPaid
                 ? "Đã sở hữu"
                 : course.price === 0
@@ -165,13 +218,19 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
                 : formatVnd(course.price)}
             </span>
             {!course.isPaid && course.price > 0 && (
-              <span className="text-[10px] sm:text-xs text-gray-400 line-through font-normal">
+              <span className={`text-[10px] sm:text-xs line-through font-normal ${
+                isDark ? "text-slate-400" : "text-gray-400"
+              }`}>
                 {formatVnd(originalPrice)}
               </span>
             )}
           </div>
           {studentCount > 0 && (
-            <span className="rounded bg-violet-100 text-violet-700 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
+            <span className={`rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide ${
+              isDark
+                ? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
+                : "bg-violet-100 text-violet-700"
+            }`}>
               Bestseller
             </span>
           )}
@@ -180,11 +239,17 @@ export function CourseCard({ course, index = 0, progressPercent, targetHref }: C
         {/* Optional Progress Bar for Enrolled Courses */}
         {progressPercent !== undefined && (
           <div className="mt-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-semibold">
+            <div className={`flex items-center justify-between text-[10px] font-semibold ${
+              isDark ? "text-slate-400" : "text-slate-500"
+            }`}>
               <span>Tiến độ học tập</span>
-              <span className="text-indigo-600 font-bold">{progressPercent}%</span>
+              <span className={`font-bold ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>
+                {progressPercent}%
+              </span>
             </div>
-            <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+            <div className={`h-1.5 w-full rounded-full overflow-hidden ${
+              isDark ? "bg-slate-800" : "bg-slate-100"
+            }`}>
               <div
                 className="h-full bg-gradient-to-r from-indigo-500 to-violet-600 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}

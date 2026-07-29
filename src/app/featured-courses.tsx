@@ -288,8 +288,8 @@ function CategoryCarousel({ group }: { group: CategoryGroup }) {
 
           {/* Right Action: Carousel Controls + Xem thêm Pill Button */}
           <div className="flex items-center gap-2.5 shrink-0">
-            {/* Desktop Carousel Arrows */}
-            <div className="hidden items-center gap-1.5 sm:flex">
+            {/* Carousel Arrows */}
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => scrollTo("left")}
                 className="flex size-9 items-center justify-center rounded-full border border-gray-200 bg-white/90 text-gray-500 shadow-xs transition-all hover:border-indigo-300 hover:bg-white hover:text-indigo-600 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-30"

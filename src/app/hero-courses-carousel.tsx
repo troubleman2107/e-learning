@@ -104,7 +104,7 @@ export function HeroCoursesCarousel({
       {/* Wrapper with 3D-like perspectives / depth */}
       <div className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-950/60 p-3.5 shadow-2xl backdrop-blur-xl">
         {/* Slides container */}
-        <div className="relative min-h-[450px] sm:min-h-[480px] w-full">
+        <div className="relative min-h-[440px] sm:min-h-[445px] w-full">
           {coursePairs.map((pair, idx) => {
             const isActive = idx === activeIndex;
             return (
@@ -119,11 +119,10 @@ export function HeroCoursesCarousel({
                 {pair.map((course, courseIdx) => (
                   <div
                     key={`${course.id}-${courseIdx}`}
-                    className={`h-full overflow-hidden rounded-xl border border-indigo-500/30 bg-slate-900/90 shadow-2xl backdrop-blur-xl ring-1 ring-white/10 transition-all hover:border-indigo-400/50 [&_a]:border-none [&_a]:bg-transparent [&_h3]:text-white [&_h3]:group-hover:text-indigo-300 [&_p]:text-slate-300/90 [&_.border-gray-200\/70]:border-transparent [&_.border-gray-100\/80]:border-slate-800/60 [&_.border-b]:border-slate-800/80 [&_.text-gray-900]:text-white [&_.text-gray-500]:text-slate-300/90 [&_.bg-white]:bg-transparent ${
-                      courseIdx === 1 ? "hidden sm:block" : ""
-                    }`}
+                    className={`h-full ${courseIdx === 1 ? "hidden sm:block" : ""}`}
                   >
                     <CourseCard
+                      variant="dark"
                       course={{
                         id: course.id,
                         title: course.title,
@@ -148,17 +147,17 @@ export function HeroCoursesCarousel({
 
         {/* Carousel controls & pagination */}
         {coursePairs.length > 1 && (
-          <div className="mt-3.5 flex items-center justify-between px-2">
+          <div className="relative z-20 mt-3.5 flex items-center justify-between px-2">
             {/* Dots */}
-            <div className="flex gap-1.5">
+            <div className="flex items-center gap-1.5">
               {coursePairs.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                     idx === activeIndex
-                      ? "w-6 bg-indigo-500"
-                      : "w-1.5 bg-gray-600 hover:bg-gray-400"
+                      ? "w-7 bg-indigo-500 shadow-sm shadow-indigo-500/50"
+                      : "w-2 bg-slate-600/80 hover:bg-slate-400"
                   }`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
@@ -166,17 +165,17 @@ export function HeroCoursesCarousel({
             </div>
 
             {/* Prev / Next buttons */}
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={prevSlide}
-                className="flex size-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-indigo-600 hover:border-indigo-500 active:scale-95"
+                className="flex size-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-indigo-600 hover:border-indigo-500 active:scale-95 cursor-pointer"
                 aria-label="Previous slide"
               >
                 <ChevronLeft className="size-4" />
               </button>
               <button
                 onClick={nextSlide}
-                className="flex size-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-indigo-600 hover:border-indigo-500 active:scale-95"
+                className="flex size-8 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all hover:bg-indigo-600 hover:border-indigo-500 active:scale-95 cursor-pointer"
                 aria-label="Next slide"
               >
                 <ChevronRight className="size-4" />

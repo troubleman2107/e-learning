@@ -78,7 +78,13 @@ function CourseCard({ course }: { course: SerializedCourse }) {
   };
 
   return (
-    <Card className={`group/course overflow-hidden rounded-2xl border-0 bg-white shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl relative ${isLoading ? 'ring-2 ring-indigo-500/50' : ''}`}>
+    <Card className={`group/course overflow-hidden rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-xs shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:scale-[1.01] hover:bg-white/75 hover:backdrop-blur-md hover:border-indigo-400/50 hover:shadow-[0_12px_32px_0_rgba(99,102,241,0.18)] relative ${isLoading ? 'ring-2 ring-indigo-500/50' : ''}`}>
+      {/* Glass sheen highlight & reflection animation on hover */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden rounded-2xl">
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/30 via-transparent to-indigo-500/10 opacity-0 group-hover/course:opacity-100 transition-opacity duration-500" />
+        <div className="absolute -left-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 transition-all duration-1000 ease-out group-hover/course:left-[150%] group-hover/course:opacity-100" />
+      </div>
+
       {/* Thumbnail area — gradient with decorative pattern */}
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         {isLoading && (
