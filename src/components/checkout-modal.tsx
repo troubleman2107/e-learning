@@ -174,15 +174,15 @@ export function CheckoutModal({
   // ── Expired View ──
   if (isExpired) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
         <div
           className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={onClose}
         />
-        <div className="relative z-10 w-full max-w-[460px] mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+        <div className="relative z-10 w-full max-w-[460px] my-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
           <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
               <h2 className="text-white font-bold text-lg flex items-center gap-2">
                 <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
@@ -198,7 +198,7 @@ export function CheckoutModal({
             </div>
 
             {/* Expired Content */}
-            <div className="flex flex-col items-center px-5 pt-6 pb-8">
+            <div className="flex flex-col items-center px-4 sm:px-5 pt-6 pb-8">
               <div className="mb-5">
                 <XCircle className="h-16 w-16 text-red-500" />
               </div>
@@ -225,7 +225,7 @@ export function CheckoutModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
@@ -233,10 +233,10 @@ export function CheckoutModal({
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-[460px] mx-4 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
-        <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-y-auto max-h-[90vh] scrollbar-hide">
+      <div className="relative z-10 w-full max-w-[460px] my-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+        <div className="rounded-2xl bg-[#1a1a2e] border border-gray-700/50 shadow-2xl shadow-black/40 overflow-y-auto max-h-[calc(100vh-2rem)] sm:max-h-[85vh] scrollbar-hide">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center justify-between px-4 sm:px-5 pt-4 sm:pt-5 pb-3">
             <h2 className="text-white font-bold text-lg flex items-center gap-2">
               <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
@@ -252,7 +252,7 @@ export function CheckoutModal({
           </div>
 
           {/* Product info */}
-          <div className="mx-5 mb-4 rounded-xl bg-[#16213e] border border-gray-600/30 p-4">
+          <div className="mx-4 sm:mx-5 mb-4 rounded-xl bg-[#16213e] border border-gray-600/30 p-3.5 sm:p-4">
             <p className="text-gray-400 text-xs font-medium mb-1">Sản phẩm</p>
             <p className="text-white font-semibold text-sm truncate mb-1.5">
               {courseTitle}
@@ -268,9 +268,9 @@ export function CheckoutModal({
             </div>
           </div>
 
-          {/* QR Code - Large & Centered */}
-          <div className="mx-5 mb-4 flex flex-col items-center gap-2.5">
-            <div className="rounded-2xl bg-white p-3 w-[220px] h-[220px] flex items-center justify-center overflow-hidden shadow-lg shadow-black/20">
+          {/* QR Code - Centered & Responsive */}
+          <div className="mx-4 sm:mx-5 mb-4 flex flex-col items-center gap-2.5">
+            <div className="rounded-2xl bg-white p-2.5 sm:p-3 w-[190px] h-[190px] sm:w-[220px] sm:h-[220px] flex items-center justify-center overflow-hidden shadow-lg shadow-black/20">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={qrUrl}
@@ -300,7 +300,7 @@ export function CheckoutModal({
           </div>
 
           {/* Bank Details - Compact 2-col grid (1-col on mobile) */}
-          <div className="mx-5 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="mx-4 sm:mx-5 mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <BankDetailRow label="Ngân hàng" value={bankName} />
             <BankDetailRow
               label="Số tài khoản"
@@ -323,7 +323,7 @@ export function CheckoutModal({
           </div>
 
           {/* Transfer Content */}
-          <div className="mx-5 mb-4 rounded-xl bg-[#16213e] border border-gray-600/30 p-4">
+          <div className="mx-4 sm:mx-5 mb-4 rounded-xl bg-[#16213e] border border-gray-600/30 p-3.5 sm:p-4">
             <p className="text-gray-400 text-xs font-medium mb-1.5">
               Nội dung chuyển khoản
             </p>
@@ -345,7 +345,7 @@ export function CheckoutModal({
           </div>
 
           {/* Instructions */}
-          <div className="mx-5 mb-3 text-center">
+          <div className="mx-4 sm:mx-5 mb-3 text-center">
             <p className="text-gray-400 text-xs leading-relaxed">
               Nhập <strong className="text-gray-200">ĐÚNG</strong> nội dung
               chuyển khoản để được xác nhận tự động.
@@ -353,7 +353,7 @@ export function CheckoutModal({
           </div>
 
           {/* Auto-confirmation banner */}
-          <div className="mx-5 mb-4">
+          <div className="mx-4 sm:mx-5 mb-4">
             <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-2.5 text-center flex items-center justify-center gap-2.5">
               <span className="relative flex h-2.5 w-2.5 shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -366,7 +366,7 @@ export function CheckoutModal({
           </div>
 
           {/* Support link */}
-          <div className="mx-5 mb-5 text-center">
+          <div className="mx-4 sm:mx-5 mb-5 text-center">
             <p className="text-gray-500 text-xs">
               Nếu đã chuyển tiền nhưng chưa được xác nhận sau 5 phút, vui lòng liên hệ{" "}
               <a href="#" className="text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors">
