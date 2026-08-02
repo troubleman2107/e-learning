@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { deleteBunnyVideoEntry } from "@/app/actions/bunny";
+import { deleteBunnyVideoEntry, getBunnyVideoDuration } from "@/app/actions/bunny";
 
 export async function createModule(courseId: string, title: string) {
   const session = await auth();
@@ -41,7 +41,7 @@ export async function createLessons({
   lessons: Array<{
     title: string;
     bunnyVideoId: string;
-    isFreePreview: boolean;
+    isFreePreview?: boolean;
   }>;
 }) {
   const session = await auth();
@@ -65,19 +65,24 @@ export async function createLessons({
 
   const startOrder = lastLesson ? lastLesson.order + 1 : 1;
 
-  await prisma.$transaction(
-    validLessons.map((l, index) =>
-      prisma.lesson.create({
-        data: {
-          title: l.title.trim(),
-          bunnyVideoId: l.bunnyVideoId.trim(),
-          isFreePreview: Boolean(l.isFreePreview),
-          moduleId,
-          order: startOrder + index,
-        },
-      })
-    )
+  const lessonsData = await Promise.all(
+    validLessons.map(async (l, index) => {
+      const vId = l.bunnyVideoId.trim();
+      const duration = vId ? await getBunnyVideoDuration(vId) : 0;
+      return {
+        title: l.title.trim(),
+        bunnyVideoId: vId,
+        isFreePreview: Boolean(l.isFreePreview),
+        duration,
+        moduleId,
+        order: startOrder + index,
+      };
+    })
   );
+
+  await prisma.lesson.createMany({
+    data: lessonsData,
+  });
 
   revalidatePath(`/admin/courses/${courseId}`);
 }
@@ -127,20 +132,24 @@ export async function updateLesson({
     select: { bunnyVideoId: true },
   });
 
+  const vId = bunnyVideoId?.trim() || "";
   if (
     existingLesson?.bunnyVideoId &&
-    bunnyVideoId &&
-    existingLesson.bunnyVideoId !== bunnyVideoId
+    vId &&
+    existingLesson.bunnyVideoId !== vId
   ) {
     await deleteBunnyVideoEntry(existingLesson.bunnyVideoId);
   }
+
+  const duration = vId ? await getBunnyVideoDuration(vId) : 0;
 
   await prisma.lesson.update({
     where: { id: lessonId },
     data: {
       title,
-      bunnyVideoId,
+      bunnyVideoId: vId,
       isFreePreview,
+      ...(duration > 0 ? { duration } : {}),
     },
   });
 

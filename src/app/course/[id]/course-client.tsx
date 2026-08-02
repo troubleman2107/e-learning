@@ -166,34 +166,32 @@ const getCourseThumbnail = (course: any) => {
   return "/course-docker.png";
 };
 
-const getLessonDuration = (lessonId: string) => {
-  let hash = 0;
-  for (let i = 0; i < lessonId.length; i++) {
-    hash = lessonId.charCodeAt(i) + ((hash << 5) - hash);
+const getLessonDurationInSeconds = (lesson: any) => {
+  if (typeof lesson?.duration === "number" && lesson.duration > 0) return lesson.duration;
+  if (typeof lesson?.durationSeconds === "number" && lesson.durationSeconds > 0) return lesson.durationSeconds;
+  return 0;
+};
+
+const formatDurationFromSeconds = (totalSeconds: number) => {
+  if (!totalSeconds || totalSeconds <= 0) return "0m";
+  const totalMins = Math.round(totalSeconds / 60);
+  if (totalMins >= 60) {
+    const hrs = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
   }
-  const mins = Math.abs(hash % 15) + 3; // 3 to 17 mins
-  return mins;
+  return `${totalMins}m`;
 };
 
 const getModuleDurationStr = (lessons: any[]) => {
-  const totalMins = lessons.reduce((sum, l) => sum + getLessonDuration(l.id), 0);
-  if (totalMins >= 60) {
-    const hrs = Math.floor(totalMins / 60);
-    const mins = totalMins % 60;
-    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
-  }
-  return `${totalMins}min`;
+  const totalSecs = (lessons || []).reduce((sum, l) => sum + getLessonDurationInSeconds(l), 0);
+  return formatDurationFromSeconds(totalSecs);
 };
 
 const getCourseDurationStr = (modules: any[]) => {
-  const allLessons = modules.flatMap((m) => m.lessons);
-  const totalMins = allLessons.reduce((sum, l) => sum + getLessonDuration(l.id), 0);
-  if (totalMins >= 60) {
-    const hrs = Math.floor(totalMins / 60);
-    const mins = totalMins % 60;
-    return mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
-  }
-  return `${totalMins}min`;
+  const allLessons = (modules || []).flatMap((m) => m.lessons || []);
+  const totalSecs = allLessons.reduce((sum, l) => sum + getLessonDurationInSeconds(l), 0);
+  return formatDurationFromSeconds(totalSecs);
 };
 
 const getLearningPoints = (categorySlug: string, title: string) => {
@@ -729,7 +727,9 @@ export function CourseClient({
                             {module.lessons.map((lesson: any) => {
                               const isLocked = !lesson.isFreePreview && !hasPurchased;
                               const isActive = currentLessonId === lesson.id;
-                              const duration = getLessonDuration(lesson.id);
+                              const lessonSecs = getLessonDurationInSeconds(lesson);
+                              const mins = Math.floor(lessonSecs / 60);
+                              const secs = lessonSecs % 60;
 
                               return (
                                 <button
@@ -763,7 +763,7 @@ export function CourseClient({
                                       </span>
                                     )}
                                     <span className="text-xs text-gray-400 font-medium tabular-nums">
-                                      {duration}:{String(Math.abs((duration * 7) % 60)).padStart(2, '0')}
+                                      {mins}:{String(secs).padStart(2, '0')}
                                     </span>
                                   </div>
                                 </button>

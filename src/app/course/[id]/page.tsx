@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { CourseClient } from "./course-client";
+import { getBunnyCollectionVideoDurations } from "@/app/actions/bunny";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,7 +16,7 @@ type CoursePageProps = {
 };
 
 const getCourse = cache(async (id: string) => {
-  return prisma.course.findUnique({
+  const course = await prisma.course.findUnique({
     where: { id },
     include: {
       category: true,
@@ -30,6 +31,42 @@ const getCourse = cache(async (id: string) => {
       },
     },
   });
+
+  if (!course) return null;
+
+  // Sync lesson video durations from Bunny Stream API if missing or 0
+  const missingDurations = course.modules
+    .flatMap((m) => m.lessons)
+    .filter((l) => (!l.duration || l.duration === 0) && l.bunnyVideoId);
+
+  if (missingDurations.length > 0) {
+    try {
+      const bunnyDurations = await getBunnyCollectionVideoDurations(
+        course.bunnyCollectionId || undefined
+      );
+
+      for (const module of course.modules) {
+        for (const lesson of module.lessons) {
+          if ((!lesson.duration || lesson.duration === 0) && lesson.bunnyVideoId) {
+            const fetchedSecs = bunnyDurations[lesson.bunnyVideoId];
+            if (fetchedSecs && fetchedSecs > 0) {
+              lesson.duration = fetchedSecs;
+              prisma.lesson
+                .update({
+                  where: { id: lesson.id },
+                  data: { duration: fetchedSecs },
+                })
+                .catch(() => {});
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[getCourse] Failed to sync Bunny durations:", err);
+    }
+  }
+
+  return course;
 });
 
 export async function generateMetadata({

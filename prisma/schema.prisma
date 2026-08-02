@@ -132,6 +132,7 @@ model Lesson {
   bunnyVideoId  String?
   isFreePreview Boolean @default(false)
   order         Int
+  duration      Int     @default(0)
   moduleId      String
 
   module        Module  @relation(fields: [moduleId], references: [id], onDelete: Cascade)
